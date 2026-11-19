@@ -9,7 +9,7 @@ export function AnnouncementBar() {
         <p className="text-[var(--km-ink-soft)]">
           <span className="font-medium text-[var(--km-ink)]">Under bygging</span>
           {" — "}Lanseres i{" "}
-          <span className="font-medium text-[var(--km-ink)]">september 2026</span>.
+          <span className="font-medium text-[var(--km-ink)]">desember 2026</span>.
         </p>
       </div>
     </div>
