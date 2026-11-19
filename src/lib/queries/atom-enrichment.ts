@@ -427,12 +427,66 @@ function buildCareerAtomFields(
  * Karriereontologi v4: `career_atoms` er eneste måltabell for brukeratomer.
  * Target-side atoms stay schema-ready; application is deferred (review-only in UI).
  */
+/**
+ * Kompetanseforslag fra karrieremateriale peker på resultatforslag
+ * (`evidence_proposal_ids`). Ved godkjenning oversettes de til atomene
+ * resultatforslagene faktisk ble til — bare godkjente, egne forslag teller.
+ */
+async function resolveEvidenceProposalAtoms(
+  userId: string,
+  payload: Record<string, unknown>,
+): Promise<string[]> {
+  const proposalIds = strArrayField(payload, "evidence_proposal_ids");
+  if (proposalIds.length === 0) return [];
+  const { data, error } = await supabase
+    .from("atom_enrichment_proposals")
+    .select("id, status, applied_atom_id")
+    .eq("user_id", userId)
+    .in("id", proposalIds);
+  if (error) throw error;
+  const rows = (data ?? []) as Array<{ id: string; status: string; applied_atom_id: string | null }>;
+  return rows
+    .filter((r) => r.status === "approved" && typeof r.applied_atom_id === "string")
+    .map((r) => r.applied_atom_id as string);
+}
+
+/** Maks lengde for brukerredigert innhold før godkjenning. */
+export const PROPOSAL_EDIT_MAX = 400;
+
 async function applyApprovedUserAtomProposal(
   userId: string,
   row: AtomEnrichmentProposalRow,
-): Promise<void> {
-  const payload = asRecord(row.proposal_payload);
+  opts?: { editedContent?: string | null },
+): Promise<string | null> {
+  const payload = { ...asRecord(row.proposal_payload) };
   const action = row.proposal_action;
+
+  const edited = opts?.editedContent?.trim() || null;
+  if (edited) {
+    if (action !== "create_atom" || row.target_atom_type !== "career_atom") {
+      throw new Error("Bare nye profiloppføringer kan redigeres før godkjenning.");
+    }
+    if (edited.length < 2 || edited.length > PROPOSAL_EDIT_MAX) {
+      throw new Error(`Teksten må være mellom 2 og ${PROPOSAL_EDIT_MAX} tegn.`);
+    }
+    payload["content_no"] = edited;
+    payload["structured_data"] = {
+      ...asRecord(payload["structured_data"] as Json),
+      user_edited: true,
+    };
+  }
+
+  if (strArrayField(payload, "evidence_proposal_ids").length > 0) {
+    const resolved = await resolveEvidenceProposalAtoms(userId, payload);
+    if (resolved.length === 0) {
+      throw new Error(
+        "Godkjenn først resultatet denne kompetansen bygger på. Kompetanser kan bare lagres med et konkret resultat som grunnlag.",
+      );
+    }
+    payload["evidence_atom_ids"] = Array.from(
+      new Set([...strArrayField(payload, "evidence_atom_ids"), ...resolved]),
+    );
+  }
 
   if (
     row.target_atom_type === "user_preference_atom" ||
@@ -446,12 +500,16 @@ async function applyApprovedUserAtomProposal(
   if (row.target_atom_type === "career_atom") {
     if (action === "create_atom") {
       const fields = buildCareerAtomFields(payload, row);
-      const { error } = await supabase.from("career_atoms").insert({
-        user_id: userId,
-        ...fields,
-      } as TablesInsert<"career_atoms">);
+      const { data: inserted, error } = await supabase
+        .from("career_atoms")
+        .insert({
+          user_id: userId,
+          ...fields,
+        } as TablesInsert<"career_atoms">)
+        .select("id")
+        .single();
       if (error) throw error;
-      return;
+      return inserted?.id ?? null;
     }
     if (action === "update_atom") {
       const tid = row.target_atom_id;
@@ -476,7 +534,7 @@ async function applyApprovedUserAtomProposal(
         .eq("id", tid)
         .eq("user_id", userId);
       if (error) throw error;
-      return;
+      return null;
     }
     if (action === "deactivate_atom") {
       const tid = row.target_atom_id;
@@ -488,7 +546,7 @@ async function applyApprovedUserAtomProposal(
         .eq("id", tid)
         .eq("user_id", userId);
       if (error) throw error;
-      return;
+      return null;
     }
   }
 
@@ -547,7 +605,7 @@ export function readableProposalError(e: unknown): Error {
 export async function approveAtomEnrichmentProposal(
   userId: string,
   proposalId: string,
-  opts?: { reviewerComment?: string },
+  opts?: { reviewerComment?: string; editedContent?: string | null },
 ): Promise<void> {
   try {
     const { data: row, error: fetchErr } = await supabase
@@ -563,9 +621,14 @@ export async function approveAtomEnrichmentProposal(
     }
 
     const typed = row as AtomEnrichmentProposalRow;
+    let appliedAtomId: string | null = null;
     if (proposalApprovalWritesAtoms(typed)) {
-      await applyApprovedUserAtomProposal(userId, typed);
+      appliedAtomId = await applyApprovedUserAtomProposal(userId, typed, {
+        editedContent: opts?.editedContent ?? null,
+      });
     }
+    const editedContent = opts?.editedContent?.trim() || null;
+    const originalContent = strField(asRecord(typed.proposal_payload), "content_no");
 
     const now = new Date().toISOString();
     const { data: updated, error: upErr } = await supabase
@@ -575,6 +638,16 @@ export async function approveAtomEnrichmentProposal(
         reviewed_at: now,
         reviewed_by: userId,
         reviewer_comment: opts?.reviewerComment?.trim() || null,
+        ...(appliedAtomId ? { applied_atom_id: appliedAtomId } : {}),
+        ...(editedContent && editedContent !== originalContent
+          ? {
+              diff: {
+                edited_by_user: true,
+                original_content_no: originalContent,
+                content_no: editedContent,
+              } as Json,
+            }
+          : {}),
       })
       .eq("id", proposalId)
       .eq("user_id", userId)

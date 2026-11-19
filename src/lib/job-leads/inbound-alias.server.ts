@@ -58,6 +58,18 @@ export type EnsureAliasResult =
   | { ok: false; reason: string };
 
 /**
+ * Inbound alias kinds. Routing is decided ONLY by which alias received the
+ * message: `forwarding` → job-lead import, `career_material` → career archive.
+ * Content and sender never decide the route.
+ */
+export type InboundAliasMode = "forwarding" | "career_material";
+
+const ALIAS_LABELS: Record<InboundAliasMode, string> = {
+  forwarding: "Videresendte jobb-e-poster",
+  career_material: "Videresendte karrierenotater",
+};
+
+/**
  * Returns the user's forwarding alias, creating it when missing. Concurrency
  * and token collisions are resolved by the database's unique indexes.
  */
@@ -66,11 +78,21 @@ export async function ensureForwardingAlias(
   userId: string,
   attempts = 5,
 ): Promise<EnsureAliasResult> {
+  return ensureInboundAlias(admin, userId, "forwarding", attempts);
+}
+
+/** Same invariants as {@link ensureForwardingAlias}, for any alias kind. */
+export async function ensureInboundAlias(
+  admin: AliasClient,
+  userId: string,
+  mode: InboundAliasMode,
+  attempts = 5,
+): Promise<EnsureAliasResult> {
   const existing = await admin
     .from("email_job_sources")
     .select("inbound_alias_token")
     .eq("user_id", userId)
-    .eq("intake_mode", "forwarding")
+    .eq("intake_mode", mode)
     .maybeSingle();
 
   const current = existing.data?.inbound_alias_token;
@@ -82,11 +104,11 @@ export async function ensureForwardingAlias(
       .from("email_job_sources")
       .insert({
         user_id: userId,
-        intake_mode: "forwarding",
+        intake_mode: mode,
         source_system: "other",
         inbound_alias_token: token,
         is_active: true,
-        label: "Videresendte jobb-e-poster",
+        label: ALIAS_LABELS[mode],
       })
       .select("inbound_alias_token")
       .single();
@@ -102,7 +124,7 @@ export async function ensureForwardingAlias(
       .from("email_job_sources")
       .select("inbound_alias_token")
       .eq("user_id", userId)
-      .eq("intake_mode", "forwarding")
+      .eq("intake_mode", mode)
       .maybeSingle();
     const token2 = raced.data?.inbound_alias_token;
     if (typeof token2 === "string" && token2) return { ok: true, token: token2, created: false };

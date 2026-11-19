@@ -49,7 +49,90 @@ export function getProposalConfidenceLabel(confidence: number | null | undefined
   return "Trygghet: lavere — vurder ekstra nøye eller be om mer kontekst.";
 }
 
+
+/** Forslag fra innsendt karrieremateriale (innlimt tekst eller videresendt e-post). */
+export function isCareerMaterialProposal(p: AtomEnrichmentProposalRow): boolean {
+  return p.source_type === "career_material";
+}
+
+/** Ordrett utdrag fra kildedokumentet forslaget bygger på. */
+export function getProposalSourceQuote(p: AtomEnrichmentProposalRow): string | null {
+  const q = str(asRecord(p.proposal_payload), "source_quote");
+  return q && q.trim() ? q.trim() : null;
+}
+
+/** Kildedokumentet (arkivert original) for forslag fra karrieremateriale. */
+export function getProposalSourceDocumentId(p: AtomEnrichmentProposalRow): string | null {
+  if (!isCareerMaterialProposal(p)) return null;
+  return p.source_record_id ?? null;
+}
+
+/** True når forslaget kan redigeres før godkjenning (ny profiloppføring). */
+export function isProposalEditable(p: AtomEnrichmentProposalRow): boolean {
+  return (
+    isCareerMaterialProposal(p) &&
+    p.proposal_action === "create_atom" &&
+    p.target_atom_type === "career_atom"
+  );
+}
+
+function careerMaterialCopy(
+  p: AtomEnrichmentProposalRow,
+): { title: string; summary: string; why: string; impact: string } | null {
+  if (!isCareerMaterialProposal(p)) return null;
+  const pay = asRecord(p.proposal_payload);
+  const content = str(pay, "content_no") ?? "";
+  const atomType = str(pay, "atom_type");
+  const kind = str(pay, "suggestion_kind");
+  const sd = asRecord(pay["structured_data"] as Json);
+  const basis = str(sd, "basis");
+  const metrics = Array.isArray(sd["metrics"]) ? (sd["metrics"] as Array<Record<string, unknown>>) : [];
+  const why = p.rationale?.trim() || "Hentet fra materiale du har sendt inn.";
+  if (p.proposal_action === "create_atom" && atomType === "achievement") {
+    const metricText =
+      metrics.length > 0
+        ? ` Måltall fra teksten: ${metrics.map((m) => String(m["value"] ?? "")).filter(Boolean).join(", ")}.`
+        : " Ingen måltall står i teksten, så ingen er lagt til.";
+    return {
+      title: `Resultat: ${content}`,
+      summary:
+        (basis === "tredjepartsutsagn"
+          ? `En annen person beskriver dette om deg: «${content}».`
+          : `«${content}»`) + metricText,
+      why,
+      impact:
+        "Resultatet legges inn i karriereprofilen din med kobling til originaldokumentet og tekstutdraget. Du kan redigere teksten før du godkjenner.",
+    };
+  }
+  if (p.proposal_action === "create_atom" && atomType === "skill") {
+    return {
+      title: `Kompetanse: ${content}`,
+      summary: `«${content}», vist gjennom et resultat i samme tekst.`,
+      why,
+      impact:
+        "Kompetansen legges inn koblet til resultatet den bygger på. Godkjenn resultatet først — uten det kan kompetansen ikke lagres.",
+    };
+  }
+  const label =
+    kind === "rollekrav" || kind === "ansvar"
+      ? "Fra stillingsinstruks"
+      : kind === "kompetanse_fra_tredjepart"
+        ? "Nevnt av en annen person"
+        : "Kompetanse uten konkret resultat";
+  return {
+    title: `${label}: ${content}`,
+    summary: p.explanation?.trim() || `«${content}»`,
+    why,
+    impact:
+      "Ingenting lagres i profilen din. Dette er et hint om hva du kan dokumentere med en konkret prestasjon.",
+  };
+}
+
 export function getProposalSourceLabel(p: AtomEnrichmentProposalRow): string {
+  if (isCareerMaterialProposal(p)) {
+    const title = str(asRecord(p.proposal_payload), "source_document_title");
+    return title ? `Karrieremateriale: «${title}»` : "Karrieremateriale du har sendt inn";
+  }
   if (p.source_type === "dev_seed") return "Testforslag (kun for utvikling)";
   if (p.source_type === "deterministic_module_5_1")
     return "Basert på profilen din (regelbasert forslag)";
@@ -133,6 +216,8 @@ export function getProposalActionLabel(p: AtomEnrichmentProposalRow): string {
 }
 
 export function getProposalTitle(p: AtomEnrichmentProposalRow): string {
+  const cm = careerMaterialCopy(p);
+  if (cm) return cm.title;
   if (isDevSeedProposal(p)) {
     const pay = asRecord(p.proposal_payload);
     const label = str(pay, "label");
@@ -188,6 +273,8 @@ export function getProposalTitle(p: AtomEnrichmentProposalRow): string {
 }
 
 export function getProposalSummary(p: AtomEnrichmentProposalRow): string {
+  const cm = careerMaterialCopy(p);
+  if (cm) return cm.summary;
   if (isDevSeedProposal(p)) {
     return "Dette er et kunstig eksempel for utviklere. Det brukes for å verifisere skjema og tilganger — ikke ekte brukerdata.";
   }
@@ -256,6 +343,8 @@ export function getProposalSummary(p: AtomEnrichmentProposalRow): string {
 }
 
 export function getProposalImpactText(p: AtomEnrichmentProposalRow): string {
+  const cm = careerMaterialCopy(p);
+  if (cm) return cm.impact;
   const pay = asRecord(p.proposal_payload);
   const label = str(pay, "label");
   const dim = str(pay, "dimension");
@@ -299,6 +388,8 @@ export function getProposalImpactText(p: AtomEnrichmentProposalRow): string {
 }
 
 export function getProposalWhySuggested(p: AtomEnrichmentProposalRow): string {
+  const cm = careerMaterialCopy(p);
+  if (cm) return cm.why;
   const summary = getProposalSummary(p);
   const rationale = p.rationale?.trim();
   if (

@@ -88,6 +88,9 @@ function DocumentDetail() {
   }
 
   const d = docQ.data;
+  // Karrieremateriale: originalen er låst (også i databasen) for sporbarhet.
+  const isCareerMaterial =
+    typeof d.source_context === "string" && d.source_context.startsWith("career_material_");
 
   const save = (field: string) => async (v: string) => {
     const { error } = await (supabase.from("documents") as any).update({ [field]: v || null }).eq("id", id);
@@ -149,11 +152,28 @@ function DocumentDetail() {
               <div className="text-xs text-muted-foreground truncate">Fil: {d.file_name}</div>
             )}
             <AutoSaveInput label="Tittel" value={d.title} onSave={save("title")} />
-            <AutoSaveInput label="Selskap" value={(d as any).company_name} onSave={save("company_name")} />
-            <AutoSaveInput label="Tilpasset for" value={d.tailored_for} onSave={save("tailored_for")} />
-            <AutoSaveTextarea label="Notater om tilpasning" value={d.customization_notes} onSave={save("customization_notes")} rows={3} />
+            {isCareerMaterial ? (
+              <div className="rounded-md bg-muted/60 p-3 text-xs text-muted-foreground space-y-1">
+                <p className="font-medium text-foreground">Karrieremateriale</p>
+                <p>
+                  {d.source_context === "career_material_email" ? "Mottatt på e-post." : "Limt inn av deg."}{" "}
+                  Originalen kan ikke endres, slik at forslag alltid kan spores tilbake hit.
+                </p>
+                <Link to="/kilder" className="underline underline-offset-2 hover:text-foreground">
+                  Se analysestatus under Kilder
+                </Link>
+              </div>
+            ) : (
+              <>
+                <AutoSaveInput label="Selskap" value={(d as any).company_name} onSave={save("company_name")} />
+                <AutoSaveInput label="Tilpasset for" value={d.tailored_for} onSave={save("tailored_for")} />
+                <AutoSaveTextarea label="Notater om tilpasning" value={d.customization_notes} onSave={save("customization_notes")} rows={3} />
+              </>
+            )}
             <div className="flex flex-col gap-2 pt-2">
-              <Button size="sm" variant="outline" onClick={newVersion}><Copy className="h-4 w-4 mr-2" /> Ny versjon</Button>
+              {!isCareerMaterial && (
+                <Button size="sm" variant="outline" onClick={newVersion}><Copy className="h-4 w-4 mr-2" /> Ny versjon</Button>
+              )}
               <Button size="sm" variant="outline" onClick={download}><Download className="h-4 w-4 mr-2" /> {d.file_path ? "Last ned fil" : "Last ned .txt"}</Button>
               {!d.is_base_version && base && (
                 <Button size="sm" variant="outline" onClick={() => setShowDiff((v) => !v)}>
@@ -179,6 +199,10 @@ function DocumentDetail() {
                     {part.value}
                   </span>
                 ))}
+              </pre>
+            ) : isCareerMaterial ? (
+              <pre className="whitespace-pre-wrap font-sans text-sm rounded-md bg-muted p-3 max-h-[600px] overflow-auto">
+                {d.content_text}
               </pre>
             ) : (
               <AutoSaveTextarea value={d.content_text} onSave={save("content_text")} rows={24} />

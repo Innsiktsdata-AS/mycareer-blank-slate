@@ -18,6 +18,7 @@ import {
   verifyResendWebhook,
 } from "@/lib/job-leads/resend-webhook.server";
 import { fetchReceivedEmail } from "@/lib/job-leads/resend-receiving.server";
+import { ingestCareerMaterialEmail } from "@/lib/career-material/inbound.server";
 
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
@@ -241,6 +242,40 @@ export const Route = createFileRoute("/api/public/inbound/job-email")({
         }
 
         const full = fetched.email;
+
+        // 9a. Routing is decided by the alias kind alone. A `career_material`
+        // alias archives the original privately for career analysis and NEVER
+        // creates a job lead; every other alias keeps the job-lead pipeline.
+        if (source.intake_mode === "career_material") {
+          const career = await ingestCareerMaterialEmail(supabaseAdmin as never, {
+            userId: source.user_id,
+            deliveryId,
+            email: full,
+          });
+          if (!career.ok) {
+            await finalizeInboundDelivery(supabaseAdmin as never, {
+              deliveryId,
+              claimToken,
+              outcome: career.kind === "retryable" ? "ingest_failed" : "parse_failed",
+              rejectReason: career.reason,
+            });
+            return finalize("rejected", career.kind === "retryable" ? 500 : 422, {
+              error: career.reason,
+              retryable: career.kind === "retryable",
+            });
+          }
+          await finalizeInboundDelivery(supabaseAdmin as never, {
+            deliveryId,
+            claimToken,
+            outcome: "accepted",
+          });
+          return finalize("accepted", 200, {
+            ok: true,
+            provider: INBOUND_PROVIDER,
+            route: "career_material",
+            duplicate: career.duplicate,
+          });
+        }
         const rawText = full.text;
         const rawHtml = full.html;
         const emailInput: EmailInput = {

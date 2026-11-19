@@ -437,6 +437,7 @@ export type Database = {
       }
       atom_enrichment_proposals: {
         Row: {
+          applied_atom_id: string | null
           batch_id: string
           confidence: number | null
           created_at: string
@@ -470,6 +471,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          applied_atom_id?: string | null
           batch_id: string
           confidence?: number | null
           created_at?: string
@@ -503,6 +505,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          applied_atom_id?: string | null
           batch_id?: string
           confidence?: number | null
           created_at?: string
@@ -536,6 +539,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "atom_enrichment_proposals_applied_atom_id_fkey"
+            columns: ["applied_atom_id"]
+            isOneToOne: false
+            referencedRelation: "career_atoms"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "atom_enrichment_proposals_batch_id_fkey"
             columns: ["batch_id"]
@@ -1148,6 +1158,124 @@ export type Database = {
             columns: ["ai_integration_id"]
             isOneToOne: false
             referencedRelation: "ai_integrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      career_material_intakes: {
+        Row: {
+          ai_confidence: number | null
+          ai_rationale: string | null
+          ai_type: string | null
+          analysis_signature: string | null
+          attachments: Json
+          attempt_count: number
+          batch_id: string | null
+          channel: string
+          claim_token: string | null
+          content_sha256: string
+          created_at: string
+          declared_type: string | null
+          document_id: string
+          effective_type: string | null
+          error_code: string | null
+          id: string
+          inbound_delivery_id: string | null
+          items_dropped: number
+          last_attempt_at: string | null
+          lease_expires_at: string | null
+          processed_at: string | null
+          proposals_created: number
+          proposals_reused: number
+          retryable: boolean | null
+          status: string
+          truncated: boolean
+          updated_at: string
+          user_id: string
+          user_type: string | null
+        }
+        Insert: {
+          ai_confidence?: number | null
+          ai_rationale?: string | null
+          ai_type?: string | null
+          analysis_signature?: string | null
+          attachments?: Json
+          attempt_count?: number
+          batch_id?: string | null
+          channel: string
+          claim_token?: string | null
+          content_sha256: string
+          created_at?: string
+          declared_type?: string | null
+          document_id: string
+          effective_type?: string | null
+          error_code?: string | null
+          id?: string
+          inbound_delivery_id?: string | null
+          items_dropped?: number
+          last_attempt_at?: string | null
+          lease_expires_at?: string | null
+          processed_at?: string | null
+          proposals_created?: number
+          proposals_reused?: number
+          retryable?: boolean | null
+          status?: string
+          truncated?: boolean
+          updated_at?: string
+          user_id: string
+          user_type?: string | null
+        }
+        Update: {
+          ai_confidence?: number | null
+          ai_rationale?: string | null
+          ai_type?: string | null
+          analysis_signature?: string | null
+          attachments?: Json
+          attempt_count?: number
+          batch_id?: string | null
+          channel?: string
+          claim_token?: string | null
+          content_sha256?: string
+          created_at?: string
+          declared_type?: string | null
+          document_id?: string
+          effective_type?: string | null
+          error_code?: string | null
+          id?: string
+          inbound_delivery_id?: string | null
+          items_dropped?: number
+          last_attempt_at?: string | null
+          lease_expires_at?: string | null
+          processed_at?: string | null
+          proposals_created?: number
+          proposals_reused?: number
+          retryable?: boolean | null
+          status?: string
+          truncated?: boolean
+          updated_at?: string
+          user_id?: string
+          user_type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "career_material_intakes_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "atom_enrichment_batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "career_material_intakes_document_owner_fkey"
+            columns: ["document_id", "user_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id", "user_id"]
+          },
+          {
+            foreignKeyName: "career_material_intakes_inbound_delivery_id_fkey"
+            columns: ["inbound_delivery_id"]
+            isOneToOne: true
+            referencedRelation: "inbound_email_deliveries"
             referencedColumns: ["id"]
           },
         ]
@@ -10384,6 +10512,74 @@ export type Database = {
       career_atom_promote_parse_candidate: {
         Args: { p_atom: Json; p_candidate_id: string }
         Returns: Json
+      }
+      career_material_claim: {
+        Args: {
+          p_force?: boolean
+          p_intake_id: string
+          p_lease_seconds?: number
+          p_user_id: string
+        }
+        Returns: {
+          attempt_number: number
+          claim_token: string
+          status: string
+        }[]
+      }
+      career_material_create: {
+        Args: {
+          p_attachments?: Json
+          p_channel: string
+          p_content_sha256: string
+          p_declared_type?: string
+          p_inbound_delivery_id?: string
+          p_text: string
+          p_title: string
+          p_truncated?: boolean
+          p_user_id: string
+        }
+        Returns: {
+          document_id: string
+          intake_id: string
+          status: string
+        }[]
+      }
+      career_material_fail: {
+        Args: {
+          p_claim_token: string
+          p_error_code: string
+          p_intake_id: string
+          p_retryable: boolean
+          p_user_id: string
+        }
+        Returns: string
+      }
+      career_material_set_type: {
+        Args: { p_intake_id: string; p_type: string; p_user_id: string }
+        Returns: string
+      }
+      career_material_store_analysis: {
+        Args: {
+          p_ai_confidence: number
+          p_ai_rationale: string
+          p_ai_type: string
+          p_claim_token: string
+          p_effective_type: string
+          p_input_signature: string
+          p_intake_id: string
+          p_items: Json
+          p_items_dropped?: number
+          p_normalizer_version: string
+          p_prompt_version: string
+          p_user_id: string
+        }
+        Returns: {
+          batch_id: string
+          created_count: number
+          reused_count: number
+          status: string
+          superseded_count: number
+        }[]
       }
       careerjet_canonical_has_visible: {
         Args: { p_canonical: string }

@@ -117,7 +117,7 @@ export const allDocumentsQuery = () =>
 
 /** Columns needed by `/_authenticated/documents/$id` (avoid `select('*')`). */
 const DOCUMENT_DETAIL_SELECT =
-  "id, title, document_type, content_text, application_id, is_base_version, tailored_for, version, file_path, file_name, customization_notes, company_name";
+  "id, title, document_type, content_text, application_id, is_base_version, tailored_for, version, file_path, file_name, customization_notes, company_name, source_context";
 
 export const documentByIdQuery = (id: string) => {
   const trimmed = typeof id === "string" ? id.trim() : "";

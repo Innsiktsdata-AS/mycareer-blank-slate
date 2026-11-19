@@ -12,7 +12,8 @@ import { useAuth } from "@/lib/auth-context";
 import { useProfileOverviewData } from "@/lib/queries/profile-overview";
 import { AboutMeCvSection } from "@/components/cv-upload/about-me-section";
 import { LinkedInImportCard } from "@/components/linkedin/linkedin-import-card";
-import { FileText, Linkedin, GraduationCap, BookOpen, Layers, Building2, Info } from "lucide-react";
+import { CareerMaterialCard } from "@/components/career-material/career-material-card";
+import { FileText, Linkedin, GraduationCap, BookOpen, Layers, Info } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/kilder")({
   head: () => ({
@@ -136,12 +137,7 @@ function KilderPage() {
           </CardContent>
         </Card>
 
-        <SourceCard
-          icon={Building2}
-          title="Arbeidsgiverdokumenter"
-          description="Medarbeidersamtaler, 1-til-1, KSO, OKR, salgsmål, prosjektbeskrivelser, kvartalsmål og årsbudsjett — med oppnådd resultat og dokumentasjon."
-          status="Kommer"
-        />
+        <CareerMaterialCard />
 
         <Card>
           <CardHeader className="pb-2">

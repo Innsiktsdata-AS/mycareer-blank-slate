@@ -3,7 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { ChevronDown, ClipboardList, Loader2 } from "lucide-react";
+import { ChevronDown, ClipboardList, Loader2, Pencil } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import {
   approveAtomEnrichmentProposal,
@@ -17,6 +17,7 @@ import {
   insertLocalDevSamplePendingProposal,
   invalidateAtomEnrichmentQueries,
   markAtomEnrichmentProposalNeedsContext,
+  PROPOSAL_EDIT_MAX,
   pendingAtomEnrichmentProposalsQuery,
   proposalApprovalWritesAtoms,
   rejectAtomEnrichmentProposal,
@@ -28,7 +29,9 @@ import { invalidateUserAtomQueries } from "@/lib/queries/career-atoms";
 import {
   getProposalConfidenceLabel,
   getProposalImpactText,
+  getProposalSourceDocumentId,
   getProposalSourceLabel,
+  getProposalSourceQuote,
   getProposalStatusLabel,
   getProposalSummary,
   getProposalTechnicalMetaLines,
@@ -36,6 +39,7 @@ import {
   getProposalTitle,
   getProposalWhySuggested,
   isDevSeedProposal,
+  isProposalEditable,
 } from "@/lib/atom-review-proposal-copy";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -78,7 +82,7 @@ function ProposalCard(props: {
   showCheckbox: boolean;
   selected: boolean;
   onToggleSelected: (id: string, checked: boolean) => void;
-  onApprove: () => void;
+  onApprove: (editedContent?: string | null) => void;
   onNeeds?: () => void;
   onReject: () => void;
   onReopen?: () => void;
@@ -105,6 +109,15 @@ function ProposalCard(props: {
   ) : null;
 
   const showActions = mode === "pending" || mode === "needs";
+  const sourceQuote = getProposalSourceQuote(p);
+  const sourceDocumentId = getProposalSourceDocumentId(p);
+  const editable = showActions && isProposalEditable(p);
+  const originalContent =
+    typeof (p.proposal_payload as Record<string, unknown> | null)?.["content_no"] === "string"
+      ? String((p.proposal_payload as Record<string, unknown>)["content_no"])
+      : "";
+  const [editing, setEditing] = useState(false);
+  const [editText, setEditText] = useState(originalContent);
 
   return (
     <div className="rounded-lg border bg-card/50 p-4 space-y-4">
@@ -153,10 +166,31 @@ function ProposalCard(props: {
         </div>
       </div>
 
+      {sourceQuote && (
+        <blockquote className="border-l-2 border-primary/40 pl-3 text-sm italic text-muted-foreground">
+          <span className="not-italic text-xs font-medium uppercase tracking-wide block mb-1">
+            Tekstutdrag fra kilden
+          </span>
+          «{sourceQuote}»
+        </blockquote>
+      )}
+
       <div className="text-xs text-muted-foreground space-y-1 border-t border-border/60 pt-3">
         <p>
           <span className="font-medium text-foreground">Kilde: </span>
           {getProposalSourceLabel(p)}
+          {sourceDocumentId && (
+            <>
+              {" "}
+              <Link
+                to="/documents/$id"
+                params={{ id: sourceDocumentId }}
+                className="underline underline-offset-2 hover:text-foreground"
+              >
+                Åpne originalen
+              </Link>
+            </>
+          )}
         </p>
         <p>
           <span className="font-medium text-foreground">Opprettet: </span>
@@ -199,6 +233,38 @@ function ProposalCard(props: {
 
       {showActions && (
         <>
+          {editable && (
+            <div className="space-y-2">
+              {editing ? (
+                <>
+                  <Label htmlFor={`e-${p.id}`} className="text-xs">
+                    Rediger teksten før du godkjenner
+                  </Label>
+                  <Textarea
+                    id={`e-${p.id}`}
+                    rows={3}
+                    maxLength={PROPOSAL_EDIT_MAX}
+                    className="text-sm"
+                    value={editText}
+                    onChange={(e) => setEditText(e.target.value)}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Det er din tekst som lagres. Tekstutdraget fra kilden beholdes som grunnlag.
+                  </p>
+                </>
+              ) : (
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  disabled={busy}
+                  onClick={() => setEditing(true)}
+                >
+                  <Pencil className="mr-1.5 h-3.5 w-3.5" aria-hidden /> Rediger før godkjenning
+                </Button>
+              )}
+            </div>
+          )}
           <div className="space-y-2">
             <Label htmlFor={`c-${p.id}`} className="text-xs">
               Kommentar til beslutning (valgfritt)
@@ -214,8 +280,15 @@ function ProposalCard(props: {
           </div>
           <Separator />
           <div className="flex flex-wrap gap-2">
-            <Button type="button" size="sm" disabled={busy} onClick={onApprove}>
-              Godkjenn
+            <Button
+              type="button"
+              size="sm"
+              disabled={busy || (editing && editText.trim().length < 2)}
+              onClick={() =>
+                onApprove(editing && editText.trim() !== originalContent ? editText.trim() : null)
+              }
+            >
+              {editing && editText.trim() !== originalContent ? "Godkjenn redigert" : "Godkjenn"}
             </Button>
             {mode === "pending" && onNeeds && (
               <Button type="button" size="sm" variant="outline" disabled={busy} onClick={onNeeds}>
@@ -307,10 +380,13 @@ export function AtomReviewPage() {
   }, [tab]);
 
   const approveM = useMutation({
-    mutationFn: async (p: AtomEnrichmentProposalRow) => {
-      await approveAtomEnrichmentProposal(uid, p.id, { reviewerComment: commentFor(p.id) });
+    mutationFn: async (input: { p: AtomEnrichmentProposalRow; editedContent?: string | null }) => {
+      await approveAtomEnrichmentProposal(uid, input.p.id, {
+        reviewerComment: commentFor(input.p.id),
+        editedContent: input.editedContent ?? null,
+      });
     },
-    onSuccess: (_void, p) => {
+    onSuccess: (_void, { p }) => {
       toast.success(
         proposalApprovalWritesAtoms(p)
           ? "Forslag godkjent og lagt inn i karriereprofilen."
@@ -752,7 +828,7 @@ export function AtomReviewPage() {
                         showCheckbox={showCb}
                         selected={selected.has(p.id)}
                         onToggleSelected={toggleSelected}
-                        onApprove={() => approveM.mutate(p)}
+                        onApprove={(editedContent) => approveM.mutate({ p, editedContent })}
                         onNeeds={t === "pending" ? () => needsM.mutate(p) : undefined}
                         onReject={() => rejectM.mutate(p)}
                         onReopen={t === "needs_more_context" ? () => reopenM.mutate(p) : undefined}
