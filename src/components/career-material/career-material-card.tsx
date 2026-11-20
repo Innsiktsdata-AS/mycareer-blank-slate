@@ -43,6 +43,9 @@ import {
   ATTACHMENT_STATUS_LABELS,
   CAREER_MATERIAL_STATUS_LABELS,
   OWN_MATERIAL_TYPES,
+  RECOGNIZED_KIND_GUIDES,
+  USER_NOTE_MAX,
+  isRecognizedKind,
   attachmentHint,
   INTAKE_MAX_AUTO_ATTEMPTS,
   CAREER_MATERIAL_TYPES,
@@ -64,6 +67,7 @@ import {
   getCareerNotesAddress,
   processCareerMaterial,
   setCareerMaterialType,
+  setCareerMaterialArchived,
   submitCareerMaterialPaste,
 } from "@/lib/career-material/career-material.functions";
 import {
@@ -76,6 +80,7 @@ import {
   type CareerMaterialIntakeView,
 } from "@/lib/queries/career-material";
 import { fmtDateTime } from "@/lib/format";
+import { ARCHIVE_VCARD_FILENAME, buildArchiveVcard } from "@/lib/career-material/vcard";
 
 const SELECT_BASE =
   "rounded-md border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring";
@@ -94,6 +99,7 @@ export function CareerMaterialCard() {
   const submitFn = useServerFn(submitCareerMaterialPaste);
   const processFn = useServerFn(processCareerMaterial);
   const setTypeFn = useServerFn(setCareerMaterialType);
+  const archiveFn = useServerFn(setCareerMaterialArchived);
   const getAddressFn = useServerFn(getCareerNotesAddress);
   const createAddressFn = useServerFn(createCareerNotesAddress);
   const deleteFn = useServerFn(deleteCareerMaterial);
@@ -180,6 +186,18 @@ export function CareerMaterialCard() {
       if (res.status === "ok") processM.mutate({ intakeId: input.intakeId, force: true });
       else if (res.status === "in_progress") toast.message("Analysen pågår allerede.");
       else toast.error("Kunne ikke endre dokumenttype.");
+    },
+    onSettled: refresh,
+  });
+
+  const archiveM = useMutation({
+    mutationFn: (input: { intakeId: string; archived: boolean; note?: string }) =>
+      archiveFn({ data: input }),
+    onSuccess: (res, input) => {
+      if (res.status === "ok")
+        toast.success(input.archived ? "Beholdt i arkivet." : "Kilden krever handling igjen.");
+      else if (res.status === "in_progress") toast.message("Analysen pågår. Prøv igjen straks.");
+      else toast.error("Kunne ikke oppdatere kilden.");
     },
     onSettled: refresh,
   });
@@ -377,6 +395,10 @@ export function CareerMaterialCard() {
                     deleting={deleteM.isPending && deleteM.variables?.intakeId === r.id}
                     onProcess={(force) => processM.mutate({ intakeId: r.id, force })}
                     onSetType={(type) => setTypeM.mutate({ intakeId: r.id, type })}
+                    archiving={archiveM.isPending && archiveM.variables?.intakeId === r.id}
+                    onArchive={(archived, note) =>
+                      archiveM.mutate({ intakeId: r.id, archived, ...(note ? { note } : {}) })
+                    }
                     onDelete={(removeApprovedAtoms) =>
                       deleteM.mutate({ intakeId: r.id, removeApprovedAtoms })
                     }
@@ -392,6 +414,22 @@ export function CareerMaterialCard() {
       </CardContent>
     </Card>
   );
+}
+
+function downloadArchiveVcard(address: string) {
+  const card = buildArchiveVcard(address);
+  if (!card) {
+    toast.error("Kunne ikke lage kontaktkortet.");
+    return;
+  }
+  const url = URL.createObjectURL(new Blob([card], { type: "text/vcard;charset=utf-8" }));
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = ARCHIVE_VCARD_FILENAME;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 function EmailAddressSection(props: {
@@ -437,6 +475,9 @@ function EmailAddressSection(props: {
               }
             >
               <Copy className="mr-1.5 h-3.5 w-3.5" aria-hidden /> Kopier
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => downloadArchiveVcard(address)}>
+              Last ned kontaktkort
             </Button>
           </div>
           <p className="text-xs text-muted-foreground">
@@ -556,8 +597,14 @@ function IntakeRow(props: {
   onProcess: (force: boolean) => void;
   onSetType: (type: CareerMaterialType) => void;
   onDelete: (removeApprovedAtoms: boolean) => void;
+  archiving: boolean;
+  onArchive: (archived: boolean, note?: string) => void;
 }) {
-  const { r, busy, deleting, onProcess, onSetType, onDelete } = props;
+  const { r, busy, deleting, onProcess, onSetType, onDelete, archiving, onArchive } = props;
+  const [note, setNote] = useState(r.userNote ?? "");
+  const archived = Boolean(r.archivedAt);
+  const recognized = isRecognizedKind(r.aiRecognizedKind) ? r.aiRecognizedKind : null;
+  const guide = recognized ? RECOGNIZED_KIND_GUIDES[recognized] : null;
   const [typeChoice, setTypeChoice] = useState<string>(r.effectiveType ?? r.aiType ?? "");
   const [confirmType, setConfirmType] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -605,11 +652,11 @@ function IntakeRow(props: {
         </div>
         <Badge variant={statusVariant} className="shrink-0">
           {processing && <Loader2 className="mr-1 h-3 w-3 animate-spin" aria-hidden />}
-          {
-            CAREER_MATERIAL_STATUS_LABELS[
-              processing ? "processing" : r.status === "processing" ? "queued" : r.status
-            ]
-          }
+          {archived
+            ? "Arkivert"
+            : CAREER_MATERIAL_STATUS_LABELS[
+                processing ? "processing" : r.status === "processing" ? "queued" : r.status
+              ]}
         </Badge>
       </div>
 
@@ -658,13 +705,68 @@ function IntakeRow(props: {
               : ""}
           </p>
         )}
-        {r.status === "needs_type" && (
+        {r.status === "needs_type" && !archived && !guide && (
           <p className="text-foreground">
-            KI var usikker på hva slags dokument dette er. Velg type, så lager vi forslag.
+            KI var usikker på hva slags dokument dette er. Velg en type som passer, eller behold
+            dokumentet i arkivet. Du trenger ikke velge en type som ikke stemmer.
           </p>
         )}
       </div>
 
+      {r.status === "needs_type" && !archived && guide && (
+        <div className="rounded-md border border-dashed p-2 text-xs space-y-1">
+          <p className="text-foreground">
+            <span className="font-medium">KI-forslag:</span> dette ser ut som{" "}
+            <span className="font-medium">{guide.label.toLowerCase()}</span>. Det er ikke en type
+            som gir forslag her.
+          </p>
+          <p className="text-muted-foreground">{guide.explanation}</p>
+          {guide.link && (
+            <Link to={guide.link.to} className="text-primary underline underline-offset-2">
+              {guide.link.label}
+            </Link>
+          )}
+        </div>
+      )}
+
+      {(r.status === "needs_type" || r.status === "failed") && !archived && (
+        <div className="space-y-1.5">
+          <Label htmlFor={`note-${r.id}`} className="text-xs">
+            Egen beskrivelse (valgfritt, f.eks. «Annet: lønnsslipp 2024»)
+          </Label>
+          <div className="flex flex-wrap gap-2">
+            <Input
+              id={`note-${r.id}`}
+              value={note}
+              maxLength={USER_NOTE_MAX}
+              onChange={(e) => setNote(e.target.value)}
+              className="h-8 max-w-sm text-xs"
+            />
+            <Button
+              size="sm"
+              variant="secondary"
+              disabled={archiving}
+              onClick={() => onArchive(true, note.trim() || undefined)}
+            >
+              {archiving && <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" aria-hidden />}
+              Behold i arkivet
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {archived && (
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded-md bg-muted/50 p-2 text-xs">
+          <p className="text-muted-foreground">
+            Bare arkivert — krever ingen handling.
+            {r.userNote ? ` Beskrivelse: ${r.userNote}` : ""} Du kan når som helst velge type og
+            behandle den videre.
+          </p>
+          <Button size="sm" variant="ghost" disabled={archiving} onClick={() => onArchive(false)}>
+            Angre arkivering
+          </Button>
+        </div>
+      )}
       {r.approved.length > 0 && (
         <div className="rounded-md bg-muted/50 p-2 text-xs space-y-1">
           <p className="font-medium text-foreground">

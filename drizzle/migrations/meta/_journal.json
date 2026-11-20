@@ -29,6 +29,13 @@
       "when": 1795170836058,
       "tag": "0003_lock_survey_inserts_and_employer_reports",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1795175238206,
+      "tag": "0004_career_material_archive_and_recognized_kind",
+      "breakpoints": true
     }
   ]
 }

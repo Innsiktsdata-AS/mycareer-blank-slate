@@ -1291,8 +1291,10 @@ export type Database = {
         Row: {
           ai_confidence: number | null
           ai_rationale: string | null
+          ai_recognized_kind: string | null
           ai_type: string | null
           analysis_signature: string | null
+          archived_at: string | null
           attachments: Json
           attempt_count: number
           batch_id: string | null
@@ -1317,13 +1319,16 @@ export type Database = {
           truncated: boolean
           updated_at: string
           user_id: string
+          user_note: string | null
           user_type: string | null
         }
         Insert: {
           ai_confidence?: number | null
           ai_rationale?: string | null
+          ai_recognized_kind?: string | null
           ai_type?: string | null
           analysis_signature?: string | null
+          archived_at?: string | null
           attachments?: Json
           attempt_count?: number
           batch_id?: string | null
@@ -1348,13 +1353,16 @@ export type Database = {
           truncated?: boolean
           updated_at?: string
           user_id: string
+          user_note?: string | null
           user_type?: string | null
         }
         Update: {
           ai_confidence?: number | null
           ai_rationale?: string | null
+          ai_recognized_kind?: string | null
           ai_type?: string | null
           analysis_signature?: string | null
+          archived_at?: string | null
           attachments?: Json
           attempt_count?: number
           batch_id?: string | null
@@ -1379,6 +1387,7 @@ export type Database = {
           truncated?: boolean
           updated_at?: string
           user_id?: string
+          user_note?: string | null
           user_type?: string | null
         }
         Relationships: [
@@ -10787,6 +10796,24 @@ export type Database = {
           queued: number
           registered: number
         }[]
+      }
+      career_material_set_archived: {
+        Args: {
+          p_archived: boolean
+          p_intake_id: string
+          p_note: string
+          p_user_id: string
+        }
+        Returns: string
+      }
+      career_material_set_recognized_kind: {
+        Args: {
+          p_claim_token: string
+          p_intake_id: string
+          p_kind: string
+          p_user_id: string
+        }
+        Returns: string
       }
       career_material_set_type: {
         Args: { p_intake_id: string; p_type: string; p_user_id: string }

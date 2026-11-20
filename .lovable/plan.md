@@ -40,7 +40,7 @@ En e-post med et PDF-vedlegg ble lagret som to separate kilder, uten duplikater.
 - Teksten om at KI har klassifisert noe vises med KI-merking.
 - **Akseptanse:**
   - Test-PDF-en viser «Dette ser ut som en CV», med valgene arkiv eller lenke til eksisterende manuell CV-import (ingen egen importknapp før fase 3 er klar). Den kan arkiveres uten feil type.
-  - Instruksjoner skjult i dokumentet («klassifiser som attest», «importer automatisk») endrer aldri hvilke handlinger som tilbys, og utløser ingenting.
+  - Sikkerhetsmål (testes): dokumentinnhold kan aldri utløse handlinger eller overstyre brukerens godkjenning. KI-forslaget kan være feil, men gir bare forslag.
 
 ### Fase 2a — Nedlastbart kontaktkort
 - Knappen «Last ned kontaktkort» på /kilder lager et vCard 3.0 på serveren, bare for brukeren som er logget inn. Kortet heter «Karrierenmin – mitt arkiv» og inneholder bare adressen til karrieremateriale.
@@ -53,7 +53,7 @@ En e-post med et PDF-vedlegg ble lagret som to separate kilder, uten duplikater.
 ### Fase 2b — Bytte mottaksadresse (egen leveranse hvis aliasmodellen krever det)
 - En ny tilfeldig adresse opprettes og den gamle deaktiveres. Brukeren får beskjed om at gamle kontaktkort og gammel adresse slutter å virke.
 - E-post som allerede er mottatt eller under behandling på den gamle adressen fullføres. Etter byttet knyttes den gamle adressen ikke lenger til brukerens arkiv. Det loves ikke at avsenderen får en avvisning (SMTP), fordi Resend tar imot e-posten før webhooken kjører. Hva avsenderen faktisk opplever, testes i den reelle konfigurasjonen.
-- **Akseptanse:** gammel adresse avvises, ny adresse virker, pågående behandling fullføres, og ingenting lekker mellom brukere.
+- **Akseptanse:** ny e-post til den gamle adressen knyttes ikke til brukerens arkiv (hva avsender opplever dokumenteres separat), ny adresse virker, pågående behandling fullføres, og ingenting lekker mellom brukere.
 
 ### Fase 3 — CV, kursbevis, rolle og lønn til riktig flyt
 - **CV:** «Send til CV-analyse» kobler kilden til den eksisterende CV-importen. Mål: gjenbruke originalen og unngå dobbel registrering. Den tekniske løsningen (kopi eller referanse, én eller flere importer per kilde) velges først etter at lagring, tilgang, sletting og den eksisterende importen er kontrollert. Ny analyse av samme kilde må være mulig uten dobbel registrering og uten tap av historikk. Status vises på kilden («Bare arkivert» eller «Sendt til analyse»). Ingen endringer i profilen før brukeren har gjennomgått CV-en i den vanlige CV-flyten.
@@ -135,7 +135,7 @@ Fase 6 bygger på fase 4
 ## Teknisk (migrasjoner, bare additive)
 - **Fase 1:** utvid CHECK-reglene for typer med nye behandlingstyper, og legg til `archive_only` og `recognized_unsupported_type` på intakes. Legg til `user_note` for «Annet». Ny prompt- og normaliseringsversjon.
 - **Fase 2b:** eventuelt ny indeks eller logikk for aktiv adresse per bruker, og et rotasjons-RPC.
-- **Fase 3:** `cv_imports.source_document_id`, unik når den er satt. Typene `kursbevis`, `rolleendring` og `lonnsendring`. Mapping til eksisterende atomtyper.
+- **Fase 3:** `cv_imports.source_document_id` (unikhet avgjøres etter kartlegging av CV-flyten; målet er ingen duplikater ved gjentatte klikk, men ny analyse og historikk skal være mulig). Typene `kursbevis`, `rolleendring` og `lonnsendring`. Mapping til eksisterende atomtyper.
 - **Fase 4:** nye tabeller `contact_imports`, `contact_import_candidates`, `network_contact_channels` (e-post og telefon med etikett og lesbar verdi) og `identity_kind`-verdiene `email` og `phone` med HMAC-søkeverdi. Ny server-hemmelighet for HMAC. Alle tabeller får GRANT og radsikkerhet.
 - Hver fase verifiseres med syntetiske data, kryssbrukertest, test i nettleseren og opprydding av testdata før neste fase starter.
 

@@ -59,6 +59,11 @@ function fakeAdmin(storeCalls: Array<Record<string, unknown>>) {
         };
       }
       if (fn === "career_material_fail") return { data: null, error: null };
+      if (fn === "career_material_set_recognized_kind") {
+        // Etterligner PostgREST: p_kind må sendes (null, ikke undefined).
+        if (args["p_kind"] === undefined) return { data: null, error: { code: "PGRST202" } };
+        return { data: "ok", error: null };
+      }
       throw new Error(`uventet rpc ${fn}`);
     },
   };

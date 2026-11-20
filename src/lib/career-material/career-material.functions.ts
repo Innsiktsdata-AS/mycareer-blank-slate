@@ -15,6 +15,7 @@ import {
   PASTE_TEXT_MIN,
   PASTE_TITLE_MAX,
   PASTE_TITLE_MIN,
+  USER_NOTE_MAX,
 } from "./contract";
 
 const pasteSchema = z.object({
@@ -103,6 +104,37 @@ export const setCareerMaterialType = createServerFn({ method: "POST" })
       p_user_id: context.userId,
       p_type: data.type,
     });
+    if (error) return { status: "error" as const };
+    return { status: (status ?? "error") as "ok" | "in_progress" | "not_found" | "error" };
+  });
+
+const archiveSchema = z.object({
+  intakeId: z.string().uuid(),
+  archived: z.boolean(),
+  note: z.string().trim().max(USER_NOTE_MAX).optional(),
+});
+
+/**
+ * Merker en kilde som «bare arkivert» (krever ingen handling), eller angrer.
+ * Reversibelt: kilden kan senere få en type og behandles videre.
+ */
+export const setCareerMaterialArchived = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => archiveSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    const { data: own } = await context.supabase
+      .from("career_material_intakes")
+      .select("id")
+      .eq("id", data.intakeId)
+      .maybeSingle();
+    if (!own) return { status: "not_found" as const };
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: status, error } = await supabaseAdmin.rpc("career_material_set_archived", {
+      p_intake_id: data.intakeId,
+      p_user_id: context.userId,
+      p_archived: data.archived,
+      p_note: data.note && data.note.length > 0 ? data.note : null,
+    } as never);
     if (error) return { status: "error" as const };
     return { status: (status ?? "error") as "ok" | "in_progress" | "not_found" | "error" };
   });

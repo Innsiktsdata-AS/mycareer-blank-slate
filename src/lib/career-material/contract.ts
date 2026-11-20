@@ -38,6 +38,74 @@ export const CAREER_MATERIAL_TYPE_HINTS: Record<CareerMaterialType, string> = {
   prestasjon: "En konkret prestasjon du har oppnådd. Gir forslag til resultater og kompetanser.",
 };
 
+/**
+ * Hva KI mener et dokument ser ut til å være når det ikke passer en støttet
+ * behandlingstype. Dette er bare et forslag: det utløser aldri en handling.
+ */
+export const RECOGNIZED_KINDS = [
+  "cv",
+  "kontaktliste",
+  "kursbevis",
+  "rolleendring",
+  "lonnsendring",
+  "faktura",
+  "annet",
+] as const;
+export type RecognizedKind = (typeof RECOGNIZED_KINDS)[number];
+
+export function isRecognizedKind(v: unknown): v is RecognizedKind {
+  return typeof v === "string" && (RECOGNIZED_KINDS as readonly string[]).includes(v);
+}
+
+export type RecognizedKindGuide = {
+  label: string;
+  /** Norsk forklaring av hvorfor typen ikke behandles her. */
+  explanation: string;
+  /** Relevant eksisterende funksjon i appen, om den finnes. */
+  link?: { to: "/onboarding" | "/nettverk/kontakter"; label: string };
+};
+
+export const RECOGNIZED_KIND_GUIDES: Record<RecognizedKind, RecognizedKindGuide> = {
+  cv: {
+    label: "CV",
+    explanation:
+      "CV-er behandles i CV-importen, ikke her. Du kan beholde dokumentet i arkivet, eller laste opp CV-en manuelt i CV-importen.",
+    link: { to: "/onboarding", label: "Gå til CV-import" },
+  },
+  kontaktliste: {
+    label: "Kontaktliste",
+    explanation:
+      "Kontakter kan ikke importeres fra karrierearkivet ennå. Du kan beholde dokumentet i arkivet.",
+    link: { to: "/nettverk/kontakter", label: "Gå til kontakter" },
+  },
+  kursbevis: {
+    label: "Kursbevis / sertifikat",
+    explanation:
+      "Kursbevis og sertifikater får egen behandling senere. Inntil videre kan du beholde dokumentet i arkivet.",
+  },
+  rolleendring: {
+    label: "Endret rolle",
+    explanation:
+      "Rolleendringer får egen behandling senere. Inntil videre kan du beholde dokumentet i arkivet.",
+  },
+  lonnsendring: {
+    label: "Lønnsendring",
+    explanation:
+      "Lønnsopplysninger behandles ikke. Dokumentet kan beholdes privat i arkivet; ingenting kopieres til profilen.",
+  },
+  faktura: {
+    label: "Faktura / kvittering",
+    explanation: "Dette ser ikke ut som karrieremateriale. Du kan beholde det i arkivet eller slette det.",
+  },
+  annet: {
+    label: "Annet",
+    explanation:
+      "Dokumentet passer ingen av typene som gir forslag. Du kan beholde det i arkivet med en egen beskrivelse.",
+  },
+};
+
+export const USER_NOTE_MAX = 300;
+
 export function isCareerMaterialType(v: unknown): v is CareerMaterialType {
   return typeof v === "string" && (CAREER_MATERIAL_TYPES as readonly string[]).includes(v);
 }

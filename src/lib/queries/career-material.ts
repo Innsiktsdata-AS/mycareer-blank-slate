@@ -18,6 +18,9 @@ export type CareerMaterialIntakeView = {
   aiType: string | null;
   aiConfidence: number | null;
   aiRationale: string | null;
+  aiRecognizedKind: string | null;
+  archivedAt: string | null;
+  userNote: string | null;
   userType: string | null;
   effectiveType: string | null;
   errorCode: string | null;
@@ -48,6 +51,9 @@ type IntakeRow = {
   ai_type: string | null;
   ai_confidence: number | null;
   ai_rationale: string | null;
+  ai_recognized_kind: string | null;
+  archived_at: string | null;
+  user_note: string | null;
   user_type: string | null;
   effective_type: string | null;
   error_code: string | null;
@@ -78,7 +84,7 @@ export const careerMaterialIntakesQuery = (userId: string) =>
       const { data: intakes, error } = await supabase
         .from("career_material_intakes")
         .select(
-          "id, document_id, channel, status, declared_type, ai_type, ai_confidence, ai_rationale, user_type, effective_type, error_code, retryable, attempt_count, proposals_created, proposals_reused, items_dropped, truncated, attachments, created_at, processed_at, lease_expires_at",
+          "id, document_id, channel, status, declared_type, ai_type, ai_confidence, ai_rationale, ai_recognized_kind, archived_at, user_note, user_type, effective_type, error_code, retryable, attempt_count, proposals_created, proposals_reused, items_dropped, truncated, attachments, created_at, processed_at, lease_expires_at",
         )
         .order("created_at", { ascending: false })
         .limit(30);
@@ -157,6 +163,9 @@ export const careerMaterialIntakesQuery = (userId: string) =>
           aiType: r.ai_type,
           aiConfidence: r.ai_confidence == null ? null : Number(r.ai_confidence),
           aiRationale: r.ai_rationale,
+          aiRecognizedKind: r.ai_recognized_kind,
+          archivedAt: r.archived_at,
+          userNote: r.user_note,
           userType: r.user_type,
           effectiveType: r.effective_type,
           errorCode: r.error_code,

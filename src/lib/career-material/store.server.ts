@@ -288,6 +288,18 @@ export async function processCareerMaterialIntake(
     });
     const { items } = dropCoveredByApproved(built, approvedList);
 
+    // Gjenkjent type er bare et forslag til brukeren; settes under samme lease.
+    const { error: kindErr } = await admin.rpc("career_material_set_recognized_kind", {
+      p_intake_id: input.intakeId,
+      p_user_id: input.userId,
+      p_claim_token: token,
+      p_kind: analysis.recognizedKind ?? null,
+    } as never);
+    if (kindErr) {
+      console.error("[career-material] recognized kind failed", kindErr.code ?? "unknown");
+      return await fail("store_failed", true);
+    }
+
     const { data: storeRows, error: storeErr } = await admin.rpc("career_material_store_analysis", {
       p_intake_id: input.intakeId,
       p_user_id: input.userId,
