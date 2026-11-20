@@ -1,146 +1,92 @@
-# Flere inntakstyper, kontaktkort og kontaktimport — oppdatert plan
+# Revisjon: karrieremateriale og dokumentasjon — funn og reparasjonsplan
 
-Dette er en plan. Ingenting implementeres eller publiseres før den er godkjent. Kartleggingen leste bare kode, skjema og tellinger, ikke privat innhold.
+Revisjonen var bare lesende. Ingen kode, database, data eller hemmeligheter er endret, og ingenting er publisert. Privat innhold er ikke lest. Produksjonsbevis er bare tellinger og strukturinformasjon.
 
-## Utgangspunkt: produksjonstesten
-En e-post med et PDF-vedlegg ble lagret som to separate kilder, uten duplikater. PDF-en ble lest, men ble klassifisert som «ukjent» fordi CV ikke er en type inntaksmotoren støtter. Den står nå uten noen vei videre. Denne PDF-en brukes som gjennomgående eksempel og som akseptansetest i fase 1 og 3.
+## 1. Hvorfor sertifikat, kursbevis og CV mangler i typevelgeren
+- Typevelgeren på /kilder viser bare `CAREER_MATERIAL_TYPES`. Det er fem typer: stillingsinstruks, prosjektnotat, medarbeidersamtale, attest og prestasjon (`src/lib/career-material/contract.ts:9–15`, `career-material-card.tsx:289–300, 798–807`).
+- Serveren håndhever det samme. Innliming godtar bare disse typene (`career-material.functions.ts:21–29`), og databasen har tilsvarende regler på `career_material_intakes`.
+- CV, kursbevis og sertifikat, rolle, lønn, faktura og «annet» finnes bare som *gjenkjent* type (`RECOGNIZED_KINDS`, contract.ts:41–84). De kan arkiveres, men gir ingen behandling. Dette var et bevisst valg i fase 1. Selve behandlingen hører til fase 3, som ikke er bygget.
 
-## Bekreftet i dagens løsning, og hva som må undersøkes
+## 2. Hva som er implementert og publisert
+| Del | I koden | Publisert |
+|---|---|---|
+| Innliming, e-post, vedlegg (PDF/DOCX), bakgrunnsarbeider | Ja | Ja (produksjonstest 20.11) |
+| Rettelser for lagring ved usikker type og Resend-vedlegg | Ja | Ja |
+| Fase 1 (gjenkjent type, arkivering) og 2a (kontaktkort), commit `691c23cb` | Ja | Nei. Siste publisering var før denne endringen, og teksten ble ikke funnet i det publiserte nettstedet. |
+| Fase 2b–6 | Nei | Nei |
 
-**Bekreftet:**
-- Det finnes fem inntakstyper pluss «ukjent». Typene er låst i både koden og databasen.
-- Karriere-atomer har allerede typene `certification`, `course` og `role`, med gyldighetsdatoer (`valid_from` og `valid_to`). Det finnes egne spørringer for kvalifikasjoner (`credential-atoms`).
-- Regelen «kompetanse krever godkjent resultat» gjelder bare ferdigheter. Den gjelder ikke sertifiseringer eller kurs.
-- CV-importen (`cv_imports`) har filsti og status, men ingen kobling til et kildedokument.
-- Mottaksadressen ligger på `email_job_sources` (`inbound_alias_token`, `is_active`, `intake_mode`).
-- Kontakter har bare manuelle felt for e-post og telefon i klartekst (én verdi hver). Identiteter lagres som hash pluss et forhåndsvisningsutdrag, og den eneste identitetstypen i dag er LinkedIn-URL.
-- Avstemmingen har allerede valgene opprett, flett, manuell og hopp over.
-- Ingen eksisterende kobling kan lese Google Kontakter. Det finnes en Outlook-kobling per bruker, men det er ikke bekreftet at den har tilgang til kontakter. iCloud har ingen åpen kontaktinnlogging.
+**Produksjonsbevis (bare tellinger):**
+- 2 inntak, begge uten gjenkjent type og uten arkivering.
+- 0 forslag fra karrieremateriale.
+- 0 profilelementer laget fra karrieremateriale.
 
-**Må undersøkes før eller under fasen:**
-- Om én bruker kan ha flere aliaser (unik indeks), og om en deaktivert adresse avvises før eller etter at e-posten er tatt imot (fase 2b).
-- Hvordan CV-importen lager og låser kandidater, så en kobling til dokumentet ikke gir dobbel import (fase 3).
-- Om det finnes lønnshistorikk i profilen. I dag finnes «lønn» bare i målrettings- og konfliktlogikk (fase 3).
+Hele kjeden fra kilde til profil er altså aldri kjørt i produksjon.
 
-## Ruting (presisert)
-- **Adressenivå:** aliasets modus avgjør alltid om e-posten er et jobbvarsel eller karrieremateriale. Innholdet påvirker aldri dette skillet.
-- **Innenfor karrieremateriale:** KI kan foreslå en type. Brukeren kan alltid overstyre. Alt som går videre (CV-import, kontaktregister, kvalifikasjoner, rolle og lønn) krever brukerens bekreftelse. KI-forslaget alene utløser aldri noe.
+## 3. Kjeden fra kilde til profil
+1. **Inntak:** innliming, e-post og vedlegg går alle via `createCareerMaterial` og `career_material_create`. Originalen låses i `documents` (`store.server.ts:53–90`, `inbound.server.ts`, `worker.server.ts:207–255`).
+2. **Klassifisering:** `analysis.server.ts` finner prestasjoner, ferdigheter og ansvar med ordrett utdrag. Det finnes ingen datofelt i KI-svaret (`analysis.server.ts:130–156`).
+3. **Forslag** (`buildCareerMaterialProposals`, analysis.server.ts:373–532):
+   - Typen `achievement` og typen `skill` (med kobling til en prestasjon) lages bare for eget materiale og attest.
+   - Ellers lages bare hint.
+   - Utfallet er alltid `confidence: "inferred"`, `source_type: "career_material"` og `source_ref` lik dokument-ID.
+4. **Godkjenning:** `approveAtomEnrichmentProposal` og `applyApprovedUserAtomProposal` (`src/lib/queries/atom-enrichment.ts:497–637`) kjører fra nettleseren. Først lages profilelementet, så merkes forslaget som godkjent, i to separate skrivinger uten felles transaksjon. Svikter den andre, kan det bli et element uten godkjent forslag.
+5. **Dato:**
+   - Ingen hendelsesdato settes (`valid_from` og `valid_to` er tomme).
+   - Godkjenningen sender ikke datofelt videre (atom-enrichment.ts:401–415).
+   - `created_at` er godkjenningstidspunktet.
+   - Det finnes ingen kode som dikter opp en hendelsesdato. Risikoen er at andre deler av appen kan lese `created_at` som om det var hendelsesdatoen.
+6. **Kildekobling:** profilelementet beholder dokument-ID og utdrag. `source_record_id` finnes bare på forslaget.
+7. **Status «dokumentert»:** settes aldri i denne kjeden. Det finnes ingen databaseregel på `career_atoms` som setter `attestation`; de fire reglene som finnes er sjekket.
 
-## Faser i prioritert rekkefølge
+## 4. Kobling til en kvalifikasjon som allerede finnes
+- **Finnes ikke automatisk.** `dropCoveredByApproved` sammenligner bare med forslag fra *samme* dokument.
+- `career_atom_link_suggest` krever to kjente element-ID-er.
+- **En fil kan dokumentere en eksisterende registrering bare manuelt:** på /documentation under Kvalifikasjoner, via `uploadCredentialDocument` (`credential-atoms.ts:115–175`). Den lagrer et dokument med `atom_ids: [id]` og legger filen i `structured_data.dokumentasjon`. Den setter ikke `attestation`.
 
-### Fase 1 — Ukjente og ikke-støttede typer, manuelt valg
-- Det skilles mellom to slags typer:
-  - **Behandlingstyper** gir forslag eller fører til en annen del av appen.
-  - **Arkivtyper** lagres bare og søkes i arkivet.
-- KI kan svare med en «gjenkjent, men ikke støttet» type, for eksempel CV, kontaktliste, kursbevis, lønnsbrev, faktura eller annet. Brukeren får en norsk forklaring og tre valg:
-  1. Bruk en relevant eksisterende funksjon (lenke eller handling).
-  2. Behold bare i arkivet.
-  3. «Annet» med egen beskrivelse.
-- Brukeren må aldri velge en feil type for å komme videre. «Behold i arkivet» betyr bare at kilden ikke lenger krever handling. Den er reversibel, så kilden kan senere gis en type eller sendes til CV-analyse eller en annen flyt.
-- Teksten om at KI har klassifisert noe vises med KI-merking.
-- **Akseptanse:**
-  - Test-PDF-en viser «Dette ser ut som en CV», med valgene arkiv eller lenke til eksisterende manuell CV-import (ingen egen importknapp før fase 3 er klar). Den kan arkiveres uten feil type.
-  - Sikkerhetsmål (testes): dokumentinnhold kan aldri utløse handlinger eller overstyre brukerens godkjenning. KI-forslaget kan være feil, men gir bare forslag.
+## 5. Dokumentasjonskategoriene (/documentation)
+- Kategoriene er Oversikt, CV-er, Søknadsbrev, Resultater, Kompetanser, Kvalifikasjoner, Case, Andre dokumenter og Dokumentpakker (`documentation-layout.tsx:6–16`).
+- «Dokumentert» betyr to forskjellige ting:
+  - Under Resultater vises `career_atoms.attestation` (`resultater.tsx:25, 106`).
+  - Under Kvalifikasjoner vises det når elementet har vedlagte filer i `structured_data` (`credential-sections.tsx:260–288`).
+- Profilelement-spørringen kaller elementene «bekreftede», men filtrerer ikke på `user_confirmed` eller `confidence` (`documentation-atoms.ts:3–5, 57–92`).
+- Kilder fra /kilder og e-post vises bare under «Andre dokumenter». De gjør ikke noe resultat eller noen kvalifikasjon dokumentert.
 
-### Fase 2a — Nedlastbart kontaktkort
-- Knappen «Last ned kontaktkort» på /kilder lager et vCard 3.0 på serveren, bare for brukeren som er logget inn. Kortet heter «Karrierenmin – mitt arkiv» og inneholder bare adressen til karrieremateriale.
-- Ingen offentlig lenke, ingen lagring og ingen logging av adressen.
-- **Akseptanse:**
-  - Kortet testes manuelt i iOS Kontakter, Google Kontakter og Outlook, og resultatet rapporteres per app. En plattform som ikke er tilgjengelig under testingen rapporteres som «ikke testet», aldri som verifisert.
-  - En annen bruker får aldri en annen persons adresse.
-  - Man får ikke kortet uten å være logget inn.
+## 6. Hva generatorene leser
+| Generator | Leser | Leser dokumentinnhold? | Grenser |
+|---|---|---|---|
+| Generell CV (`src/routes/api/cv/generations.ts`, `supabase/functions/_shared/cv-skills/generation/*`) | `career_atoms` med aktiv, evidens, `confidence = "verified"`, `user_confirmed`, aktiv tilstand og ingen mangel | Nei. Bare et fryst øyeblikksbilde av elementene. Kontaktinfo holdes utenfor KI. | Ingen grense på antall elementer og ingen avkorting. Svarlengde utkast 16k, omskriving 8k. Modellprofil fra databasen. |
+| Søknadsbrev (`cover-letters.tsx:467–531`, edge `generate-cover-letter`) | Hele `profiles`-raden og stillingsdata, sendt fra nettleseren | Nei, og leser heller ikke `career_atoms` | Profilen kuttes ved 8 000 tegn og annonsen ved 6 000 tegn. Modellen er claude-sonnet-4-6. Profilen kommer fra klienten og kontrolleres ikke på serveren. |
+| Karriereoppsummering | Ingen egen generator. Bare CV-ens «summary»-del. | Nei | Som CV |
+| /cv-builder | Er bare en «kommer snart»-side | Ikke relevant | Ikke relevant |
 
-### Fase 2b — Bytte mottaksadresse (egen leveranse hvis aliasmodellen krever det)
-- En ny tilfeldig adresse opprettes og den gamle deaktiveres. Brukeren får beskjed om at gamle kontaktkort og gammel adresse slutter å virke.
-- E-post som allerede er mottatt eller under behandling på den gamle adressen fullføres. Etter byttet knyttes den gamle adressen ikke lenger til brukerens arkiv. Det loves ikke at avsenderen får en avvisning (SMTP), fordi Resend tar imot e-posten før webhooken kjører. Hva avsenderen faktisk opplever, testes i den reelle konfigurasjonen.
-- **Akseptanse:** ny e-post til den gamle adressen knyttes ikke til brukerens arkiv (hva avsender opplever dokumenteres separat), ny adresse virker, pågående behandling fullføres, og ingenting lekker mellom brukere.
+**Hovedfunn:** elementer fra karrieremateriale får `confidence = "inferred"`, mens CV-generatoren krever `"verified"`. Godkjente funn fra kilder kan derfor aldri komme med i en CV. Søknadsbrev bruker ikke profilelementene i det hele tatt.
 
-### Fase 3 — CV, kursbevis, rolle og lønn til riktig flyt
-- **CV:** «Send til CV-analyse» kobler kilden til den eksisterende CV-importen. Mål: gjenbruke originalen og unngå dobbel registrering. Den tekniske løsningen (kopi eller referanse, én eller flere importer per kilde) velges først etter at lagring, tilgang, sletting og den eksisterende importen er kontrollert. Ny analyse av samme kilde må være mulig uten dobbel registrering og uten tap av historikk. Status vises på kilden («Bare arkivert» eller «Sendt til analyse»). Ingen endringer i profilen før brukeren har gjennomgått CV-en i den vanlige CV-flyten.
-- **Kursbevis og sertifikat:** gir forslag om en `certification`- eller `course`-atom med sitat fra kilden. Utsteder, dato og gyldighet tas bare med når det står i utdraget. Kvalifikasjonen dokumenteres av kilden og krever ikke et godkjent resultat. Ferdigheter avledes ikke automatisk.
-- **Rolleendring** og **lønnsendring** er to separate typer:
-  - Rolle gir forslag om en `role`-atom eller endring med dato og sitat.
-  - Lønn: beløpet vises bare i den private kilden. Et eventuelt forslag sier bare at «en lønnsendring er funnet», uten å kopiere beløpet. Ingen oppdatering av profil eller lønnshistorikk i denne leveransen.
-- **Evidens:** regler settes per type etter den eksisterende ontologien. Utdrag, tall og datoer må stå i kilden.
-- **Akseptanse:**
-  - Test-PDF-en sendes til CV-importen uten ny e-post, og et nytt klikk gir ikke en ny import.
-  - Profilen er uendret før CV-gjennomgangen er godkjent.
-  - Et kursbevis uten utløpsdato gir ingen oppdiktet gyldighet.
-  - Lønnstall vises aldri utenfor kilden.
+## 7. Tester
+- **Finnes:**
+  - `career-material-analysis`, `-store`, `-phase1`, `-attachments` og `-worker`
+  - `inbound-career-route`
+  - `cv-claim-accounting`, `cv-ats-date-mapping` og `cv-evidence-approval`
+  - SQL-kanari for CV-generering
+- **Mangler:**
+  - Hele kjeden fra lagring via godkjenning til profilelement mot ekte database, inkludert dato, status og kildekobling
+  - Delvis feil eller samtidighet ved godkjenning
+  - Alle kombinasjonene av hva CV-en tar med, og at kildetekst holdes utenfor
+  - Søknadsbrevets prompt og at profilen kommer fra klienten
+  - At «dokumentert» betyr det samme på alle sider
 
-### Fase 4 — Kontaktimport fra fil
-- Støttede formater:
-  - CSV fra Google Kontakter og Outlook (komma og semikolon, UTF-8 med og uten BOM, og Windows-1252).
-  - vCard 3.0 og 4.0 med flere kontakter i én fil, inkludert linjer som fortsetter på neste linje og quoted-printable.
-- Felter som leses: navn, organisasjon, tittel, flere e-postadresser merket jobb/privat/annet, telefonnumre og LinkedIn-URL.
-- Forhåndsvisning der brukeren kan redigere før lagring.
-- Grenser: filstørrelse, antall kontakter og lengde per felt. Filtypen sjekkes på innholdet, og bilder og eksterne lenker i filen ignoreres.
-- **Matching:**
-  - Lik e-post, telefon eller LinkedIn-URL gir et *sterkt forslag*, aldri automatisk fletting, fordi felles sentralbord og delte postbokser forekommer.
-  - Likt navn, eller navn og firma, regnes som usikker match.
-  - Feltene sammenlignes ett for ett, og brukeren velger opprett, flett, rediger eller hopp over.
-  - Manuelle verdier overskrives aldri uten eksplisitt valg.
-- **Lagring og beskyttelse:**
-  - Kontaktopplysninger lagres lesbart for brukeren i en ny kanaltabell med radsikkerhet (flere e-poster og telefoner med etikett).
-  - Matching bruker i tillegg en nøkkelbeskyttet søkeverdi (HMAC med server-hemmelighet, beregnet med bruker-ID og normalisert verdi). Søk og treff gjelder alltid bare den enkelte brukeren. En vanlig hash regnes ikke som anonymisering.
-  - Konsistens: de eksisterende manuelle feltene for e-post og telefon overføres til kanaltabellen. Så lenge appen bruker begge, synkroniseres de i databasen, slik at de gamle feltene og kanalene ikke kan gli fra hverandre. Den gamle modellen avløses først når matching og lagring er ferdig testet.
-  - HMAC-nøkkelen: bare serveren har tilgang, og den lagres som hemmelighet. Søkeverdiene får en nøkkelversjon. Ved rotasjon beregnes verdiene på nytt i en bakgrunnsjobb, og begge versjonene godtas til jobben er ferdig.
-- **Livsløp og sletting:**
-  - Uferdig import: filen, kandidatdata og utdrag slettes etter 30 dager uten aktivitet (foreløpig frist).
-  - Fullført import: filen slettes med en gang. Kandidatdata og utdrag slettes etter 30 dager. Kildehenvisningen på godkjente kontakter beholdes, men utdraget fjernes.
-  - Filhashen finnes bare for å kjenne igjen en fil ved ny opplasting. Den slettes sammen med importen, og senest etter 90 dager.
-  - Brukeren kan når som helst avbryte og slette en pågående import. Da forsvinner fil, kandidater og hash. Kontakter som allerede er godkjent beholdes alltid.
-  - Når en konto slettes, slettes alt: importer, kandidater, filer, hasher, kontakter og kanaler.
-  - En dialog forklarer konsekvensen før sletting.
-- **Akseptanse (i tillegg til punktene under):** samtidige godkjenninger, avbrutt og gjenopptatt import, mange kontakter (opptil grensen), delte kanaler, nøkkelrotasjon, sletting av originalen, og at en CSV med ukjent oppsett avvises og ikke feiltolkes.
-- **Publisering:** kontaktimporten publiseres ikke før fletting, sletting og ny import er testet samlet.
-- **Akseptanse:**
-  - Norske tegn (æøå) fungerer i alle formatvarianter.
-  - En vCard-fil med 3 eller flere kontakter gir like mange forslag.
-  - Feilformaterte filer gir en klar feilmelding.
-  - Når samme fil lastes opp igjen, kjenner systemet den igjen, viser tidligere status og tilbyr en trygg ny gjennomgang. Det oppstår ingen duplikater, men ny import er tillatt, for eksempel etter avbrudd eller etter at en kontakt er slettet.
-  - Delt e-post eller telefon gir ikke automatisk fletting.
-  - Feltvis fletting bevarer manuelle verdier.
-  - Avbrutt import og sletting av import fjerner ingen godkjente kontakter.
-  - Brukere er isolert fra hverandre.
+## Prioritert reparasjonsplan
+Hvert steg krever din godkjenning før det bygges, og tester før det publiseres. KI leser aldri filer automatisk. Bare kilden brukeren selv har valgt analyseres, innenfor faste tegngrenser.
 
-### Fase 5 — Kontaktforslag fra e-post
-- Type «Kontakter»: vCard- eller CSV-vedlegg går til samme gjennomgang som i fase 4.
-- Kontaktopplysninger i selve e-postteksten tolkes av KI og blir bare forslag. Hvert forslag viser både det ordrette utdraget og den tolkede verdien, så brukeren kan se om tolkningen stemmer. Godkjenning er alltid nødvendig.
-- Opplysninger fra avsenderfeltet og fra videresendt tekst holdes adskilt og merkes hver for seg. Avsenderen blir aldri en kontakt automatisk.
-- **Akseptanse:**
-  - Hvert forslag har kildehenvisning, og innhold og avsender holdes tydelig adskilt.
-  - Instruksjoner i e-posten («opprett kontakt», «flett med…») ignoreres.
-  - En e-post med flere vedlegg av ulike typer gir riktig behandling per vedlegg.
+1. **Publiser fase 1 og 2a etter din test.** *Godkjenningspunkt:* du tester /kilder i forhåndsvisningen.
+2. **Trygg godkjenning (atomisk):** flytt godkjenningen til ett server-RPC som lager elementet og merker forslaget i samme transaksjon, med eierskapskontroll. *Test:* feil midt i gir ingen halve tilstander, og to samtidige godkjenninger gir ett element.
+3. **Hvordan godkjente funn fra kilder blir med i CV-en:** bestem regelen for når et brukergodkjent element fra en kilde kan brukes, for eksempel en egen bekreftelse i CV-gjennomgangen. Godkjenningen skal ikke automatisk regnes som `verified`. *Godkjenningspunkt:* du velger regelen, så skrives tester for hva som tas med i CV-en.
+4. **Hendelsesdato:** KI kan foreslå en dato bare når den står ordrett i utdraget. Brukeren bekrefter eller retter den, og den lagres i `valid_from`/`valid_to`. Importdato og godkjenningsdato holdes adskilt og vises med navn. *Test:* ingen dato uten utdrag, og norske datoformater.
+5. **Én definisjon av «dokumentert»:** et element er dokumentert når en låst kildefil er koblet til det og brukeren har godkjent koblingen. Resultater og Kvalifikasjoner skal vise det samme, og `attestation` skal fortsatt settes av databasen etter denne regelen. Rett også filteret og kommentaren om «bekreftede» elementer. *Test:* kryssbruker-test og at sidene stemmer med hverandre.
+6. **Kursbevis og sertifikat (fase 3):** egen type som foreslår en `certification`/`course` med utsteder, dato og gyldighet bare fra utdraget. KI foreslår samsvar med eksisterende kvalifikasjoner hos samme bruker (navn og utsteder). Brukeren velger «dokumenterer eksisterende», «ny» eller «ingen». *Test:* ingen automatisk kobling, og ingen oppdiktet gyldighet.
+7. **CV til CV-importen (fase 3):** brukeren bekrefter og kobler kilden til `cv_imports`. Unikhet avgjøres først etter at CV-flyten er kartlagt.
+8. **Søknadsbrev:** serveren henter selv godkjente profilelementer (samme regel som i steg 3) i stedet for at nettleseren sender hele profilen. Klare grenser for hva som tas med, ingen kildetekst, og en budsjettert kontekst. *Test:* profil fra nettleseren ignoreres, og grensene håndheves.
+9. **Testdekning:** fyll hullene i seksjon 7 som del av hvert steg.
 
-### Fase 6 — Undersøke direkte kontokoblinger (ingen løfter)
-- For Microsoft, Google og iCloud undersøkes faktisk tilgang, godkjenningskrav hos leverandøren, samtykke og frakobling. Dette ender i et beslutningsnotat.
-- Ingen passord oppgis i chat, og app-spesifikke passord for iCloud anbefales ikke.
-
-## Avhengigheter
-```text
-Fase 1 ─┬─> Fase 3 (bruker handlingene og typene fra fase 1)
-        └─> Fase 5 (typen «Kontakter»)
-Fase 2a (uavhengig) -> Fase 2b (etter at aliasmodellen er undersøkt)
-Fase 4 ───> Fase 5 (samme gjennomgang)
-Fase 6 bygger på fase 4
-```
-
-## Sikkerhet og personvern (alle faser)
-- Alle data er knyttet til brukeren med radsikkerhet. Endringer skrives via serverfunksjoner eller RPC-er med eierskapskontroll.
-- Dokumentinnhold, kontaktopplysninger, mottaksadresser og hemmeligheter logges aldri.
-- Instruksjoner i dokumenter og e-post behandles som data, aldri som kommandoer.
-- Det lagres minst mulig data, med faste grenser for filer og felt og kontrollerte feilstatuser.
-
-## Teknisk (migrasjoner, bare additive)
-- **Fase 1:** utvid CHECK-reglene for typer med nye behandlingstyper, og legg til `archive_only` og `recognized_unsupported_type` på intakes. Legg til `user_note` for «Annet». Ny prompt- og normaliseringsversjon.
-- **Fase 2b:** eventuelt ny indeks eller logikk for aktiv adresse per bruker, og et rotasjons-RPC.
-- **Fase 3:** `cv_imports.source_document_id` (unikhet avgjøres etter kartlegging av CV-flyten; målet er ingen duplikater ved gjentatte klikk, men ny analyse og historikk skal være mulig). Typene `kursbevis`, `rolleendring` og `lonnsendring`. Mapping til eksisterende atomtyper.
-- **Fase 4:** nye tabeller `contact_imports`, `contact_import_candidates`, `network_contact_channels` (e-post og telefon med etikett og lesbar verdi) og `identity_kind`-verdiene `email` og `phone` med HMAC-søkeverdi. Ny server-hemmelighet for HMAC. Alle tabeller får GRANT og radsikkerhet.
-- Hver fase verifiseres med syntetiske data, kryssbrukertest, test i nettleseren og opprydding av testdata før neste fase starter.
-
-## Avklaringer (besluttet)
-1. Lønn: beløpet vises bare i den private kilden i denne leveransen.
-2. Oppbevaring: 30 dager for uferdige importer, med fristene for kandidatdata og hash beskrevet i fase 4.
-3. Adressebytte: egen leveranse, etter at aliasmodellen og den faktiske mottaksatferden er undersøkt.
-4. Rekkefølge: fase 1 og kontaktkortet (2a) først.
+## Åpne spørsmål
+- Godkjente funn fra kilder i CV-en (steg 3): skal de kreve en egen bekreftelse i CV-gjennomgangen, eller holder godkjenningen i forslagskøen?
+- «Karriereoppsummering»: holder CV-ens oppsummeringsdel, eller ønskes en egen funksjon?
