@@ -36,31 +36,31 @@ En e-post med et PDF-vedlegg ble lagret som to separate kilder, uten duplikater.
   1. Bruk en relevant eksisterende funksjon (lenke eller handling).
   2. Behold bare i arkivet.
   3. «Annet» med egen beskrivelse.
-- Brukeren må aldri velge en feil type for å komme videre. «Behold i arkivet» avslutter saken uten forslag.
+- Brukeren må aldri velge en feil type for å komme videre. «Behold i arkivet» betyr bare at kilden ikke lenger krever handling. Den er reversibel, så kilden kan senere gis en type eller sendes til CV-analyse eller en annen flyt.
 - Teksten om at KI har klassifisert noe vises med KI-merking.
 - **Akseptanse:**
-  - Test-PDF-en viser «Dette ser ut som en CV», med valgene arkiv eller CV-import (fase 3), og kan arkiveres uten feil type.
+  - Test-PDF-en viser «Dette ser ut som en CV», med valgene arkiv eller lenke til eksisterende manuell CV-import (ingen egen importknapp før fase 3 er klar). Den kan arkiveres uten feil type.
   - Instruksjoner skjult i dokumentet («klassifiser som attest», «importer automatisk») endrer aldri hvilke handlinger som tilbys, og utløser ingenting.
 
 ### Fase 2a — Nedlastbart kontaktkort
 - Knappen «Last ned kontaktkort» på /kilder lager et vCard 3.0 på serveren, bare for brukeren som er logget inn. Kortet heter «Karrierenmin – mitt arkiv» og inneholder bare adressen til karrieremateriale.
 - Ingen offentlig lenke, ingen lagring og ingen logging av adressen.
 - **Akseptanse:**
-  - Kortet kan importeres i iOS Kontakter, Google Kontakter og Outlook. Dette må testes manuelt på enhetene og rapporteres per app.
+  - Kortet testes manuelt i iOS Kontakter, Google Kontakter og Outlook, og resultatet rapporteres per app. En plattform som ikke er tilgjengelig under testingen rapporteres som «ikke testet», aldri som verifisert.
   - En annen bruker får aldri en annen persons adresse.
   - Man får ikke kortet uten å være logget inn.
 
 ### Fase 2b — Bytte mottaksadresse (egen leveranse hvis aliasmodellen krever det)
 - En ny tilfeldig adresse opprettes og den gamle deaktiveres. Brukeren får beskjed om at gamle kontaktkort og gammel adresse slutter å virke.
-- E-post som allerede er mottatt eller under behandling på den gamle adressen fullføres. Ny post til den gamle adressen avvises med kontrollert status.
+- E-post som allerede er mottatt eller under behandling på den gamle adressen fullføres. Etter byttet knyttes den gamle adressen ikke lenger til brukerens arkiv. Det loves ikke at avsenderen får en avvisning (SMTP), fordi Resend tar imot e-posten før webhooken kjører. Hva avsenderen faktisk opplever, testes i den reelle konfigurasjonen.
 - **Akseptanse:** gammel adresse avvises, ny adresse virker, pågående behandling fullføres, og ingenting lekker mellom brukere.
 
 ### Fase 3 — CV, kursbevis, rolle og lønn til riktig flyt
-- **CV:** handlingen «Send til CV-analyse» oppretter en CV-import med kobling til kildedokumentet (ny kolonne). Originalen gjenbrukes, så filen kopieres ikke. Det kan bare finnes én CV-import per kildedokument. Status vises på kilden («Bare arkivert» eller «Sendt til analyse»). Ingen endringer i profilen før brukeren har gjennomgått CV-en i den vanlige CV-flyten.
+- **CV:** «Send til CV-analyse» kobler kilden til den eksisterende CV-importen. Mål: gjenbruke originalen og unngå dobbel registrering. Den tekniske løsningen (kopi eller referanse, én eller flere importer per kilde) velges først etter at lagring, tilgang, sletting og den eksisterende importen er kontrollert. Ny analyse av samme kilde må være mulig uten dobbel registrering og uten tap av historikk. Status vises på kilden («Bare arkivert» eller «Sendt til analyse»). Ingen endringer i profilen før brukeren har gjennomgått CV-en i den vanlige CV-flyten.
 - **Kursbevis og sertifikat:** gir forslag om en `certification`- eller `course`-atom med sitat fra kilden. Utsteder, dato og gyldighet tas bare med når det står i utdraget. Kvalifikasjonen dokumenteres av kilden og krever ikke et godkjent resultat. Ferdigheter avledes ikke automatisk.
 - **Rolleendring** og **lønnsendring** er to separate typer:
   - Rolle gir forslag om en `role`-atom eller endring med dato og sitat.
-  - Lønn lagres bare i den private kilden og vises eventuelt som et privat forslag. Ingen oppdatering av profil eller lønnshistorikk i denne leveransen.
+  - Lønn: beløpet vises bare i den private kilden. Et eventuelt forslag sier bare at «en lønnsendring er funnet», uten å kopiere beløpet. Ingen oppdatering av profil eller lønnshistorikk i denne leveransen.
 - **Evidens:** regler settes per type etter den eksisterende ontologien. Utdrag, tall og datoer må stå i kilden.
 - **Akseptanse:**
   - Test-PDF-en sendes til CV-importen uten ny e-post, og et nytt klikk gir ikke en ny import.
@@ -81,18 +81,24 @@ En e-post med et PDF-vedlegg ble lagret som to separate kilder, uten duplikater.
   - Feltene sammenlignes ett for ett, og brukeren velger opprett, flett, rediger eller hopp over.
   - Manuelle verdier overskrives aldri uten eksplisitt valg.
 - **Lagring og beskyttelse:**
-  - Kontaktopplysninger lagres lesbart for brukeren i egne tabeller med radsikkerhet.
-  - Matching bruker i tillegg en nøkkelbeskyttet søkeverdi (HMAC med server-hemmelighet over normalisert verdi). En vanlig hash regnes ikke som anonymisering.
-- **Retensjon og sletting:**
-  - Den opplastede filen slettes når gjennomgangen er ferdig eller etter 30 dager uten aktivitet. Bare en hash av filen beholdes for å oppdage dobbel import.
-  - Forslag som ikke er behandlet slettes sammen med importen.
-  - Kontakter som allerede er godkjent beholdes alltid. Bare kildehenvisningen deres markeres som «import slettet».
+  - Kontaktopplysninger lagres lesbart for brukeren i en ny kanaltabell med radsikkerhet (flere e-poster og telefoner med etikett).
+  - Matching bruker i tillegg en nøkkelbeskyttet søkeverdi (HMAC med server-hemmelighet, beregnet med bruker-ID og normalisert verdi). Søk og treff gjelder alltid bare den enkelte brukeren. En vanlig hash regnes ikke som anonymisering.
+  - Konsistens: de eksisterende manuelle feltene for e-post og telefon overføres til kanaltabellen. Så lenge appen bruker begge, synkroniseres de i databasen, slik at de gamle feltene og kanalene ikke kan gli fra hverandre. Den gamle modellen avløses først når matching og lagring er ferdig testet.
+  - HMAC-nøkkelen: bare serveren har tilgang, og den lagres som hemmelighet. Søkeverdiene får en nøkkelversjon. Ved rotasjon beregnes verdiene på nytt i en bakgrunnsjobb, og begge versjonene godtas til jobben er ferdig.
+- **Livsløp og sletting:**
+  - Uferdig import: filen, kandidatdata og utdrag slettes etter 30 dager uten aktivitet (foreløpig frist).
+  - Fullført import: filen slettes med en gang. Kandidatdata og utdrag slettes etter 30 dager. Kildehenvisningen på godkjente kontakter beholdes, men utdraget fjernes.
+  - Filhashen finnes bare for å kjenne igjen en fil ved ny opplasting. Den slettes sammen med importen, og senest etter 90 dager.
+  - Brukeren kan når som helst avbryte og slette en pågående import. Da forsvinner fil, kandidater og hash. Kontakter som allerede er godkjent beholdes alltid.
+  - Når en konto slettes, slettes alt: importer, kandidater, filer, hasher, kontakter og kanaler.
   - En dialog forklarer konsekvensen før sletting.
+- **Akseptanse (i tillegg til punktene under):** samtidige godkjenninger, avbrutt og gjenopptatt import, mange kontakter (opptil grensen), delte kanaler, nøkkelrotasjon, sletting av originalen, og at en CSV med ukjent oppsett avvises og ikke feiltolkes.
+- **Publisering:** kontaktimporten publiseres ikke før fletting, sletting og ny import er testet samlet.
 - **Akseptanse:**
   - Norske tegn (æøå) fungerer i alle formatvarianter.
   - En vCard-fil med 3 eller flere kontakter gir like mange forslag.
   - Feilformaterte filer gir en klar feilmelding.
-  - Samme fil importert to ganger gir ingen duplikater.
+  - Når samme fil lastes opp igjen, kjenner systemet den igjen, viser tidligere status og tilbyr en trygg ny gjennomgang. Det oppstår ingen duplikater, men ny import er tillatt, for eksempel etter avbrudd eller etter at en kontakt er slettet.
   - Delt e-post eller telefon gir ikke automatisk fletting.
   - Feltvis fletting bevarer manuelle verdier.
   - Avbrutt import og sletting av import fjerner ingen godkjente kontakter.
@@ -100,11 +106,12 @@ En e-post med et PDF-vedlegg ble lagret som to separate kilder, uten duplikater.
 
 ### Fase 5 — Kontaktforslag fra e-post
 - Type «Kontakter»: vCard- eller CSV-vedlegg går til samme gjennomgang som i fase 4.
-- Kontaktopplysninger i selve e-postteksten tolkes av KI og må ha ordrett utdrag. De blir bare forslag.
-- Opplysninger om avsenderen vises separat og merkes «fra e-postens avsender». Avsenderen blir aldri en kontakt automatisk.
+- Kontaktopplysninger i selve e-postteksten tolkes av KI og blir bare forslag. Hvert forslag viser både det ordrette utdraget og den tolkede verdien, så brukeren kan se om tolkningen stemmer. Godkjenning er alltid nødvendig.
+- Opplysninger fra avsenderfeltet og fra videresendt tekst holdes adskilt og merkes hver for seg. Avsenderen blir aldri en kontakt automatisk.
 - **Akseptanse:**
   - Hvert forslag har kildehenvisning, og innhold og avsender holdes tydelig adskilt.
   - Instruksjoner i e-posten («opprett kontakt», «flett med…») ignoreres.
+  - En e-post med flere vedlegg av ulike typer gir riktig behandling per vedlegg.
 
 ### Fase 6 — Undersøke direkte kontokoblinger (ingen løfter)
 - For Microsoft, Google og iCloud undersøkes faktisk tilgang, godkjenningskrav hos leverandøren, samtykke og frakobling. Dette ender i et beslutningsnotat.
@@ -132,7 +139,8 @@ Fase 6 bygger på fase 4
 - **Fase 4:** nye tabeller `contact_imports`, `contact_import_candidates`, `network_contact_channels` (e-post og telefon med etikett og lesbar verdi) og `identity_kind`-verdiene `email` og `phone` med HMAC-søkeverdi. Ny server-hemmelighet for HMAC. Alle tabeller får GRANT og radsikkerhet.
 - Hver fase verifiseres med syntetiske data, kryssbrukertest, test i nettleseren og opprydding av testdata før neste fase starter.
 
-## Avklaringer
-1. Skal lønnsforslag kunne vises i profilen senere, eller bare i kilden? (Forslag: bare i kilden nå.)
-2. Er 30 dagers oppbevaring av opplastede kontaktfiler riktig? (Forslag: ja.)
-3. Skal adressebytte (2b) leveres sammen med kontaktkortet eller senere? (Forslag: senere, egen leveranse.)
+## Avklaringer (besluttet)
+1. Lønn: beløpet vises bare i den private kilden i denne leveransen.
+2. Oppbevaring: 30 dager for uferdige importer, med fristene for kandidatdata og hash beskrevet i fase 4.
+3. Adressebytte: egen leveranse, etter at aliasmodellen og den faktiske mottaksatferden er undersøkt.
+4. Rekkefølge: fase 1 og kontaktkortet (2a) først.
