@@ -148,6 +148,8 @@ const approveSchema = z.object({
   eventEnd: isoDate.nullable(),
   eventPrecision: z.enum(["day", "month", "year"]).nullable(),
   targetAtomId: z.string().uuid().nullable(),
+  /** Brukeren har eksplisitt valgt å oppdatere datoen på eksisterende oppføring. */
+  applyEventDate: z.boolean().default(false),
 });
 
 export type ApproveCareerProposalStatus =
@@ -161,6 +163,7 @@ export type ApproveCareerProposalStatus =
   | "invalid_payload"
   | "needs_evidence"
   | "target_not_found"
+  | "date_less_precise"
   | "error";
 
 /**
@@ -189,6 +192,7 @@ export const approveCareerMaterialProposal = createServerFn({ method: "POST" })
       p_event_end: data.eventEnd ?? null,
       p_event_precision: data.eventPrecision ?? null,
       p_target_atom_id: data.targetAtomId ?? null,
+      p_apply_event_date: data.applyEventDate === true,
     } as never);
     if (error) {
       console.error("[career-material] approve failed", error.code ?? "unknown");
@@ -205,6 +209,11 @@ export const approveCareerMaterialProposal = createServerFn({ method: "POST" })
   });
 
 const cvSchema = z.object({ intakeId: z.string().uuid() });
+
+/** Kopien CV-importen leser, én per kildedokument (ingen tidsstempel). */
+export function cvImportCopyPath(userId: string, documentId: string, isPdf: boolean): string {
+  return `${userId}/career-material-${documentId}.${isPdf ? "pdf" : "docx"}`;
+}
 
 /**
  * Sender en mottatt CV-fil til den vanlige CV-importen etter brukerens valg.
@@ -255,10 +264,12 @@ export const sendCareerMaterialToCvImport = createServerFn({ method: "POST" })
     const safeName = (doc.file_name ?? (isPdf ? "cv.pdf" : "cv.docx"))
       .replace(/[^a-zA-Z0-9._-]+/g, "_")
       .slice(0, 120);
-    const path = `${context.userId}/${Date.now()}-${safeName}`;
+    // Fast bane per kildedokument: et avbrutt forsøk etterlater høyst én kopi,
+    // og neste forsøk skriver over den i stedet for å lage en ny.
+    const path = cvImportCopyPath(context.userId, doc.id, isPdf);
     const { error: upErr } = await supabaseAdmin.storage
       .from("cv-uploads")
-      .upload(path, blob, { contentType: mime, upsert: false });
+      .upload(path, blob, { contentType: mime, upsert: true });
     if (upErr) return { status: "error" as const, importId: null };
     const { data: row, error: insErr } = await context.supabase
       .from("cv_imports")
@@ -274,7 +285,6 @@ export const sendCareerMaterialToCvImport = createServerFn({ method: "POST" })
       .select("id")
       .single();
     if (insErr || !row) {
-      await supabaseAdmin.storage.from("cv-uploads").remove([path]);
       if (insErr?.code === "23505") {
         // Samtidig klikk: den andre forespørselen opprettet importen.
         const { data: other } = await context.supabase
@@ -286,6 +296,12 @@ export const sendCareerMaterialToCvImport = createServerFn({ method: "POST" })
           .maybeSingle();
         if (other) return { status: "exists" as const, importId: other.id as string };
       }
+      // Fjern kopien bare når ingen import peker på den (f.eks. en tidligere feilet import).
+      const { count } = await context.supabase
+        .from("cv_imports")
+        .select("id", { count: "exact", head: true })
+        .eq("source_file_path", path);
+      if (!count) await supabaseAdmin.storage.from("cv-uploads").remove([path]);
       return { status: "error" as const, importId: null };
     }
     return { status: "created" as const, importId: row.id as string };

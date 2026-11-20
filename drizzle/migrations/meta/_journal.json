@@ -85,6 +85,13 @@
       "when": 1795181304211,
       "tag": "0011_career_material_link_updates_event_date",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1795181799015,
+      "tag": "0012_career_material_link_date_explicit",
+      "breakpoints": true
     }
   ]
 }

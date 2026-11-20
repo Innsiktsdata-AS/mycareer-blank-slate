@@ -120,7 +120,7 @@ function careerMaterialCopy(
       summary: `«${content}»${issuer ? `, utstedt av ${issuer}` : ""}.`,
       why,
       impact:
-        "Velg om kilden dokumenterer en kvalifikasjon du allerede har, eller om den skal legges inn som ny. Kilden kobles til oppføringen som dokumentasjon, og datoen du bekrefter blir datoen på oppføringen.",
+        "Velg om kilden dokumenterer en kvalifikasjon du allerede har, eller om den skal legges inn som ny. Kilden kobles til oppføringen som dokumentasjon. Datoen på en oppføring du har fra før endres bare hvis du velger det.",
     };
   }
   if (p.proposal_action === "create_atom" && atomType === "role") {
@@ -129,7 +129,7 @@ function careerMaterialCopy(
       summary: `«${content}».`,
       why,
       impact:
-        "Rollen legges inn i karriereprofilen, eller kobles til en rolle du har fra før, med kobling til kilden og datoen du bekrefter.",
+        "Rollen legges inn i karriereprofilen, eller kobles til en rolle du har fra før. Datoen på en rolle du har fra før endres bare hvis du velger det.",
     };
   }
   const label =

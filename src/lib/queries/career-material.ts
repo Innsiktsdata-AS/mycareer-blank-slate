@@ -40,6 +40,8 @@ export type CareerMaterialIntakeView = {
   sourceContext: string | null;
   fileName: string | null;
   filePath: string | null;
+  /** Kilden er allerede sendt til CV-importen (en import som ikke har feilet). */
+  sentToCvImport: boolean;
 };
 
 type IntakeRow = {
@@ -92,7 +94,7 @@ export const careerMaterialIntakesQuery = (userId: string) =>
       const rows = (intakes ?? []) as unknown as IntakeRow[];
       if (rows.length === 0) return [];
       const docIds = rows.map((r) => r.document_id);
-      const [docsRes, propsRes] = await Promise.all([
+      const [docsRes, propsRes, cvRes] = await Promise.all([
         supabase
           .from("documents")
           .select("id, title, deleted_at, source_context, file_name, file_path")
@@ -103,9 +105,20 @@ export const careerMaterialIntakesQuery = (userId: string) =>
           .eq("source_type", "career_material")
           .in("source_record_id", docIds)
           .in("status", ["pending_review", "needs_more_context", "approved"]),
+        supabase
+          .from("cv_imports")
+          .select("source_document_id")
+          .in("source_document_id", docIds)
+          .neq("status", "failed"),
       ]);
       if (docsRes.error) throw docsRes.error;
       if (propsRes.error) throw propsRes.error;
+      if (cvRes.error) throw cvRes.error;
+      const sentToCv = new Set(
+        ((cvRes.data ?? []) as Array<{ source_document_id: string | null }>)
+          .map((c) => c.source_document_id)
+          .filter((v): v is string => !!v),
+      );
       const docRows = (docsRes.data ?? []) as Array<{
         id: string;
         title: string;
@@ -188,6 +201,7 @@ export const careerMaterialIntakesQuery = (userId: string) =>
           sourceContext: doc?.source_context ?? null,
           fileName: doc?.file_name ?? null,
           filePath: doc?.file_path ?? null,
+          sentToCvImport: sentToCv.has(r.document_id),
         };
       });
     },

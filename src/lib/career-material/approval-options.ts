@@ -1,26 +1,54 @@
-import type { EventDate } from "@/lib/career-material/event-date";
+import type { EventDate, EventPrecision } from "@/lib/career-material/event-date";
 
 export type CareerApprovalOptions = {
   eventStart: string | null;
   eventEnd: string | null;
-  eventPrecision: "day" | "month" | "year" | null;
+  eventPrecision: EventPrecision | null;
   targetAtomId: string | null;
+  applyEventDate: boolean;
 };
+
+const RANK: Record<EventPrecision, number> = { year: 1, month: 2, day: 3 };
+
+export const PRECISION_LABEL: Record<EventPrecision, string> = {
+  year: "år",
+  month: "måned",
+  day: "dag",
+};
+
+/** Sann når ny dato er mindre presis enn en kjent dato (f.eks. dag → år). */
+export function isLessPrecise(
+  next: EventPrecision | null,
+  current: EventPrecision | null,
+): boolean {
+  if (!next || !current) return false;
+  return RANK[next] < RANK[current];
+}
 
 /**
  * Valgene som sendes ved godkjenning av et kildeforslag.
- * Datoen brukeren har bekreftet følger med både for ny oppføring og ved
- * kobling til en eksisterende — da blir den ny dato på oppføringen.
- * Tomt datofelt betyr ingen dato (ny) eller uendret dato (kobling).
+ * Ny oppføring: datoen brukeren har latt stå følger med.
+ * Kobling til eksisterende oppføring: datoen sendes bare når brukeren
+ * eksplisitt har valgt å oppdatere den, og aldri når den er tom eller mindre
+ * presis enn datoen oppføringen har. Ellers står oppføringens dato uendret.
  */
 export function buildCareerApprovalOptions(
   target: string,
   parsedDate: EventDate | null,
+  link?: { applyEventDate: boolean; currentPrecision: EventPrecision | null },
 ): CareerApprovalOptions {
+  const linking = target !== "new";
+  const apply =
+    linking &&
+    link?.applyEventDate === true &&
+    !!parsedDate &&
+    !isLessPrecise(parsedDate.precision, link.currentPrecision);
+  const send = linking ? apply : !!parsedDate;
   return {
-    eventStart: parsedDate?.start ?? null,
-    eventEnd: parsedDate?.end ?? null,
-    eventPrecision: parsedDate?.precision ?? null,
-    targetAtomId: target === "new" ? null : target,
+    eventStart: send ? (parsedDate?.start ?? null) : null,
+    eventEnd: send ? (parsedDate?.end ?? null) : null,
+    eventPrecision: send ? (parsedDate?.precision ?? null) : null,
+    targetAtomId: linking ? target : null,
+    applyEventDate: apply,
   };
 }

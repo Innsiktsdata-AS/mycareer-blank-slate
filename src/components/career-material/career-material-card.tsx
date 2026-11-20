@@ -417,15 +417,18 @@ export function CareerMaterialCard() {
   );
 }
 
-function CvImportAction(props: { intakeId: string; highlighted: boolean }) {
+function CvImportAction(props: { intakeId: string; highlighted: boolean; alreadySent: boolean }) {
   const sendFn = useServerFn(sendCareerMaterialToCvImport);
+  const qc = useQueryClient();
   const [confirm, setConfirm] = useState(false);
-  const [done, setDone] = useState(false);
+  const [sentNow, setSentNow] = useState(false);
+  const done = sentNow || props.alreadySent;
   const m = useMutation({
     mutationFn: () => sendFn({ data: { intakeId: props.intakeId } }),
     onSuccess: (res) => {
       if (res.status === "created" || res.status === "exists") {
-        setDone(true);
+        setSentNow(true);
+        void qc.invalidateQueries({ queryKey: ["career-material-intakes"] });
         toast.success(
           res.status === "exists"
             ? "CV-en er allerede sendt til CV-importen."
@@ -788,7 +791,11 @@ function IntakeRow(props: {
       )}
 
       {r.filePath && (recognized === "cv" || r.status === "needs_type") && !archived && (
-        <CvImportAction intakeId={r.id} highlighted={recognized === "cv"} />
+        <CvImportAction
+          intakeId={r.id}
+          highlighted={recognized === "cv"}
+          alreadySent={r.sentToCvImport}
+        />
       )}
 
       {(r.status === "needs_type" || r.status === "failed") && !archived && (

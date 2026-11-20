@@ -35,12 +35,13 @@
 - [x] Dokumentere flyttingen av gamle vedlegg (kopi eller flytting), sletting og tilbakeføring
 - [x] R1: manuelle kvalifikasjonsfiler får kildekobling automatisk (testet A/B og i appen)
 - [x] R1b: nye dokumenter fra appen kunne ikke lagres (krav om dokumentgruppe); blir nå egen gruppe
-- [ ] R2: «Send til CV-import» vises fortsatt etter ny innlasting når CV-en allerede er sendt
-- [ ] R4: ubrukt filkopi etter avbrutt CV-sending ryddes ikke automatisk
+- [x] R2: «Send til CV-import» vises ikke lenger etter ny innlasting når CV-en allerede er sendt
+- [x] R4: fast filkopi per kilde ved CV-sending; avbrutte forsøk gir høyst én kopi som gjenbrukes
 - [x] Publisering og kontroll i publisert app (20.11: «Dokumentert» og ny versjon i samme gruppe)
 - [x] Kobling til eksisterende oppføring: datoen fra kilden foreslås og blir ny dato på oppføringen (testet A/B og i appen)
-- [ ] Publisere dato ved kobling (skjermbildet) — venter på klarsignal
-- [ ] Én oppdiktet testfil (1,7 kB) i testbrukermappen kunne ikke slettes fra sandkassen
+- [x] Dato ved kobling: side om side-visning, eksplisitt avkrysning, ingen mindre presis/tom dato (testet A/B og i appen)
+- [ ] Publisere ny visning for dato ved kobling, R2 og R4 — venter på klarsignal
+- [x] R3: oppdiktet testfil (1,7 kB) i slettet testbrukers mappe er fjernet
 - [ ] Generatorer (CV, søknadsbrev, oppsummering) tar i bruk felles leser — senere fase, etter at denne delen er avsluttet
 
 ## Rekruttererundersøkelsen

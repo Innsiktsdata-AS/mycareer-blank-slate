@@ -10759,6 +10759,7 @@ export type Database = {
       }
       career_material_approve_proposal: {
         Args: {
+          p_apply_event_date?: boolean
           p_edited_content: string
           p_event_end: string
           p_event_precision: string

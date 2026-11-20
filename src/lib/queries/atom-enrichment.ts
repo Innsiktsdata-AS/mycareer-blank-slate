@@ -604,6 +604,8 @@ export type CareerMaterialApprovalOptions = {
   eventPrecision: "day" | "month" | "year" | null;
   /** Kilden dokumenterer en eksisterende oppføring i stedet for å lage ny. */
   targetAtomId: string | null;
+  /** Brukeren har eksplisitt valgt å oppdatere datoen på den eksisterende oppføringen. */
+  applyEventDate: boolean;
 };
 
 const CAREER_APPROVE_ERRORS: Record<string, string> = {
@@ -615,6 +617,8 @@ const CAREER_APPROVE_ERRORS: Record<string, string> = {
   needs_evidence:
     "Godkjenn først resultatet denne kompetansen bygger på. Kompetanser kan bare lagres med et konkret resultat som grunnlag.",
   target_not_found: "Fant ikke oppføringen du valgte.",
+  date_less_precise:
+    "Datoen er mindre presis enn datoen oppføringen har. Velg å beholde datoen, eller skriv en like presis dato.",
   error: "Kunne ikke godkjenne forslaget. Prøv igjen.",
 };
 
@@ -648,6 +652,7 @@ export async function approveAtomEnrichmentProposal(
         eventEnd: cm?.eventEnd ?? null,
         eventPrecision: cm?.eventPrecision ?? null,
         targetAtomId: cm?.targetAtomId ?? null,
+        applyEventDate: cm?.applyEventDate === true,
       },
     });
     if (res.status === "approved" || res.status === "linked" || res.status === "already_approved")

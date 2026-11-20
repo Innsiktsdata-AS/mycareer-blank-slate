@@ -49,7 +49,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { formatEventRange, parseEventDate } from "@/lib/career-material/event-date";
-import { buildCareerApprovalOptions } from "@/lib/career-material/approval-options";
+import {
+  buildCareerApprovalOptions,
+  isLessPrecise,
+  PRECISION_LABEL,
+} from "@/lib/career-material/approval-options";
 import { supabase } from "@/integrations/supabase/client";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
@@ -57,7 +61,7 @@ import { EmptyState } from "@/components/empty-state";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Checkbox } from "@/components/ui/checkbox";
-import { fmtDateTime } from "@/lib/format";
+import { fmtDate, fmtDateTime } from "@/lib/format";
 
 
 type ReviewTab = "pending" | "needs_more_context" | "approved" | "rejected";
@@ -140,8 +144,6 @@ function ProposalCard(props: {
   const [target, setTarget] = useState<string>("new");
   const parsedDate = dateText.trim() ? parseEventDate(dateText) : null;
   const dateInvalid = dateText.trim().length > 0 && !parsedDate;
-  const cmOptions = (): CareerMaterialApprovalOptions | undefined =>
-    isCareerFact ? buildCareerApprovalOptions(target, parsedDate) : undefined;
   // Nåværende dato på oppføringene brukeren kan koble kilden til (egne rader).
   const candidateIds = candidates.map((c) => c.id);
   const { data: candidateDates } = useQuery({
@@ -150,18 +152,44 @@ function ProposalCard(props: {
     queryFn: async () => {
       const { data } = await supabase
         .from("career_atoms")
-        .select("id, event_start, event_end, event_precision")
+        .select("id, event_start, event_end, event_precision, created_at")
         .in("id", candidateIds);
       return new Map(
         (data ?? []).map((r) => [
           r.id as string,
-          formatEventRange(r.event_start, r.event_end, r.event_precision),
+          {
+            start: r.event_start as string | null,
+            end: r.event_end as string | null,
+            precision: r.event_precision as "day" | "month" | "year" | null,
+            label: formatEventRange(r.event_start, r.event_end, r.event_precision),
+            createdAt: r.created_at as string,
+          },
         ]),
       );
     },
   });
   const linking = target !== "new";
-  const currentTargetDate = linking ? (candidateDates?.get(target) ?? null) : null;
+  const current = linking ? (candidateDates?.get(target) ?? null) : null;
+  const [applyDate, setApplyDate] = useState(false);
+  const proposedLabel = parsedDate
+    ? formatEventRange(parsedDate.start, parsedDate.end, parsedDate.precision)
+    : null;
+  const lessPrecise = !!parsedDate && isLessPrecise(parsedDate.precision, current?.precision ?? null);
+  const sameDate =
+    !!parsedDate &&
+    !!current &&
+    parsedDate.start === current.start &&
+    (parsedDate.end ?? null) === (current.end ?? null) &&
+    parsedDate.precision === current.precision;
+  const canApplyDate = linking && !!parsedDate && !dateInvalid && !lessPrecise && !sameDate;
+  const dateEdited = (suggestion?.text ?? "").trim() !== dateText.trim();
+  const cmOptions = (): CareerMaterialApprovalOptions | undefined =>
+    isCareerFact
+      ? buildCareerApprovalOptions(target, parsedDate, {
+          applyEventDate: applyDate && canApplyDate,
+          currentPrecision: current?.precision ?? null,
+        })
+      : undefined;
 
   return (
     <div className="rounded-lg border bg-card/50 p-4 space-y-4">
@@ -316,7 +344,14 @@ function ProposalCard(props: {
                   ? "Gjelder dette en rolle du allerede har registrert?"
                   : "Gjelder dette en kvalifikasjon du allerede har?"}
               </p>
-              <RadioGroup value={target} onValueChange={setTarget} className="gap-1.5">
+              <RadioGroup
+                value={target}
+                onValueChange={(v) => {
+                  setTarget(v);
+                  setApplyDate(false);
+                }}
+                className="gap-1.5"
+              >
                 <div className="flex items-center gap-2 text-sm">
                   <RadioGroupItem value="new" id={`t-new-${p.id}`} />
                   <Label htmlFor={`t-new-${p.id}`} className="font-normal">
@@ -337,12 +372,100 @@ function ProposalCard(props: {
               </p>
             </div>
           )}
-          {isCareerFact && (
+          {isCareerFact && linking && (
+            <div className="space-y-3 rounded-md border p-3" data-testid="link-date-compare">
+              <p className="text-xs font-medium">Dato på oppføringen</p>
+              <div className="grid gap-2 sm:grid-cols-2">
+                <div className="space-y-0.5 rounded-md bg-muted/40 p-2">
+                  <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                    Nå på oppføringen
+                  </p>
+                  <p className="text-sm font-medium">{current?.label ?? "Ingen dato"}</p>
+                  {current?.precision && (
+                    <p className="text-xs text-muted-foreground">
+                      Presisjon: {PRECISION_LABEL[current.precision]}
+                    </p>
+                  )}
+                  {current?.createdAt && (
+                    <p className="text-xs text-muted-foreground">
+                      Registrert i Karrierenmin {fmtDate(current.createdAt)} (endres ikke)
+                    </p>
+                  )}
+                </div>
+                <div className="space-y-0.5 rounded-md border border-primary/30 p-2">
+                  <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                    {dateEdited ? "Ny dato (redigert av deg)" : "Foreslått fra kilden"}
+                  </p>
+                  <p className="text-sm font-medium">
+                    {dateInvalid ? "Kan ikke tolkes" : (proposedLabel ?? "Ingen dato")}
+                  </p>
+                  {parsedDate && (
+                    <p className="text-xs text-muted-foreground">
+                      Presisjon: {PRECISION_LABEL[parsedDate.precision]}
+                    </p>
+                  )}
+                  {suggestion?.text ? (
+                    <p className="text-xs italic text-muted-foreground">
+                      Fra utdraget: «{sourceQuote ?? suggestion.text}»
+                    </p>
+                  ) : (
+                    <p className="text-xs text-muted-foreground">Ingen dato står i utdraget.</p>
+                  )}
+                </div>
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor={`d-${p.id}`} className="text-xs">
+                  Rediger datoen (valgfritt, f.eks. 2021, mars 2021 eller 15.03.2021)
+                </Label>
+                <Input
+                  id={`d-${p.id}`}
+                  value={dateText}
+                  maxLength={60}
+                  onChange={(e) => {
+                    setDateText(e.target.value);
+                    setApplyDate(false);
+                  }}
+                  className="h-8 max-w-xs text-sm"
+                />
+                {dateInvalid && (
+                  <p className="text-xs text-destructive">Datoen kan ikke tolkes.</p>
+                )}
+                {lessPrecise && current?.label && (
+                  <p className="text-xs text-muted-foreground">
+                    Datoen er mindre presis enn {current.label}. Den kjente datoen beholdes.
+                  </p>
+                )}
+                {sameDate && (
+                  <p className="text-xs text-muted-foreground">
+                    Datoen er den samme som oppføringen har. Ingenting endres.
+                  </p>
+                )}
+              </div>
+              <div className="flex items-start gap-2">
+                <Checkbox
+                  id={`apply-${p.id}`}
+                  checked={applyDate && canApplyDate}
+                  disabled={busy || !canApplyDate}
+                  onCheckedChange={(c) => setApplyDate(c === true)}
+                  className="mt-0.5"
+                />
+                <Label htmlFor={`apply-${p.id}`} className="text-sm font-normal leading-snug">
+                  {canApplyDate && proposedLabel
+                    ? `Oppdater datoen på oppføringen til ${proposedLabel}`
+                    : "Oppdater datoen på oppføringen"}
+                </Label>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {applyDate && canApplyDate
+                  ? "Kilden kobles som dokumentasjon, og oppføringen får den nye datoen. Den gamle datoen lagres i historikken."
+                  : "Uten avkrysning kobles bare kilden som dokumentasjon. Datoen på oppføringen endres ikke."}
+              </p>
+            </div>
+          )}
+          {isCareerFact && !linking && (
             <div className="space-y-1">
               <Label htmlFor={`d-${p.id}`} className="text-xs">
-                {linking
-                  ? "Dato fra kilden (valgfritt, f.eks. 2021, mars 2021 eller 15.03.2021)"
-                  : "Når skjedde dette? (valgfritt, f.eks. 2021, mars 2021 eller 15.03.2021)"}
+                Når skjedde dette? (valgfritt, f.eks. 2021, mars 2021 eller 15.03.2021)
               </Label>
               <Input
                 id={`d-${p.id}`}
@@ -354,25 +477,13 @@ function ProposalCard(props: {
               <p className="text-xs text-muted-foreground">
                 {dateInvalid
                   ? "Datoen kan ikke tolkes."
-                  : linking
-                    ? parsedDate
-                      ? `Oppføringen får ny dato: ${formatEventRange(parsedDate.start, parsedDate.end, parsedDate.precision)}.`
-                      : "Datoen på oppføringen endres ikke."
-                    : parsedDate
-                      ? `Lagres som ${formatEventRange(parsedDate.start, parsedDate.end, parsedDate.precision)}.`
-                      : suggestion?.text
-                        ? ""
-                        : "Ingen dato står i utdraget. Uten dato vises registreringsdatoen."}
+                  : parsedDate
+                    ? `Lagres som ${proposedLabel} (presisjon: ${PRECISION_LABEL[parsedDate.precision]}).`
+                    : suggestion?.text
+                      ? ""
+                      : "Ingen dato står i utdraget. Uten dato vises registreringsdatoen."}
                 {suggestion?.text ? ` Forslag fra utdraget: «${suggestion.text}».` : ""}
               </p>
-              {linking && (
-                <p className="text-xs text-muted-foreground">
-                  {currentTargetDate
-                    ? `Datoen på oppføringen nå: ${currentTargetDate}.`
-                    : "Oppføringen har ingen dato nå."}{" "}
-                  Tøm feltet hvis du vil beholde datoen som den er.
-                </p>
-              )}
             </div>
           )}
           <div className="space-y-2">
@@ -393,7 +504,7 @@ function ProposalCard(props: {
             <Button
               type="button"
               size="sm"
-              disabled={busy || (editing && editText.trim().length < 2) || dateInvalid}
+              disabled={busy || (editing && editText.trim().length < 2) || (dateInvalid && !linking)}
               onClick={() =>
                 onApprove(
                   editing && editText.trim() !== originalContent ? editText.trim() : null,
@@ -401,7 +512,13 @@ function ProposalCard(props: {
                 )
               }
             >
-              {editing && editText.trim() !== originalContent ? "Godkjenn redigert" : "Godkjenn"}
+              {isCareerFact && linking
+                ? applyDate && canApplyDate
+                  ? "Godkjenn kobling og ny dato"
+                  : "Godkjenn kobling"
+                : editing && editText.trim() !== originalContent
+                  ? "Godkjenn redigert"
+                  : "Godkjenn"}
             </Button>
             {mode === "pending" && onNeeds && (
               <Button type="button" size="sm" variant="outline" disabled={busy} onClick={onNeeds}>
