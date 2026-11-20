@@ -10,3 +10,4 @@
 - Godkjenning av forslag fra karrieremateriale går kun gjennom service-only `career_material_approve_proposal` (låst rad, idempotent) og lagrer kildekobling i `career_atom_sources` — så dobbeltklikk aldri gir duplikater og godkjenningen overlever sletting av kilden.
 - Hendelsesdato (`event_start/end/precision`) settes bare fra brukerbekreftet eller ordrett sitert dato, aldri fra import- eller godkjenningstid — så ingen dato diktes opp.
 - Generatorer skal hente fakta via `getApprovedCareerFacts` (felles regel for brukerbekreftet), ikke egne spørringer — så alle bruker samme grunnlag.
+- Nye `documents` blir sin egen dokumentgruppe via databaseregel med mindre en gruppe som tilhører samme bruker oppgis, og kvalifikasjonsopplastinger (`source_context='credential_upload'`) får `career_atom_sources`-kobling via databaseregel — så klientinnsetting aldri feiler på gruppekravet og felles faktaleser ser alle opplastinger.

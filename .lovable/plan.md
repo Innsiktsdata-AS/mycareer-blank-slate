@@ -13,11 +13,11 @@ Status 20.11.2026. Ingenting er publisert. Ingen ekte brukerdata er endret eller
 | Andre importløp (LinkedIn, CV-import) | Ikke berørt. Det nye feltet for kildedokument kan stå tomt. | Kode |
 | Nåtall i produksjon | 2 inntak, 0 forslag, 0 kildekoblinger, 0 manuelle kvalifikasjonsfiler, 0 CV-er sendt fra arkivet | Testet (lesing) |
 
-**Konsekvens av de aktive migrasjonene:** De er additive. Dagens publiserte app virker som før. Hva som ikke skjer før publisering, er beskrevet i R1 under.
+**Konsekvens av de aktive migrasjonene:** De er additive. Dagens publiserte app virker som før. R1 og R1b under er rettet direkte i databasen og gjelder allerede for den publiserte appen.
 
 ## 2. Tester av versjonen som skal publiseres
 
-Testet versjon: commit `cfcae9e7` med migrasjon 0005–0008. Alle 654 automatiske tester passerer.
+Testet versjon: commit `cfcae9e7` med migrasjon 0005–0008. Alle 659 automatiske tester passerer (etter R1).
 
 | Test | Resultat |
 |---|---|
@@ -61,14 +61,14 @@ For at CV, søknadsbrev og oppsummeringer senere skal kunne bruke den felles les
 - CV-generatoren må hente fakta fra `getApprovedCareerFacts` i stedet for sitt eget filter. I dag tar den bare med `verified`, så godkjente kildeforslag (`inferred`) kommer ikke med.
 - Søknadsbrevet må hente fakta på serveren i stedet for profildata som nettleseren sender.
 - Oppsummeringer for kvartal, år og rolle må bygges. Udaterte fakta må vises for seg.
-- R1 må være rettet først, ellers mangler leseren manuelle opplastinger.
 
 ## 6. Nødvendige rettinger før eller sammen med publisering
 
-- **R1 (må rettes):** Filer du laster opp manuelt på en kvalifikasjon etter migrasjon 0005, får ingen kildekobling. Det gjelder både publisert app og forhåndsvisningen. Kvalifikasjoner viser dem riktig, men den felles leseren ser dem ikke som dokumentasjon. Produksjon har 0 slike filer, så ingen data er berørt ennå.
-  - Plan: En additiv databaseregel som lager kildekoblingen når en slik fil lagres. Samme regel kjøres én gang for filer som allerede finnes. Den virker også for den publiserte appen uten ny publisering.
-  - Test: Ny opplasting skal gi én kobling, fil fra bruker B skal ikke kunne kobles til A, og sletting skal gi «Kilde utilgjengelig».
-  - Krever din godkjenning, fordi databasen er felles med produksjon.
+- **R1 (rettet 20.11, migrasjon 0009):** Filer du laster opp på en kvalifikasjon, får nå kildekobling automatisk, også i den publiserte appen. Filer som allerede fantes, ble koblet én gang (0 i produksjon).
+  - Testet med to testbrukere: én kobling per fil, ingen duplikat ved ny lagring, B kan ikke koble fil til A sin oppføring og ser ingen av A sine koblinger, slettet fil gir «Kilde utilgjengelig», vanlige dokumenter gir ingen kobling.
+  - Testet i appen: opplasting på Kvalifikasjoner viser «Dokumentert» med en gang.
+- **R1b (funnet og rettet under R1, migrasjon 0010):** Det var ikke mulig å lagre nye dokumenter fra appen. Det gjaldt filer på kvalifikasjoner, nye dokumenter, nye versjoner og lagrede søknadsbrev. Feilen kom av et krav om dokumentgruppe. Det siste dokumentet som ble lagret fra appen, er fra 12.08. Nå blir et nytt dokument sin egen gruppe, med mindre det legges i en gruppe som tilhører samme bruker. Rettingen virker også i den publiserte appen.
+  - Testet: nytt dokument blir egen gruppe, A kan legge en ny versjon i egen gruppe, B kan ikke legge dokument i A sin gruppe.
 - **R2 (liten):** Etter ny innlasting vises «Send til CV-import» fortsatt, selv om CV-en er sendt. Et nytt klikk sier bare «allerede sendt». Knappen skal byttes ut med en statuslinje.
 - **R3 (opprydding):** Den syntetiske PDF-en på 1,7 KB fjernes fra testbrukerens mappe.
 - **R4 (liten):** Ubrukte filkopier etter en avbrutt CV-sending skal ryddes av den eksisterende oppryddingsjobben.
@@ -78,4 +78,4 @@ For at CV, søknadsbrev og oppsummeringer senere skal kunne bruke den felles les
 
 En publisering omfatter: nye typer (kursbevis, rolleendring, lønnsendring), hendelsesdato med presisjon, treff på eksisterende kvalifikasjon og rolle, låst godkjenning via serveren, dokumentasjonsstatus med lenke, felles faktaleser, og «Send til CV-import». Databaseendringene er allerede aktive. Generatorene er ikke med.
 
-**Status: BLOCKED** til R1 er rettet og du har godkjent publiseringen. R2–R4 og den åpne beslutningen kan tas etter publisering.
+**Status: GO for publisering** når du godkjenner. R1 og R1b er rettet i databasen og gjelder allerede. Publiseringen tar i tillegg med at «Dokumentert» vises med en gang etter opplasting. R2–R4 og den åpne beslutningen kan tas etter publisering.

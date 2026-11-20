@@ -64,6 +64,20 @@
       "when": 1795177963168,
       "tag": "0008_career_material_approve_fix_ambiguous",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1795180026319,
+      "tag": "0009_credential_upload_source_links",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1795180137936,
+      "tag": "0010_documents_default_own_group",
+      "breakpoints": true
     }
   ]
 }

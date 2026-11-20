@@ -19,7 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { careerAtomSourcesQuery } from "@/lib/queries/career-atom-sources";
+import { careerAtomSourcesKey, careerAtomSourcesQuery } from "@/lib/queries/career-atom-sources";
 import { SourceStatusBadge } from "@/components/documentation/source-status-badge";
 import { useAuth } from "@/lib/auth-context";
 import {
@@ -320,7 +320,11 @@ export function useCredentialAtoms() {
   return {
     userId,
     ...query,
-    refresh: () => invalidateCredentialAtoms(qc, userId),
+    refresh: () => {
+      invalidateCredentialAtoms(qc, userId);
+      // Opplasting og sletting endrer også kildekoblingen bak «Dokumentert».
+      qc.invalidateQueries({ queryKey: careerAtomSourcesKey(userId) });
+    },
   };
 }
 
