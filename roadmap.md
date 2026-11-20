@@ -10,12 +10,12 @@
 - [x] Idempotens: tekst-hash, leveranse-ID og forslags-hash; avviste forslag foreslås ikke på nytt
 - [x] E-postmottak i produksjon — ekte e-post mottatt og arkivert 2026-11-20
 - [x] Rett produksjonsfeil: lagring ved usikker type (PGRST202) og Resend-vedleggsdomene cdn.resend.app
-- [ ] Publiser rettelsen, og legg vedlegget fra testmeldingen i kø på nytt — venter på publisering
+- [x] Rettelsen publisert; vedlegget fra testmeldingen lagt i kø på nytt og lest i produksjon
 - [x] Bakgrunnsbehandling av e-post og vedlegg (planlagt jobb hvert minutt, lås, kø/lease, retry, pause)
 - [x] Sletting av kilde med avledede data; godkjente elementer beholdes eller fjernes etter valg
 - [x] Typeendring etter godkjenning: godkjente beholdes og vises; ingen dobbeltforslag
 - [ ] Planlagt jobb mot publisert app — virker først etter publisering
-- [ ] Ekte Resend-vedlegg ende til ende i produksjon (PDF-lesing i Workers) — venter på publisering
+- [x] Ekte Resend-vedlegg ende til ende i produksjon (PDF-lesing i Workers)
 - [ ] PDF-lesing i publisert miljø (Cloudflare) — kun verifisert lokalt; må sjekkes etter publisering
 
 ## Rekruttererundersøkelsen
