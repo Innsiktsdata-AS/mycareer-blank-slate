@@ -12,7 +12,7 @@ Revisjonen var bare lesende. Ingen kode, database, data eller hemmeligheter er e
 |---|---|---|
 | Innliming, e-post, vedlegg (PDF/DOCX), bakgrunnsarbeider | Ja | Ja (produksjonstest 20.11) |
 | Rettelser for lagring ved usikker type og Resend-vedlegg | Ja | Ja |
-| Fase 1 (gjenkjent type, arkivering) og 2a (kontaktkort), commit `691c23cb` | Ja | Nei. Siste publisering var før denne endringen, og teksten ble ikke funnet i det publiserte nettstedet. |
+| Fase 1 (gjenkjent type, arkivering) og 2a (kontaktkort), commit `691c23cb` | Ja | Ifølge deg ja: skjermbildet viser «Behold i arkivet», og kontaktkortet virker. Mitt søk i de første skriptfilene fant ikke teksten, trolig fordi den ligger i en fil som lastes senere. Dette sammenlignes nøyaktig i steg 1. |
 | Fase 2b–6 | Nei | Nei |
 
 **Produksjonsbevis (bare tellinger):**
@@ -88,24 +88,29 @@ Hele kjeden fra kilde til profil er altså aldri kjørt i produksjon.
 Hvert steg testes før neste starter. Ingen publisering uten din godkjenning.
 
 ### Steg 1 — Publiseringsstatus og kontroll
-- Bekreft hva som er publisert (fase 1 og 2a er det ikke ennå). Gå gjennom eksisterende funksjoner på nytt.
-- *Godkjenningspunkt:* du tester /kilder i forhåndsvisningen, og deretter publiseres fase 1 og 2a.
+- Sammenlign den publiserte versjonen med koden (alle skriptfiler, også de som lastes senere) og rapporter eventuelle forskjeller. Det forutsettes ikke at noe må publiseres på nytt.
+- Kartlegg alle løp som bruker godkjenningen i dag (forslagskøen, CV-gjennomgang, LinkedIn, andre importer) før steg 2.
 
 ### Steg 2 — Én atomisk godkjenning som tåler gjentak
 - Et nytt server-RPC (`atom_proposal_approve`), tilgjengelig bare for serveren og kalt etter eierskapskontroll, gjør alt i én transaksjon:
   - oppretter eller oppdaterer faktaet (også godkjenning mot en eksisterende oppføring)
   - lagrer kildekoblingen
   - setter status på forslaget
-- Brukes for alle forslag, ikke bare de fra karrieremateriale.
+- Innføres først bare for forslag fra karrieremateriale. Andre importløp beholder dagens oppførsel og utvides senere, ett om gangen, med egne tester.
 - Gjentak er trygt: radlås på forslaget, og et forslag som allerede er godkjent returnerer samme ID uten ny oppføring.
-- *Test:* samtidige klikk gir én oppføring, en feil midt i ruller tilbake alt, nye forsøk gir ingen duplikater, og kryssbruker-test.
+- *Test:* samtidige klikk gir én oppføring, en feil midt i ruller tilbake alt, nye forsøk gir ingen duplikater, og kryssbruker-test. Regresjonstester skal vise at de andre godkjenningsløpene er uendret.
 
 ### Steg 3 — Bekreftelsesnivå, datoer og dokumentasjonsmodell
 - **Tre adskilte nivåer:**
   1. *Brukerbekreftet:* godkjenning i forslagskøen eller i CV-gjennomgangen. Den ene godkjenningen er nok, og faktaet blir da kandidat til senere generering.
   2. *Dokumentert:* koblet til en låst kilde (fil eller innlimt tekst), og koblingen er godkjent av brukeren.
   3. *Uavhengig verifisert:* finnes ikke ennå, og settes ikke av appen.
-- **Overgang uten å svekke kontrollen:** dagens `verified` og `user_confirmed = true` tolkes som brukerbekreftet, uten å endre data. Godkjenning i forslagskøen gir samme nivå. Generatorens krav endres fra «verified» til «brukerbekreftet», med uendret strenghet. Ingen gammel oppføring oppgraderes til «dokumentert» uten en faktisk godkjent kobling. Dagens `attestation` vises som før, med forklaring.
+- **Overgang uten å svekke kontrollen:**
+  - Ingen data endres.
+  - CV-generatorens filter endres ikke i denne fasen.
+  - Den felles leseren (steg 6) regner en oppføring som brukerbekreftet når den har `confidence = verified` og `user_confirmed = true`, eller har et forslag fra køen som er godkjent med den nye godkjenningen. En gammel `inferred`-oppføring slipper ikke gjennom bare fordi `user_confirmed` er satt.
+  - Regelen testes mot hver eksisterende kombinasjon (`verified`/`imported`/`inferred` × `user_confirmed`).
+- **Før en felles «Dokumentert»-visning:** kartlegg hva dagens `attestation`-verdier betyr og hvem som setter dem, og hvordan slettede eller utilgjengelige filer i `structured_data.dokumentasjon` håndteres. Eksisterende status skal verken forsvinne eller få sterkere betydning. Uklare tilfeller vises med dagens merking.
 - **Datoer hver for seg:**
   - Hendelsesdato eller -periode fra dokumentet: `event_start`/`event_end` med presisjon (dag, måned eller år). KI foreslår den bare fra ordrett utdrag, og brukeren bekrefter eller retter.
   - Importdato: kildens mottakstid.
@@ -130,11 +135,11 @@ Hvert steg testes før neste starter. Ingen publisering uten din godkjenning.
 ### Steg 6 — Felles henting av fakta (grunnlag for neste fase)
 - En felles server-leser `getApprovedCareerFacts(userId, filter)` henter aktive, brukerbekreftede fakta med hendelsesdato og presisjon, registreringsdato, kilde og dokumentasjonsstatus. Den kan filtreres på rolle og periode, og fakta uten hendelsesdato leveres separat.
 - Avviste, slettede og inaktive fakta og andre brukeres opplysninger følger aldri med.
-- Generatorene (CV, søknadsbrev, kvartals-, års- og stillingsoppsummering) bygges ikke nå. Søknadsbrevets bruk av profilraden noteres til neste fase.
+- Generatorene (CV, søknadsbrev, kvartals-, års- og stillingsoppsummering) bygges ikke nå, og CV-generatorens filter beholdes. Søknadsbrevets bruk av profilraden noteres til neste fase.
 - *Test:* filtrering på rolle og periode, ukjent dato skilt ut, og utelukkelse av avviste, slettede og andre brukeres fakta.
 
 ### Steg 7 — Hele kjeden og dokumentasjon
-- Kjede-test fra inntak til «Dokumentert» med syntetiske data, med opprydding etterpå.
+- Kjede-test med syntetiske data, både for ny sertifisering og for dokumentasjon av en eksisterende: import, forslag, godkjenning, riktig fakta og dato, «Dokumentert» med lenke, og at faktaet kan hentes med den felles leseren. Testdata ryddes etterpå.
 - Dokumentere hvilke fakta som er klare til neste fase, og hvilken tekst som sendes til analyse.
 
 ## Åpne spørsmål
