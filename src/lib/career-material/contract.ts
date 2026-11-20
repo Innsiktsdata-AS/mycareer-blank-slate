@@ -139,7 +139,8 @@ export const ATTACHMENT_STATUS_HINTS: Partial<Record<AttachmentStatus, string>> 
     "PDF-en ser ut til å være skannet eller består av bilder. Vi leser ikke tekst fra bilder (ingen OCR). Lim inn teksten selv, eller send en PDF med tekst.",
   unreadable: "Filen er skadet eller ikke en gyldig PDF/Word-fil.",
   encrypted: "Fjern passordet og send filen på nytt.",
-  failed: "Behandlingen feilet. Den prøves automatisk på nytt.",
+  // «Prøves på nytt» avgjøres i attachmentHint ut fra faktisk køstatus.
+  failed: "Behandlingen feilet.",
 };
 
 export function attachmentFailureHint(errorCode: string | null | undefined): string | null {
@@ -186,8 +187,9 @@ export const CAREER_MATERIAL_ERROR_LABELS: Record<string, string> = {
   document_missing: "Fant ikke originaldokumentet.",
   store_failed: "Kunne ikke lagre forslagene. Prøv igjen.",
   attempt_limit: "Dokumentet er analysert for mange ganger.",
-  rate_limited: "Analysetjenesten er travel. Vi prøver igjen automatisk.",
-  provider_blocked: "Analysetjenesten avviste forespørselen. Vi venter før vi prøver igjen.",
+  // Løfte om nytt forsøk legges til av visningen bare når køen faktisk prøver igjen.
+  rate_limited: "Analysetjenesten er travel.",
+  provider_blocked: "Analysetjenesten avviste forespørselen.",
 };
 
 export function careerMaterialErrorLabel(code: string | null | undefined): string {
@@ -202,12 +204,34 @@ export const INBOUND_REJECT_LABELS: Record<string, string> = {
     "E-posten hadde for lite tekst, og ingen vedlegg vi kan lese (PDF med tekst eller Word).",
   email_too_large: "E-posten var for stor.",
   text_too_short: "E-posten hadde for lite tekst til å analyseres.",
-  ingest_failed: "Kunne ikke lagre e-posten. Den forsøkes på nytt automatisk.",
+  ingest_failed: "Kunne ikke lagre e-posten.",
 };
 
-export function inboundRejectLabel(code: string | null | undefined): string {
+/**
+ * Nye forsøk for avviste e-poster kommer bare fra e-posttjenestens egne
+ * gjenleveringer, med høyst 10 timer mellom hvert. Uten nytt forsøk på 12
+ * timer kommer det ingen flere.
+ */
+export const INBOUND_REDELIVERY_WINDOW_MS = 12 * 60 * 60 * 1000;
+
+function isRetryableInboundReason(code: string): boolean {
+  return code === "ingest_failed" || code.startsWith("resend_api_") || code.startsWith("fetch_");
+}
+
+export function inboundRejectLabel(
+  code: string | null | undefined,
+  lastAttemptAt?: string | null,
+  now: number = Date.now(),
+): string {
   if (!code) return "Ukjent feil.";
-  if (code.startsWith("resend_api_") || code.startsWith("fetch_"))
-    return "Kunne ikke hente e-posten fra e-posttjenesten. Den forsøkes på nytt automatisk.";
-  return INBOUND_REJECT_LABELS[code] ?? "E-posten kunne ikke behandles.";
+  const base =
+    code.startsWith("resend_api_") || code.startsWith("fetch_")
+      ? "Kunne ikke hente e-posten fra e-posttjenesten."
+      : (INBOUND_REJECT_LABELS[code] ?? "E-posten kunne ikke behandles.");
+  if (!isRetryableInboundReason(code)) return base;
+  const at = lastAttemptAt ? Date.parse(lastAttemptAt) : NaN;
+  const stillRetrying = Number.isFinite(at) && now - at < INBOUND_REDELIVERY_WINDOW_MS;
+  return stillRetrying
+    ? `${base} Den forsøkes på nytt automatisk.`
+    : `${base} Den prøves ikke lenger automatisk — send e-posten på nytt.`;
 }

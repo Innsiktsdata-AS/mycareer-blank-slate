@@ -19,6 +19,7 @@ import {
   ATTACHMENT_MAX_BYTES,
   ATTACHMENT_MAX_PER_EMAIL,
   attachmentHint,
+  inboundRejectLabel,
 } from "@/lib/career-material/contract";
 
 const dir = join(__dirname, "fixtures", "career-material");
@@ -279,6 +280,26 @@ describe("attachmentHint", () => {
     );
     expect(attachmentHint({ ...base, retryable: true, attemptCount: 6 })).toBe(
       "Behandlingen feilet og prøves ikke automatisk på nytt.",
+    );
+  });
+});
+
+describe("inboundRejectLabel", () => {
+  const now = Date.parse("2026-11-20T12:00:00Z");
+  it("lover nytt forsøk bare mens e-posttjenesten fortsatt leverer på nytt", () => {
+    expect(inboundRejectLabel("ingest_failed", "2026-11-20T11:00:00Z", now)).toContain(
+      "forsøkes på nytt automatisk",
+    );
+    expect(inboundRejectLabel("resend_api_503", "2026-11-19T20:00:00Z", now)).toContain(
+      "prøves ikke lenger automatisk",
+    );
+    expect(inboundRejectLabel("ingest_failed", null, now)).toContain(
+      "prøves ikke lenger automatisk",
+    );
+  });
+  it("endelige avvisninger lover aldri nytt forsøk", () => {
+    expect(inboundRejectLabel("email_too_large", "2026-11-20T11:59:00Z", now)).toBe(
+      "E-posten var for stor.",
     );
   });
 });

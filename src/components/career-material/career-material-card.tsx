@@ -330,7 +330,7 @@ export function CareerMaterialCard() {
                 {(failuresQ.data ?? []).map((f) => (
                   <li key={f.id}>
                     {f.at ? `${fmtDateTime(f.at)}: ` : ""}
-                    {inboundRejectLabel(f.rejectReason)}
+                    {inboundRejectLabel(f.rejectReason, f.at)}
                   </li>
                 ))}
               </ul>
@@ -653,7 +653,7 @@ function IntakeRow(props: {
         {r.status === "failed" && (
           <p className="text-destructive">
             {careerMaterialErrorLabel(r.errorCode)}
-            {r.retryable && r.channel === "email" && r.attemptCount < INTAKE_MAX_AUTO_ATTEMPTS
+            {r.retryable && r.attemptCount < INTAKE_MAX_AUTO_ATTEMPTS
               ? " Vi prøver igjen automatisk."
               : ""}
           </p>
