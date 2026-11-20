@@ -8,12 +8,14 @@
 - [x] P1.3 KI-klassifisering med usikkerhet/ukjent, brukerretting, status/feil og sikker ny behandling
 - [x] P1.4 Atomisering med ordrett utdrag, ingen oppdiktede måltall, typepolicy, redigering før godkjenning
 - [x] Idempotens: tekst-hash, leveranse-ID og forslags-hash; avviste forslag foreslås ikke på nytt
-- [ ] E-postmottak i produksjon — blokkert av DNS/secrets (INBOUND_EMAIL_DOMAIN, RESEND_WEBHOOK_SECRET, RESEND_API_KEY)
+- [x] E-postmottak i produksjon — ekte e-post mottatt og arkivert 2026-11-20
+- [x] Rett produksjonsfeil: lagring ved usikker type (PGRST202) og Resend-vedleggsdomene cdn.resend.app
+- [ ] Publiser rettelsen, og legg vedlegget fra testmeldingen i kø på nytt — venter på publisering
 - [x] Bakgrunnsbehandling av e-post og vedlegg (planlagt jobb hvert minutt, lås, kø/lease, retry, pause)
 - [x] Sletting av kilde med avledede data; godkjente elementer beholdes eller fjernes etter valg
 - [x] Typeendring etter godkjenning: godkjente beholdes og vises; ingen dobbeltforslag
 - [ ] Planlagt jobb mot publisert app — virker først etter publisering
-- [ ] Ekte Resend-vedlegg ende til ende — blokkert av DNS/secrets og publisering
+- [ ] Ekte Resend-vedlegg ende til ende i produksjon (PDF-lesing i Workers) — venter på publisering
 - [ ] PDF-lesing i publisert miljø (Cloudflare) — kun verifisert lokalt; må sjekkes etter publisering
 
 ## Rekruttererundersøkelsen

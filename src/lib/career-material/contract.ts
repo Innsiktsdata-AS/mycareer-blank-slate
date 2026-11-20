@@ -150,6 +150,31 @@ export function attachmentFailureHint(errorCode: string | null | undefined): str
   return null;
 }
 
+/** Maks automatiske forsøk per vedlegg (samme grense som i databasekøen). */
+export const ATTACHMENT_MAX_AUTO_ATTEMPTS = 6;
+/** Maks automatiske forsøk per inntak (career_material_due_intakes). «Prøv igjen» tillater flere. */
+export const INTAKE_MAX_AUTO_ATTEMPTS = 6;
+
+/**
+ * Forklaring for et vedlegg. «Prøves automatisk på nytt» vises bare når køen
+ * faktisk vil prøve igjen (gjenforsøkbar feil og forsøk igjen).
+ */
+export function attachmentHint(a: {
+  status: AttachmentStatus;
+  errorCode: string | null;
+  retryable: boolean | null;
+  attemptCount: number;
+}): string | null {
+  const specific = attachmentFailureHint(a.errorCode);
+  if (specific) return specific;
+  if (a.status === "failed") {
+    return a.retryable === true && a.attemptCount < ATTACHMENT_MAX_AUTO_ATTEMPTS
+      ? "Behandlingen feilet. Den prøves automatisk på nytt."
+      : "Behandlingen feilet og prøves ikke automatisk på nytt.";
+  }
+  return ATTACHMENT_STATUS_HINTS[a.status] ?? null;
+}
+
 /** Brukervendte feilmeldinger for sikre feilkoder. */
 export const CAREER_MATERIAL_ERROR_LABELS: Record<string, string> = {
   missing_api_key: "Analysetjenesten er ikke konfigurert.",

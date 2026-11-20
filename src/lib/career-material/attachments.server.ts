@@ -6,7 +6,8 @@
  * (typisk skannet) får status `no_text`, og brukeren får beskjed om det.
  *
  * Henting skjer bare via Resends faste API-origin med server-only nøkkel.
- * Nedlastingslenken må være https på et resend-domene. Innhold, nøkler og
+ * Nedlastingslenken må være https på et Resend-domene (resend.com eller
+ * resend.app — Resend leverer vedlegg fra cdn.resend.app). Innhold, nøkler og
  * lenker logges aldri.
  */
 
@@ -288,15 +289,18 @@ export type DownloadResult =
   | { ok: true; bytes: Uint8Array; contentType: string | null }
   | { ok: false; kind: "retryable" | "permanent"; reason: string };
 
-function isAllowedDownloadUrl(raw: unknown): URL | null {
+/** Domener Resend leverer signerte nedlastingslenker fra (inkl. underdomener). */
+export const RESEND_DOWNLOAD_DOMAINS = ["resend.com", "resend.app"] as const;
+
+export function isAllowedDownloadUrl(raw: unknown): URL | null {
   if (typeof raw !== "string" || raw.length > 4096) return null;
   try {
     const u = new URL(raw);
     if (u.protocol !== "https:") return null;
     if (u.username || u.password) return null;
     const host = u.hostname.toLowerCase();
-    if (host !== "resend.com" && !host.endsWith(".resend.com")) return null;
-    return u;
+    const allowed = RESEND_DOWNLOAD_DOMAINS.some((d) => host === d || host.endsWith(`.${d}`));
+    return allowed ? u : null;
   } catch {
     return null;
   }
@@ -410,7 +414,11 @@ export async function downloadResendAttachment(input: {
       return { ok: false, kind: "permanent", reason: "file_too_large" };
     }
     const url = isAllowedDownloadUrl(meta["download_url"]);
-    if (!url) return { ok: false, kind: "permanent", reason: "invalid_download_url" };
+    // Lenken hentes aldri. Svaret kommer fra Resends faste API-origin med vår
+    // nøkkel, så en ukjent vert betyr endret leveranse hos Resend — ikke farlig
+    // innhold. Nytt forsøk (med ventetid og maks antall) lar en rettet
+    // tillatelsesliste plukke opp vedlegget uten manuell opprydding.
+    if (!url) return { ok: false, kind: "retryable", reason: "invalid_download_url" };
 
     let fileRes: Response;
     try {

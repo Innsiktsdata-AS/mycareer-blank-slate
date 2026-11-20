@@ -6,3 +6,4 @@
 - Kompetanse-atomer fra karrieremateriale peker alltid på et godkjent resultat-atom (`applied_atom_id` → `evidence_atom_ids`); stillingsinstrukser og attester gir aldri kompetanse-atomer — evidensprinsippet.
 - Karrieremateriale fra e-post behandles av bakgrunnsarbeideren (`/api/public/jobs/career-material`, planlagt jobb) med databaselås, claim/lease og pause — aldri ved sidevisning — så behandling er pålitelig og kostnadsbegrenset.
 - Vedlegg valideres på filsignatur og leses uten OCR; hvert lesbart vedlegg blir en egen låst kilde med originalfil i privat lagring under brukerens mappe — så kilde- og vedleggssporing bevares.
+- Valgfrie RPC-parametre uten standardverdi i databasen sendes som eksplisitt `null`, aldri `undefined` — et utelatt felt gir PGRST202 (funksjonen finnes ikke).

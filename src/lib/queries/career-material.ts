@@ -198,6 +198,7 @@ export type CareerAttachmentView = {
   kind: string | null;
   status: AttachmentStatus;
   errorCode: string | null;
+  retryable: boolean | null;
   attemptCount: number;
   sizeBytes: number | null;
   pageCount: number | null;
@@ -216,7 +217,7 @@ export const careerMaterialAttachmentsQuery = (userId: string) =>
       const { data, error } = await supabase
         .from("career_material_attachments")
         .select(
-          "id, filename, kind, status, error_code, attempt_count, size_bytes, declared_size_bytes, page_count, storage_path, document_id, intake_id, created_at",
+          "id, filename, kind, status, error_code, retryable, attempt_count, size_bytes, declared_size_bytes, page_count, storage_path, document_id, intake_id, created_at",
         )
         .order("created_at", { ascending: false })
         .limit(30);
@@ -227,6 +228,7 @@ export const careerMaterialAttachmentsQuery = (userId: string) =>
         kind: string | null;
         status: string;
         error_code: string | null;
+        retryable: boolean | null;
         attempt_count: number;
         size_bytes: number | null;
         declared_size_bytes: number | null;
@@ -242,6 +244,7 @@ export const careerMaterialAttachmentsQuery = (userId: string) =>
         kind: a.kind,
         status: a.status as AttachmentStatus,
         errorCode: a.error_code,
+        retryable: a.retryable,
         attemptCount: a.attempt_count,
         sizeBytes: a.size_bytes ?? a.declared_size_bytes ?? null,
         pageCount: a.page_count,

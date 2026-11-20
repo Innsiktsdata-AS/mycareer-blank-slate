@@ -295,10 +295,13 @@ export async function processCareerMaterialIntake(
       p_ai_type: analysis.aiType,
       p_ai_confidence: analysis.aiConfidence,
       p_ai_rationale: analysis.rationale,
-      p_effective_type: effectiveType ?? undefined,
+      // Eksplisitt null (ikke undefined): parameterne har ingen standardverdi i
+      // databasen, og et utelatt felt gir PGRST202 (funksjonen finnes ikke)
+      // nettopp når typen er usikker og inntaket skal til «velg type».
+      p_effective_type: effectiveType ?? null,
       p_input_signature: effectiveType
         ? analysisSignature({ contentSha256: intake.content_sha256, effectiveType })
-        : undefined,
+        : null,
       p_prompt_version: CAREER_MATERIAL_PROMPT_VERSION,
       p_normalizer_version: CAREER_MATERIAL_NORMALIZER_VERSION,
       p_items: items as unknown as Json,

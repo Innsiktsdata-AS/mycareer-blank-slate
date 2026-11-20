@@ -11,10 +11,15 @@ import {
   downloadResendAttachment,
   expectedKind,
   extractAttachmentText,
+  isAllowedDownloadUrl,
   planAttachments,
   sniffKind,
 } from "@/lib/career-material/attachments.server";
-import { ATTACHMENT_MAX_BYTES, ATTACHMENT_MAX_PER_EMAIL } from "@/lib/career-material/contract";
+import {
+  ATTACHMENT_MAX_BYTES,
+  ATTACHMENT_MAX_PER_EMAIL,
+  attachmentHint,
+} from "@/lib/career-material/contract";
 
 const dir = join(__dirname, "fixtures", "career-material");
 const file = (name: string) => new Uint8Array(readFileSync(join(dir, name)));
@@ -168,12 +173,42 @@ describe("downloadResendAttachment", () => {
     );
   });
 
-  it("avviser nedlastingslenke utenfor resend-domenet (SSRF-vern)", async () => {
+  it("laster ned fra cdn.resend.app (Resends faktiske vedleggsdomene i produksjon)", async () => {
+    const calls: string[] = [];
+    const fetchImpl = vi.fn(async (url: string | URL | Request) => {
+      calls.push(String(url));
+      if (calls.length === 1)
+        return metaResponse({
+          object: "attachment",
+          content_type: "application/pdf",
+          download_url: "https://cdn.resend.app/abc/def?X-Amz-Signature=1",
+          size: 4,
+        });
+      return new Response(new Uint8Array([1, 2, 3, 4]), { status: 200 });
+    }) as unknown as typeof fetch;
+    const r = await downloadResendAttachment({ ...base, fetchImpl });
+    expect(r.ok).toBe(true);
+    expect(calls[1]?.startsWith("https://cdn.resend.app/")).toBe(true);
+  });
+
+  it("tillatelseslisten godtar bare Resend-domener, ikke etterligninger", () => {
+    expect(isAllowedDownloadUrl("https://cdn.resend.app/x")).not.toBeNull();
+    expect(isAllowedDownloadUrl("https://resend.app/x")).not.toBeNull();
+    expect(isAllowedDownloadUrl("https://inbound-cdn.resend.com/x")).not.toBeNull();
+    expect(isAllowedDownloadUrl("https://evilresend.app/x")).toBeNull();
+    expect(isAllowedDownloadUrl("https://cdn.resend.app.evil.com/x")).toBeNull();
+    expect(isAllowedDownloadUrl("https://resend.app@evil.com/x")).toBeNull();
+    expect(isAllowedDownloadUrl("https://u:p@cdn.resend.app/x")).toBeNull();
+    expect(isAllowedDownloadUrl("http://cdn.resend.app/x")).toBeNull();
+  });
+
+  it("avviser nedlastingslenke utenfor resend-domenet (SSRF-vern) uten å hente den", async () => {
     const fetchImpl = vi.fn(async () =>
       metaResponse({ download_url: "https://evil.example.com/file", size: 4 }),
     ) as unknown as typeof fetch;
     const r = await downloadResendAttachment({ ...base, fetchImpl });
-    expect(r).toEqual({ ok: false, kind: "permanent", reason: "invalid_download_url" });
+    // Gjenforsøkbar: en rettet tillatelsesliste plukker opp vedlegget senere.
+    expect(r).toEqual({ ok: false, kind: "retryable", reason: "invalid_download_url" });
     expect(fetchImpl).toHaveBeenCalledTimes(1);
   });
 
@@ -230,5 +265,20 @@ describe("downloadResendAttachment", () => {
     const r = await downloadResendAttachment({ ...base, attachmentId: "../../x", fetchImpl });
     expect(r).toMatchObject({ ok: false, reason: "invalid_attachment_id" });
     expect(fetchImpl).not.toHaveBeenCalled();
+  });
+});
+
+describe("attachmentHint", () => {
+  const base = { status: "failed" as const, errorCode: "fetch_failed" };
+  it("lover nytt forsøk bare når køen faktisk prøver igjen", () => {
+    expect(attachmentHint({ ...base, retryable: true, attemptCount: 1 })).toContain(
+      "prøves automatisk på nytt",
+    );
+    expect(attachmentHint({ ...base, retryable: false, attemptCount: 1 })).toBe(
+      "Behandlingen feilet og prøves ikke automatisk på nytt.",
+    );
+    expect(attachmentHint({ ...base, retryable: true, attemptCount: 6 })).toBe(
+      "Behandlingen feilet og prøves ikke automatisk på nytt.",
+    );
   });
 });

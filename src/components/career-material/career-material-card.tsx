@@ -40,11 +40,11 @@ import {
 import { supabase } from "@/lib/supabase";
 import {
   ATTACHMENT_MAX_PER_EMAIL,
-  ATTACHMENT_STATUS_HINTS,
   ATTACHMENT_STATUS_LABELS,
   CAREER_MATERIAL_STATUS_LABELS,
   OWN_MATERIAL_TYPES,
-  attachmentFailureHint,
+  attachmentHint,
+  INTAKE_MAX_AUTO_ATTEMPTS,
   CAREER_MATERIAL_TYPES,
   CAREER_MATERIAL_TYPE_HINTS,
   CAREER_MATERIAL_TYPE_LABELS,
@@ -488,8 +488,7 @@ function AttachmentList(props: {
       </div>
       <ul className="space-y-2">
         {items.map((a) => {
-          const hint =
-            attachmentFailureHint(a.errorCode) ?? ATTACHMENT_STATUS_HINTS[a.status] ?? null;
+          const hint = attachmentHint(a);
           const done = a.status === "extracted" || a.status === "duplicate";
           const busy = a.status === "queued" || a.status === "processing";
           return (
@@ -654,7 +653,9 @@ function IntakeRow(props: {
         {r.status === "failed" && (
           <p className="text-destructive">
             {careerMaterialErrorLabel(r.errorCode)}
-            {r.retryable && r.channel === "email" ? " Vi prøver igjen automatisk." : ""}
+            {r.retryable && r.channel === "email" && r.attemptCount < INTAKE_MAX_AUTO_ATTEMPTS
+              ? " Vi prøver igjen automatisk."
+              : ""}
           </p>
         )}
         {r.status === "needs_type" && (
