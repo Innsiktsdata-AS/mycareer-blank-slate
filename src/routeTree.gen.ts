@@ -9,186 +9,150 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as Sporreskjema1RouteImport } from './routes/sporreskjema1'
-import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
-import { Route as SignupRouteImport } from './routes/signup'
-import { Route as SelskapsanalyseRouteImport } from './routes/selskapsanalyse'
-import { Route as RekruttererundersokelseRouteImport } from './routes/rekruttererundersokelse'
-import { Route as PersonvernRouteImport } from './routes/personvern'
-import { Route as MarkedsinnsiktRouteImport } from './routes/markedsinnsikt'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as GlemtPassordRouteImport } from './routes/glemt-passord'
-import { Route as ArbeidsgivereRouteImport } from './routes/arbeidsgivere'
-import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as SelskapsanalyseIndexRouteImport } from './routes/selskapsanalyse.index'
-import { Route as RekruttererundersokelseIndexRouteImport } from './routes/rekruttererundersokelse.index'
-import { Route as McpIndexRouteImport } from './routes/mcp/index'
-import { Route as ArbeidsgivereIndexRouteImport } from './routes/arbeidsgivere.index'
-import { Route as SelskapsanalyseTakkRouteImport } from './routes/selskapsanalyse.takk'
-import { Route as RekruttererundersokelseTakkRouteImport } from './routes/rekruttererundersokelse.takk'
-import { Route as OauthAuthorizeRouteImport } from './routes/oauth.authorize'
-import { Route as AuthNyttPassordRouteImport } from './routes/auth.nytt-passord'
-import { Route as AuthLinkedinCallbackRouteImport } from './routes/auth.linkedin-callback'
-import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
-import { Route as ArbeidsgivereOrgnrRouteImport } from './routes/arbeidsgivere.$orgnr'
-import { Route as AuthenticatedSoknadsdokumenterRouteImport } from './routes/_authenticated/soknadsdokumenter'
-import { Route as AuthenticatedPreferencesRouteImport } from './routes/_authenticated/preferences'
-import { Route as AuthenticatedNettverkRouteImport } from './routes/_authenticated/nettverk'
-import { Route as AuthenticatedMyApplicationsRouteImport } from './routes/_authenticated/my-applications'
-import { Route as AuthenticatedMarkedRouteImport } from './routes/_authenticated/marked'
-import { Route as AuthenticatedKilderRouteImport } from './routes/_authenticated/kilder'
-import { Route as AuthenticatedKildegjennomgangRouteImport } from './routes/_authenticated/kildegjennomgang'
-import { Route as AuthenticatedJobLeadsRouteImport } from './routes/_authenticated/job-leads'
-import { Route as AuthenticatedIntegrationsRouteImport } from './routes/_authenticated/integrations'
-import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
-import { Route as AuthenticatedCoverLettersRouteImport } from './routes/_authenticated/cover-letters'
-import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
-import { Route as AuthenticatedAboutMeRouteImport } from './routes/_authenticated/about-me'
-import { Route as DotwellKnownOauthProtectedResourceRouteImport } from './routes/[.]well-known/oauth-protected-resource'
+import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
+import { Route as ArbeidsgivereRouteImport } from './routes/arbeidsgivere'
+import { Route as GlemtPassordRouteImport } from './routes/glemt-passord'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as MarkedsinnsiktRouteImport } from './routes/markedsinnsikt'
+import { Route as PersonvernRouteImport } from './routes/personvern'
+import { Route as RekruttererundersokelseRouteImport } from './routes/rekruttererundersokelse'
+import { Route as SelskapsanalyseRouteImport } from './routes/selskapsanalyse'
+import { Route as SignupRouteImport } from './routes/signup'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as Sporreskjema1RouteImport } from './routes/sporreskjema1'
 import { Route as DotwellKnownOauthAuthorizationServerRouteImport } from './routes/[.]well-known/oauth-authorization-server'
-import { Route as SelskapsanalyseAnalysedatabaseIndexRouteImport } from './routes/selskapsanalyse.analysedatabase.index'
-import { Route as RekruttererundersokelseResultaterIndexRouteImport } from './routes/rekruttererundersokelse.resultater.index'
-import { Route as ApiAiIntegrationsIndexRouteImport } from './routes/api/ai-integrations/index'
-import { Route as AuthenticatedVurderingAvArbeidsgivereIndexRouteImport } from './routes/_authenticated/vurdering-av-arbeidsgivere/index'
-import { Route as AuthenticatedOnboardingIndexRouteImport } from './routes/_authenticated/onboarding/index'
-import { Route as AuthenticatedOfferAnalysisIndexRouteImport } from './routes/_authenticated/offer-analysis/index'
-import { Route as AuthenticatedNextStepsIndexRouteImport } from './routes/_authenticated/next-steps/index'
-import { Route as AuthenticatedNettverkIndexRouteImport } from './routes/_authenticated/nettverk.index'
-import { Route as AuthenticatedMinProfilIndexRouteImport } from './routes/_authenticated/min-profil/index'
-import { Route as AuthenticatedInterviewPrepIndexRouteImport } from './routes/_authenticated/interview-prep/index'
-import { Route as AuthenticatedInnstillingerIndexRouteImport } from './routes/_authenticated/innstillinger.index'
-import { Route as AuthenticatedForslagIndexRouteImport } from './routes/_authenticated/forslag/index'
-import { Route as AuthenticatedEmployersIndexRouteImport } from './routes/_authenticated/employers/index'
-import { Route as AuthenticatedDocumentsIndexRouteImport } from './routes/_authenticated/documents/index'
-import { Route as AuthenticatedDocumentationIndexRouteImport } from './routes/_authenticated/documentation/index'
-import { Route as AuthenticatedCvBuilderIndexRouteImport } from './routes/_authenticated/cv-builder/index'
-import { Route as AuthenticatedApplicationsIndexRouteImport } from './routes/_authenticated/applications/index'
-import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
-import { Route as SelskapsanalyseAnalysedatabaseIdRouteImport } from './routes/selskapsanalyse.analysedatabase.$id'
-import { Route as RekruttererundersokelseResultaterFullRouteImport } from './routes/rekruttererundersokelse.resultater.full'
-import { Route as McpDotwellKnownOauthProtectedResourceRouteImport } from './routes/mcp/[.]well-known/oauth-protected-resource'
-import { Route as LovableEmailEventsRouteImport } from './routes/lovable/email/events'
-import { Route as ApiPublicMcpRouteImport } from './routes/api/public/mcp'
-import { Route as ApiPublicIngestReportRouteImport } from './routes/api/public/ingest-report'
-import { Route as ApiOauthConsentRouteImport } from './routes/api/oauth/consent'
-import { Route as ApiLinkedinImportsRouteImport } from './routes/api/linkedin/imports'
-import { Route as ApiInternalLinkedinReconciliationWorkerRouteImport } from './routes/api/internal/linkedin-reconciliation-worker'
-import { Route as ApiInternalLinkedinImportWorkerRouteImport } from './routes/api/internal/linkedin-import-worker'
-import { Route as ApiInternalCvGenerationWorkerRouteImport } from './routes/api/internal/cv-generation-worker'
-import { Route as ApiCvProposeCvAtomsRouteImport } from './routes/api/cv/propose-cv-atoms'
-import { Route as ApiCvGenerationsRouteImport } from './routes/api/cv/generations'
-import { Route as ApiCvAtomizationJobsRouteImport } from './routes/api/cv/atomization-jobs'
-import { Route as ApiAiIntegrationsSetupSessionRouteImport } from './routes/api/ai-integrations/setup-session'
-import { Route as AuthenticatedVurderingAvArbeidsgivereCompanyIdRouteImport } from './routes/_authenticated/vurdering-av-arbeidsgivere/$companyId'
-import { Route as AuthenticatedNettverkOversiktRouteImport } from './routes/_authenticated/nettverk.oversikt'
-import { Route as AuthenticatedMinProfilOpplysningerRouteImport } from './routes/_authenticated/min-profil/opplysninger'
-import { Route as AuthenticatedMinProfilKarriereretningRouteImport } from './routes/_authenticated/min-profil/karriereretning'
-import { Route as AuthenticatedMinProfilImportgjennomgangRouteImport } from './routes/_authenticated/min-profil/importgjennomgang'
-import { Route as AuthenticatedMinProfilImporterCvRouteImport } from './routes/_authenticated/min-profil/importer-cv'
-import { Route as AuthenticatedKarriereGapRouteImport } from './routes/_authenticated/karriere.gap'
-import { Route as AuthenticatedKarriereErfaringRouteImport } from './routes/_authenticated/karriere.erfaring'
-import { Route as AuthenticatedInnstillingerKontoRouteImport } from './routes/_authenticated/innstillinger.konto'
-import { Route as AuthenticatedInnstillingerIntegrasjonerRouteImport } from './routes/_authenticated/innstillinger.integrasjoner'
-import { Route as AuthenticatedForslagCvRouteImport } from './routes/_authenticated/forslag/cv'
-import { Route as AuthenticatedForslagAiRouteImport } from './routes/_authenticated/forslag/ai'
-import { Route as AuthenticatedEmployersCompanyIdRouteImport } from './routes/_authenticated/employers/$companyId'
-import { Route as AuthenticatedDocumentsNewRouteImport } from './routes/_authenticated/documents/new'
-import { Route as AuthenticatedDocumentsIdRouteImport } from './routes/_authenticated/documents/$id'
-import { Route as AuthenticatedDocumentationSoknadsbrevRouteImport } from './routes/_authenticated/documentation/soknadsbrev'
-import { Route as AuthenticatedDocumentationResultaterRouteImport } from './routes/_authenticated/documentation/resultater'
-import { Route as AuthenticatedDocumentationPackagesRouteImport } from './routes/_authenticated/documentation/packages'
-import { Route as AuthenticatedDocumentationLibraryRouteImport } from './routes/_authenticated/documentation/library'
-import { Route as AuthenticatedDocumentationKvalifikasjonerRouteImport } from './routes/_authenticated/documentation/kvalifikasjoner'
-import { Route as AuthenticatedDocumentationKompetanseRouteImport } from './routes/_authenticated/documentation/kompetanse'
-import { Route as AuthenticatedDocumentationCvRouteImport } from './routes/_authenticated/documentation/cv'
-import { Route as AuthenticatedDocumentationCasesRouteImport } from './routes/_authenticated/documentation/cases'
-import { Route as AuthenticatedCareerCvReviewRouteImport } from './routes/_authenticated/career/cv-review'
-import { Route as AuthenticatedCareerAtomReviewRouteImport } from './routes/_authenticated/career/atom-review'
-import { Route as AuthenticatedApplicationsNewRouteImport } from './routes/_authenticated/applications/new'
-import { Route as AuthenticatedApplicationsIdRouteImport } from './routes/_authenticated/applications/$id'
-import { Route as AuthenticatedAdminSyncRouteImport } from './routes/_authenticated/admin.sync'
-import { Route as AuthenticatedAdminRekruttererundersokelseRouteImport } from './routes/_authenticated/admin.rekruttererundersokelse'
-import { Route as AuthenticatedAdminRegnskapRouteImport } from './routes/_authenticated/admin.regnskap'
-import { Route as AuthenticatedAdminNavSyncRouteImport } from './routes/_authenticated/admin.nav-sync'
-import { Route as AuthenticatedAdminLeadsRouteImport } from './routes/_authenticated/admin.leads'
-import { Route as AuthenticatedAdminIngestionRouteImport } from './routes/_authenticated/admin.ingestion'
-import { Route as AuthenticatedAdminCvTestRouteImport } from './routes/_authenticated/admin.cv-test'
-import { Route as AuthenticatedAdminChangelogRouteImport } from './routes/_authenticated/admin.changelog'
+import { Route as DotwellKnownOauthProtectedResourceRouteImport } from './routes/[.]well-known/oauth-protected-resource'
+import { Route as AuthenticatedAboutMeRouteImport } from './routes/_authenticated/about-me'
+import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
+import { Route as AuthenticatedCoverLettersRouteImport } from './routes/_authenticated/cover-letters'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedIntegrationsRouteImport } from './routes/_authenticated/integrations'
+import { Route as AuthenticatedJobLeadsRouteImport } from './routes/_authenticated/job-leads'
+import { Route as AuthenticatedKildegjennomgangRouteImport } from './routes/_authenticated/kildegjennomgang'
+import { Route as AuthenticatedKilderRouteImport } from './routes/_authenticated/kilder'
+import { Route as AuthenticatedMarkedRouteImport } from './routes/_authenticated/marked'
+import { Route as AuthenticatedMyApplicationsRouteImport } from './routes/_authenticated/my-applications'
+import { Route as AuthenticatedNettverkRouteImport } from './routes/_authenticated/nettverk'
+import { Route as AuthenticatedPreferencesRouteImport } from './routes/_authenticated/preferences'
+import { Route as AuthenticatedSoknadsdokumenterRouteImport } from './routes/_authenticated/soknadsdokumenter'
+import { Route as ArbeidsgivereIndexRouteImport } from './routes/arbeidsgivere.index'
+import { Route as ArbeidsgivereOrgnrRouteImport } from './routes/arbeidsgivere.$orgnr'
+import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
+import { Route as AuthLinkedinCallbackRouteImport } from './routes/auth.linkedin-callback'
+import { Route as AuthNyttPassordRouteImport } from './routes/auth.nytt-passord'
+import { Route as McpIndexRouteImport } from './routes/mcp/index'
+import { Route as OauthAuthorizeRouteImport } from './routes/oauth.authorize'
+import { Route as RekruttererundersokelseIndexRouteImport } from './routes/rekruttererundersokelse.index'
+import { Route as RekruttererundersokelseTakkRouteImport } from './routes/rekruttererundersokelse.takk'
+import { Route as SelskapsanalyseIndexRouteImport } from './routes/selskapsanalyse.index'
+import { Route as SelskapsanalyseTakkRouteImport } from './routes/selskapsanalyse.takk'
 import { Route as DotwellKnownOauthProtectedResourceMcpRouteImport } from './routes/[.]well-known/oauth-protected-resource.mcp'
-import { Route as AuthenticatedNettverkSelskaperIndexRouteImport } from './routes/_authenticated/nettverk.selskaper.index'
-import { Route as AuthenticatedNettverkMuligheterIndexRouteImport } from './routes/_authenticated/nettverk.muligheter.index'
-import { Route as AuthenticatedNettverkKontakterIndexRouteImport } from './routes/_authenticated/nettverk.kontakter.index'
+import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
+import { Route as AuthenticatedAdminChangelogRouteImport } from './routes/_authenticated/admin.changelog'
+import { Route as AuthenticatedAdminCvTestRouteImport } from './routes/_authenticated/admin.cv-test'
+import { Route as AuthenticatedAdminIngestionRouteImport } from './routes/_authenticated/admin.ingestion'
+import { Route as AuthenticatedAdminLeadsRouteImport } from './routes/_authenticated/admin.leads'
+import { Route as AuthenticatedAdminNavSyncRouteImport } from './routes/_authenticated/admin.nav-sync'
+import { Route as AuthenticatedAdminRegnskapRouteImport } from './routes/_authenticated/admin.regnskap'
+import { Route as AuthenticatedAdminRekruttererundersokelseRouteImport } from './routes/_authenticated/admin.rekruttererundersokelse'
+import { Route as AuthenticatedAdminSyncRouteImport } from './routes/_authenticated/admin.sync'
+import { Route as AuthenticatedApplicationsIndexRouteImport } from './routes/_authenticated/applications/index'
+import { Route as AuthenticatedApplicationsIdRouteImport } from './routes/_authenticated/applications/$id'
+import { Route as AuthenticatedApplicationsNewRouteImport } from './routes/_authenticated/applications/new'
+import { Route as AuthenticatedCareerAtomReviewRouteImport } from './routes/_authenticated/career/atom-review'
+import { Route as AuthenticatedCareerCvReviewRouteImport } from './routes/_authenticated/career/cv-review'
+import { Route as AuthenticatedCvBuilderIndexRouteImport } from './routes/_authenticated/cv-builder/index'
+import { Route as AuthenticatedDocumentationIndexRouteImport } from './routes/_authenticated/documentation/index'
+import { Route as AuthenticatedDocumentationCasesRouteImport } from './routes/_authenticated/documentation/cases'
+import { Route as AuthenticatedDocumentationCvRouteImport } from './routes/_authenticated/documentation/cv'
+import { Route as AuthenticatedDocumentationKompetanseRouteImport } from './routes/_authenticated/documentation/kompetanse'
+import { Route as AuthenticatedDocumentationKvalifikasjonerRouteImport } from './routes/_authenticated/documentation/kvalifikasjoner'
+import { Route as AuthenticatedDocumentationLibraryRouteImport } from './routes/_authenticated/documentation/library'
+import { Route as AuthenticatedDocumentationPackagesRouteImport } from './routes/_authenticated/documentation/packages'
+import { Route as AuthenticatedDocumentationResultaterRouteImport } from './routes/_authenticated/documentation/resultater'
+import { Route as AuthenticatedDocumentationSoknadsbrevRouteImport } from './routes/_authenticated/documentation/soknadsbrev'
+import { Route as AuthenticatedDocumentsIndexRouteImport } from './routes/_authenticated/documents/index'
+import { Route as AuthenticatedDocumentsIdRouteImport } from './routes/_authenticated/documents/$id'
+import { Route as AuthenticatedDocumentsNewRouteImport } from './routes/_authenticated/documents/new'
+import { Route as AuthenticatedEmployersIndexRouteImport } from './routes/_authenticated/employers/index'
+import { Route as AuthenticatedEmployersCompanyIdRouteImport } from './routes/_authenticated/employers/$companyId'
+import { Route as AuthenticatedForslagIndexRouteImport } from './routes/_authenticated/forslag/index'
+import { Route as AuthenticatedForslagAiRouteImport } from './routes/_authenticated/forslag/ai'
+import { Route as AuthenticatedForslagCvRouteImport } from './routes/_authenticated/forslag/cv'
+import { Route as AuthenticatedInnstillingerIndexRouteImport } from './routes/_authenticated/innstillinger.index'
+import { Route as AuthenticatedInnstillingerIntegrasjonerRouteImport } from './routes/_authenticated/innstillinger.integrasjoner'
+import { Route as AuthenticatedInnstillingerKontoRouteImport } from './routes/_authenticated/innstillinger.konto'
+import { Route as AuthenticatedInterviewPrepIndexRouteImport } from './routes/_authenticated/interview-prep/index'
+import { Route as AuthenticatedKarriereErfaringRouteImport } from './routes/_authenticated/karriere.erfaring'
+import { Route as AuthenticatedKarriereGapRouteImport } from './routes/_authenticated/karriere.gap'
+import { Route as AuthenticatedMinProfilIndexRouteImport } from './routes/_authenticated/min-profil/index'
+import { Route as AuthenticatedMinProfilImporterCvRouteImport } from './routes/_authenticated/min-profil/importer-cv'
+import { Route as AuthenticatedMinProfilImportgjennomgangRouteImport } from './routes/_authenticated/min-profil/importgjennomgang'
+import { Route as AuthenticatedMinProfilKarriereretningRouteImport } from './routes/_authenticated/min-profil/karriereretning'
+import { Route as AuthenticatedMinProfilOpplysningerRouteImport } from './routes/_authenticated/min-profil/opplysninger'
+import { Route as AuthenticatedNettverkIndexRouteImport } from './routes/_authenticated/nettverk.index'
+import { Route as AuthenticatedNettverkOversiktRouteImport } from './routes/_authenticated/nettverk.oversikt'
+import { Route as AuthenticatedNextStepsIndexRouteImport } from './routes/_authenticated/next-steps/index'
+import { Route as AuthenticatedOfferAnalysisIndexRouteImport } from './routes/_authenticated/offer-analysis/index'
+import { Route as AuthenticatedOnboardingIndexRouteImport } from './routes/_authenticated/onboarding/index'
+import { Route as AuthenticatedVurderingAvArbeidsgivereIndexRouteImport } from './routes/_authenticated/vurdering-av-arbeidsgivere/index'
+import { Route as AuthenticatedVurderingAvArbeidsgivereCompanyIdRouteImport } from './routes/_authenticated/vurdering-av-arbeidsgivere/$companyId'
+import { Route as ApiAiIntegrationsIndexRouteImport } from './routes/api/ai-integrations/index'
+import { Route as ApiAiIntegrationsSetupSessionRouteImport } from './routes/api/ai-integrations/setup-session'
+import { Route as ApiCvAtomizationJobsRouteImport } from './routes/api/cv/atomization-jobs'
+import { Route as ApiCvGenerationsRouteImport } from './routes/api/cv/generations'
+import { Route as ApiCvProposeCvAtomsRouteImport } from './routes/api/cv/propose-cv-atoms'
+import { Route as ApiInternalCvGenerationWorkerRouteImport } from './routes/api/internal/cv-generation-worker'
+import { Route as ApiInternalLinkedinImportWorkerRouteImport } from './routes/api/internal/linkedin-import-worker'
+import { Route as ApiInternalLinkedinReconciliationWorkerRouteImport } from './routes/api/internal/linkedin-reconciliation-worker'
+import { Route as ApiLinkedinImportsRouteImport } from './routes/api/linkedin/imports'
+import { Route as ApiOauthConsentRouteImport } from './routes/api/oauth/consent'
+import { Route as ApiPublicIngestReportRouteImport } from './routes/api/public/ingest-report'
+import { Route as ApiPublicMcpRouteImport } from './routes/api/public/mcp'
+import { Route as LovableEmailEventsRouteImport } from './routes/lovable/email/events'
+import { Route as McpDotwellKnownOauthProtectedResourceRouteImport } from './routes/mcp/[.]well-known/oauth-protected-resource'
+import { Route as RekruttererundersokelseResultaterIndexRouteImport } from './routes/rekruttererundersokelse.resultater.index'
+import { Route as RekruttererundersokelseResultaterFullRouteImport } from './routes/rekruttererundersokelse.resultater.full'
+import { Route as SelskapsanalyseAnalysedatabaseIndexRouteImport } from './routes/selskapsanalyse.analysedatabase.index'
+import { Route as SelskapsanalyseAnalysedatabaseIdRouteImport } from './routes/selskapsanalyse.analysedatabase.$id'
 import { Route as AuthenticatedNettverkAktiviteterIndexRouteImport } from './routes/_authenticated/nettverk.aktiviteter.index'
-import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
-import { Route as ApiPublicSyncBrregEnheterRouteImport } from './routes/api/public/sync/brreg-enheter'
-import { Route as ApiPublicSelskapsanalysePreviewEmailRouteImport } from './routes/api/public/selskapsanalyse/preview-email'
-import { Route as ApiPublicSelskapsanalyseDownloadRouteImport } from './routes/api/public/selskapsanalyse/download'
-import { Route as ApiPublicOpsWatchdogRouteImport } from './routes/api/public/ops/watchdog'
-import { Route as ApiPublicOauthTokenRouteImport } from './routes/api/public/oauth/token'
-import { Route as ApiPublicOauthRevokeRouteImport } from './routes/api/public/oauth/revoke'
-import { Route as ApiPublicOauthReturnRouteImport } from './routes/api/public/oauth/return'
-import { Route as ApiPublicOauthRegisterRouteImport } from './routes/api/public/oauth/register'
-import { Route as ApiPublicOauthPrepareRouteImport } from './routes/api/public/oauth/prepare'
-import { Route as ApiPublicLinkedinWorkerRouteImport } from './routes/api/public/linkedin/worker'
-import { Route as ApiPublicJobsNetworkSuggestionsRouteImport } from './routes/api/public/jobs/network-suggestions'
-import { Route as ApiPublicInboundJobEmailRouteImport } from './routes/api/public/inbound/job-email'
-import { Route as ApiPublicCvAtomizationWorkerRouteImport } from './routes/api/public/cv/atomization-worker'
-import { Route as ApiPublicAiIntegrationsClaimRouteImport } from './routes/api/public/ai-integrations/claim'
-import { Route as ApiCvGenerationsJobIdRouteImport } from './routes/api/cv/generations.$jobId'
-import { Route as ApiCvAtomizationJobsJobIdRouteImport } from './routes/api/cv/atomization-jobs.$jobId'
-import { Route as AuthenticatedNettverkSelskaperAvstemmingRouteImport } from './routes/_authenticated/nettverk.selskaper.avstemming'
-import { Route as AuthenticatedNettverkSelskaperIdRouteImport } from './routes/_authenticated/nettverk.selskaper.$id'
-import { Route as AuthenticatedNettverkMuligheterIdRouteImport } from './routes/_authenticated/nettverk.muligheter.$id'
-import { Route as AuthenticatedNettverkKontakterImportRouteImport } from './routes/_authenticated/nettverk.kontakter.import'
+import { Route as AuthenticatedNettverkKontakterIndexRouteImport } from './routes/_authenticated/nettverk.kontakter.index'
 import { Route as AuthenticatedNettverkKontakterIdRouteImport } from './routes/_authenticated/nettverk.kontakter.$id'
-import { Route as ApiPublicAiIntegrationsV1StatusRouteImport } from './routes/api/public/ai-integrations/v1/status'
-import { Route as ApiPublicAiIntegrationsV1RunRouteImport } from './routes/api/public/ai-integrations/v1/run'
+import { Route as AuthenticatedNettverkKontakterImportRouteImport } from './routes/_authenticated/nettverk.kontakter.import'
+import { Route as AuthenticatedNettverkMuligheterIndexRouteImport } from './routes/_authenticated/nettverk.muligheter.index'
+import { Route as AuthenticatedNettverkMuligheterIdRouteImport } from './routes/_authenticated/nettverk.muligheter.$id'
+import { Route as AuthenticatedNettverkSelskaperIndexRouteImport } from './routes/_authenticated/nettverk.selskaper.index'
+import { Route as AuthenticatedNettverkSelskaperIdRouteImport } from './routes/_authenticated/nettverk.selskaper.$id'
+import { Route as AuthenticatedNettverkSelskaperAvstemmingRouteImport } from './routes/_authenticated/nettverk.selskaper.avstemming'
+import { Route as ApiCvAtomizationJobsJobIdRouteImport } from './routes/api/cv/atomization-jobs.$jobId'
+import { Route as ApiCvGenerationsJobIdRouteImport } from './routes/api/cv/generations.$jobId'
+import { Route as ApiPublicAiIntegrationsClaimRouteImport } from './routes/api/public/ai-integrations/claim'
+import { Route as ApiPublicCvAtomizationWorkerRouteImport } from './routes/api/public/cv/atomization-worker'
+import { Route as ApiPublicInboundJobEmailRouteImport } from './routes/api/public/inbound/job-email'
+import { Route as ApiPublicJobsNetworkSuggestionsRouteImport } from './routes/api/public/jobs/network-suggestions'
+import { Route as ApiPublicLinkedinWorkerRouteImport } from './routes/api/public/linkedin/worker'
+import { Route as ApiPublicOauthPrepareRouteImport } from './routes/api/public/oauth/prepare'
+import { Route as ApiPublicOauthRegisterRouteImport } from './routes/api/public/oauth/register'
+import { Route as ApiPublicOauthReturnRouteImport } from './routes/api/public/oauth/return'
+import { Route as ApiPublicOauthRevokeRouteImport } from './routes/api/public/oauth/revoke'
+import { Route as ApiPublicOauthTokenRouteImport } from './routes/api/public/oauth/token'
+import { Route as ApiPublicOpsWatchdogRouteImport } from './routes/api/public/ops/watchdog'
+import { Route as ApiPublicSelskapsanalyseDownloadRouteImport } from './routes/api/public/selskapsanalyse/download'
+import { Route as ApiPublicSelskapsanalysePreviewEmailRouteImport } from './routes/api/public/selskapsanalyse/preview-email'
+import { Route as ApiPublicSyncBrregEnheterRouteImport } from './routes/api/public/sync/brreg-enheter'
+import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as DotwellKnownOauthProtectedResourceApiPublicMcpRouteImport } from './routes/[.]well-known/oauth-protected-resource.api.public.mcp'
+import { Route as ApiPublicAiIntegrationsV1RunRouteImport } from './routes/api/public/ai-integrations/v1/run'
+import { Route as ApiPublicAiIntegrationsV1StatusRouteImport } from './routes/api/public/ai-integrations/v1/status'
 
-const Sporreskjema1Route = Sporreskjema1RouteImport.update({
-  id: '/sporreskjema1',
-  path: '/sporreskjema1',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
-  id: '/sitemap.xml',
-  path: '/sitemap.xml',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SignupRoute = SignupRouteImport.update({
-  id: '/signup',
-  path: '/signup',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SelskapsanalyseRoute = SelskapsanalyseRouteImport.update({
-  id: '/selskapsanalyse',
-  path: '/selskapsanalyse',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RekruttererundersokelseRoute = RekruttererundersokelseRouteImport.update({
-  id: '/rekruttererundersokelse',
-  path: '/rekruttererundersokelse',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PersonvernRoute = PersonvernRouteImport.update({
-  id: '/personvern',
-  path: '/personvern',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MarkedsinnsiktRoute = MarkedsinnsiktRouteImport.update({
-  id: '/markedsinnsikt',
-  path: '/markedsinnsikt',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const GlemtPassordRoute = GlemtPassordRouteImport.update({
-  id: '/glemt-passord',
-  path: '/glemt-passord',
+const AuthenticatedRoute = AuthenticatedRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ArbeidsgivereRoute = ArbeidsgivereRouteImport.update({
@@ -196,125 +160,71 @@ const ArbeidsgivereRoute = ArbeidsgivereRouteImport.update({
   path: '/arbeidsgivere',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedRoute = AuthenticatedRouteImport.update({
-  id: '/_authenticated',
+const GlemtPassordRoute = GlemtPassordRouteImport.update({
+  id: '/glemt-passord',
+  path: '/glemt-passord',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SelskapsanalyseIndexRoute = SelskapsanalyseIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => SelskapsanalyseRoute,
+const MarkedsinnsiktRoute = MarkedsinnsiktRouteImport.update({
+  id: '/markedsinnsikt',
+  path: '/markedsinnsikt',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const RekruttererundersokelseIndexRoute =
-  RekruttererundersokelseIndexRouteImport.update({
-    id: '/',
-    path: '/',
-    getParentRoute: () => RekruttererundersokelseRoute,
+const PersonvernRoute = PersonvernRouteImport.update({
+  id: '/personvern',
+  path: '/personvern',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RekruttererundersokelseRoute = RekruttererundersokelseRouteImport.update({
+  id: '/rekruttererundersokelse',
+  path: '/rekruttererundersokelse',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SelskapsanalyseRoute = SelskapsanalyseRouteImport.update({
+  id: '/selskapsanalyse',
+  path: '/selskapsanalyse',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignupRoute = SignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const Sporreskjema1Route = Sporreskjema1RouteImport.update({
+  id: '/sporreskjema1',
+  path: '/sporreskjema1',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DotwellKnownOauthAuthorizationServerRoute =
+  DotwellKnownOauthAuthorizationServerRouteImport.update({
+    id: '/.well-known/oauth-authorization-server',
+    path: '/.well-known/oauth-authorization-server',
+    getParentRoute: () => rootRouteImport,
   } as any)
-const McpIndexRoute = McpIndexRouteImport.update({
-  id: '/mcp/',
-  path: '/mcp/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ArbeidsgivereIndexRoute = ArbeidsgivereIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => ArbeidsgivereRoute,
-} as any)
-const SelskapsanalyseTakkRoute = SelskapsanalyseTakkRouteImport.update({
-  id: '/takk',
-  path: '/takk',
-  getParentRoute: () => SelskapsanalyseRoute,
-} as any)
-const RekruttererundersokelseTakkRoute =
-  RekruttererundersokelseTakkRouteImport.update({
-    id: '/takk',
-    path: '/takk',
-    getParentRoute: () => RekruttererundersokelseRoute,
+const DotwellKnownOauthProtectedResourceRoute =
+  DotwellKnownOauthProtectedResourceRouteImport.update({
+    id: '/.well-known/oauth-protected-resource',
+    path: '/.well-known/oauth-protected-resource',
+    getParentRoute: () => rootRouteImport,
   } as any)
-const OauthAuthorizeRoute = OauthAuthorizeRouteImport.update({
-  id: '/oauth/authorize',
-  path: '/oauth/authorize',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthNyttPassordRoute = AuthNyttPassordRouteImport.update({
-  id: '/auth/nytt-passord',
-  path: '/auth/nytt-passord',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthLinkedinCallbackRoute = AuthLinkedinCallbackRouteImport.update({
-  id: '/auth/linkedin-callback',
-  path: '/auth/linkedin-callback',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthCallbackRoute = AuthCallbackRouteImport.update({
-  id: '/auth/callback',
-  path: '/auth/callback',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ArbeidsgivereOrgnrRoute = ArbeidsgivereOrgnrRouteImport.update({
-  id: '/$orgnr',
-  path: '/$orgnr',
-  getParentRoute: () => ArbeidsgivereRoute,
-} as any)
-const AuthenticatedSoknadsdokumenterRoute =
-  AuthenticatedSoknadsdokumenterRouteImport.update({
-    id: '/soknadsdokumenter',
-    path: '/soknadsdokumenter',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedPreferencesRoute =
-  AuthenticatedPreferencesRouteImport.update({
-    id: '/preferences',
-    path: '/preferences',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedNettverkRoute = AuthenticatedNettverkRouteImport.update({
-  id: '/nettverk',
-  path: '/nettverk',
+const AuthenticatedAboutMeRoute = AuthenticatedAboutMeRouteImport.update({
+  id: '/about-me',
+  path: '/about-me',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const AuthenticatedMyApplicationsRoute =
-  AuthenticatedMyApplicationsRouteImport.update({
-    id: '/my-applications',
-    path: '/my-applications',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedMarkedRoute = AuthenticatedMarkedRouteImport.update({
-  id: '/marked',
-  path: '/marked',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
-const AuthenticatedKilderRoute = AuthenticatedKilderRouteImport.update({
-  id: '/kilder',
-  path: '/kilder',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
-const AuthenticatedKildegjennomgangRoute =
-  AuthenticatedKildegjennomgangRouteImport.update({
-    id: '/kildegjennomgang',
-    path: '/kildegjennomgang',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedJobLeadsRoute = AuthenticatedJobLeadsRouteImport.update({
-  id: '/job-leads',
-  path: '/job-leads',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
-const AuthenticatedIntegrationsRoute =
-  AuthenticatedIntegrationsRouteImport.update({
-    id: '/integrations',
-    path: '/integrations',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
+const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
+  id: '/app',
+  path: '/app',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedCoverLettersRoute =
@@ -323,408 +233,133 @@ const AuthenticatedCoverLettersRoute =
     path: '/cover-letters',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
-  id: '/app',
-  path: '/app',
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const AuthenticatedAboutMeRoute = AuthenticatedAboutMeRouteImport.update({
-  id: '/about-me',
-  path: '/about-me',
+const AuthenticatedIntegrationsRoute =
+  AuthenticatedIntegrationsRouteImport.update({
+    id: '/integrations',
+    path: '/integrations',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedJobLeadsRoute = AuthenticatedJobLeadsRouteImport.update({
+  id: '/job-leads',
+  path: '/job-leads',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const DotwellKnownOauthProtectedResourceRoute =
-  DotwellKnownOauthProtectedResourceRouteImport.update({
-    id: '/.well-known/oauth-protected-resource',
-    path: '/.well-known/oauth-protected-resource',
-    getParentRoute: () => rootRouteImport,
+const AuthenticatedKildegjennomgangRoute =
+  AuthenticatedKildegjennomgangRouteImport.update({
+    id: '/kildegjennomgang',
+    path: '/kildegjennomgang',
+    getParentRoute: () => AuthenticatedRoute,
   } as any)
-const DotwellKnownOauthAuthorizationServerRoute =
-  DotwellKnownOauthAuthorizationServerRouteImport.update({
-    id: '/.well-known/oauth-authorization-server',
-    path: '/.well-known/oauth-authorization-server',
-    getParentRoute: () => rootRouteImport,
+const AuthenticatedKilderRoute = AuthenticatedKilderRouteImport.update({
+  id: '/kilder',
+  path: '/kilder',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedMarkedRoute = AuthenticatedMarkedRouteImport.update({
+  id: '/marked',
+  path: '/marked',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedMyApplicationsRoute =
+  AuthenticatedMyApplicationsRouteImport.update({
+    id: '/my-applications',
+    path: '/my-applications',
+    getParentRoute: () => AuthenticatedRoute,
   } as any)
-const SelskapsanalyseAnalysedatabaseIndexRoute =
-  SelskapsanalyseAnalysedatabaseIndexRouteImport.update({
-    id: '/analysedatabase/',
-    path: '/analysedatabase/',
-    getParentRoute: () => SelskapsanalyseRoute,
+const AuthenticatedNettverkRoute = AuthenticatedNettverkRouteImport.update({
+  id: '/nettverk',
+  path: '/nettverk',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedPreferencesRoute =
+  AuthenticatedPreferencesRouteImport.update({
+    id: '/preferences',
+    path: '/preferences',
+    getParentRoute: () => AuthenticatedRoute,
   } as any)
-const RekruttererundersokelseResultaterIndexRoute =
-  RekruttererundersokelseResultaterIndexRouteImport.update({
-    id: '/resultater/',
-    path: '/resultater/',
-    getParentRoute: () => RekruttererundersokelseRoute,
+const AuthenticatedSoknadsdokumenterRoute =
+  AuthenticatedSoknadsdokumenterRouteImport.update({
+    id: '/soknadsdokumenter',
+    path: '/soknadsdokumenter',
+    getParentRoute: () => AuthenticatedRoute,
   } as any)
-const ApiAiIntegrationsIndexRoute = ApiAiIntegrationsIndexRouteImport.update({
-  id: '/api/ai-integrations/',
-  path: '/api/ai-integrations/',
+const ArbeidsgivereIndexRoute = ArbeidsgivereIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ArbeidsgivereRoute,
+} as any)
+const ArbeidsgivereOrgnrRoute = ArbeidsgivereOrgnrRouteImport.update({
+  id: '/$orgnr',
+  path: '/$orgnr',
+  getParentRoute: () => ArbeidsgivereRoute,
+} as any)
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: '/auth/callback',
+  path: '/auth/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedVurderingAvArbeidsgivereIndexRoute =
-  AuthenticatedVurderingAvArbeidsgivereIndexRouteImport.update({
-    id: '/vurdering-av-arbeidsgivere/',
-    path: '/vurdering-av-arbeidsgivere/',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedOnboardingIndexRoute =
-  AuthenticatedOnboardingIndexRouteImport.update({
-    id: '/onboarding/',
-    path: '/onboarding/',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedOfferAnalysisIndexRoute =
-  AuthenticatedOfferAnalysisIndexRouteImport.update({
-    id: '/offer-analysis/',
-    path: '/offer-analysis/',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedNextStepsIndexRoute =
-  AuthenticatedNextStepsIndexRouteImport.update({
-    id: '/next-steps/',
-    path: '/next-steps/',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedNettverkIndexRoute =
-  AuthenticatedNettverkIndexRouteImport.update({
+const AuthLinkedinCallbackRoute = AuthLinkedinCallbackRouteImport.update({
+  id: '/auth/linkedin-callback',
+  path: '/auth/linkedin-callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthNyttPassordRoute = AuthNyttPassordRouteImport.update({
+  id: '/auth/nytt-passord',
+  path: '/auth/nytt-passord',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const McpIndexRoute = McpIndexRouteImport.update({
+  id: '/mcp/',
+  path: '/mcp/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OauthAuthorizeRoute = OauthAuthorizeRouteImport.update({
+  id: '/oauth/authorize',
+  path: '/oauth/authorize',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RekruttererundersokelseIndexRoute =
+  RekruttererundersokelseIndexRouteImport.update({
     id: '/',
     path: '/',
-    getParentRoute: () => AuthenticatedNettverkRoute,
+    getParentRoute: () => RekruttererundersokelseRoute,
   } as any)
-const AuthenticatedMinProfilIndexRoute =
-  AuthenticatedMinProfilIndexRouteImport.update({
-    id: '/min-profil/',
-    path: '/min-profil/',
-    getParentRoute: () => AuthenticatedRoute,
+const RekruttererundersokelseTakkRoute =
+  RekruttererundersokelseTakkRouteImport.update({
+    id: '/takk',
+    path: '/takk',
+    getParentRoute: () => RekruttererundersokelseRoute,
   } as any)
-const AuthenticatedInterviewPrepIndexRoute =
-  AuthenticatedInterviewPrepIndexRouteImport.update({
-    id: '/interview-prep/',
-    path: '/interview-prep/',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedInnstillingerIndexRoute =
-  AuthenticatedInnstillingerIndexRouteImport.update({
-    id: '/innstillinger/',
-    path: '/innstillinger/',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedForslagIndexRoute =
-  AuthenticatedForslagIndexRouteImport.update({
-    id: '/forslag/',
-    path: '/forslag/',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedEmployersIndexRoute =
-  AuthenticatedEmployersIndexRouteImport.update({
-    id: '/employers/',
-    path: '/employers/',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedDocumentsIndexRoute =
-  AuthenticatedDocumentsIndexRouteImport.update({
-    id: '/documents/',
-    path: '/documents/',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedDocumentationIndexRoute =
-  AuthenticatedDocumentationIndexRouteImport.update({
-    id: '/documentation/',
-    path: '/documentation/',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedCvBuilderIndexRoute =
-  AuthenticatedCvBuilderIndexRouteImport.update({
-    id: '/cv-builder/',
-    path: '/cv-builder/',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedApplicationsIndexRoute =
-  AuthenticatedApplicationsIndexRouteImport.update({
-    id: '/applications/',
-    path: '/applications/',
-    getParentRoute: () => AuthenticatedRoute,
+const SelskapsanalyseIndexRoute = SelskapsanalyseIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => SelskapsanalyseRoute,
+} as any)
+const SelskapsanalyseTakkRoute = SelskapsanalyseTakkRouteImport.update({
+  id: '/takk',
+  path: '/takk',
+  getParentRoute: () => SelskapsanalyseRoute,
+} as any)
+const DotwellKnownOauthProtectedResourceMcpRoute =
+  DotwellKnownOauthProtectedResourceMcpRouteImport.update({
+    id: '/mcp',
+    path: '/mcp',
+    getParentRoute: () => DotwellKnownOauthProtectedResourceRoute,
   } as any)
 const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   id: '/admin/',
   path: '/admin/',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const SelskapsanalyseAnalysedatabaseIdRoute =
-  SelskapsanalyseAnalysedatabaseIdRouteImport.update({
-    id: '/analysedatabase/$id',
-    path: '/analysedatabase/$id',
-    getParentRoute: () => SelskapsanalyseRoute,
-  } as any)
-const RekruttererundersokelseResultaterFullRoute =
-  RekruttererundersokelseResultaterFullRouteImport.update({
-    id: '/resultater/full',
-    path: '/resultater/full',
-    getParentRoute: () => RekruttererundersokelseRoute,
-  } as any)
-const McpDotwellKnownOauthProtectedResourceRoute =
-  McpDotwellKnownOauthProtectedResourceRouteImport.update({
-    id: '/mcp/.well-known/oauth-protected-resource',
-    path: '/mcp/.well-known/oauth-protected-resource',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const LovableEmailEventsRoute = LovableEmailEventsRouteImport.update({
-  id: '/lovable/email/events',
-  path: '/lovable/email/events',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicMcpRoute = ApiPublicMcpRouteImport.update({
-  id: '/api/public/mcp',
-  path: '/api/public/mcp',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicIngestReportRoute = ApiPublicIngestReportRouteImport.update({
-  id: '/api/public/ingest-report',
-  path: '/api/public/ingest-report',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiOauthConsentRoute = ApiOauthConsentRouteImport.update({
-  id: '/api/oauth/consent',
-  path: '/api/oauth/consent',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiLinkedinImportsRoute = ApiLinkedinImportsRouteImport.update({
-  id: '/api/linkedin/imports',
-  path: '/api/linkedin/imports',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiInternalLinkedinReconciliationWorkerRoute =
-  ApiInternalLinkedinReconciliationWorkerRouteImport.update({
-    id: '/api/internal/linkedin-reconciliation-worker',
-    path: '/api/internal/linkedin-reconciliation-worker',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiInternalLinkedinImportWorkerRoute =
-  ApiInternalLinkedinImportWorkerRouteImport.update({
-    id: '/api/internal/linkedin-import-worker',
-    path: '/api/internal/linkedin-import-worker',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiInternalCvGenerationWorkerRoute =
-  ApiInternalCvGenerationWorkerRouteImport.update({
-    id: '/api/internal/cv-generation-worker',
-    path: '/api/internal/cv-generation-worker',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiCvProposeCvAtomsRoute = ApiCvProposeCvAtomsRouteImport.update({
-  id: '/api/cv/propose-cv-atoms',
-  path: '/api/cv/propose-cv-atoms',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiCvGenerationsRoute = ApiCvGenerationsRouteImport.update({
-  id: '/api/cv/generations',
-  path: '/api/cv/generations',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiCvAtomizationJobsRoute = ApiCvAtomizationJobsRouteImport.update({
-  id: '/api/cv/atomization-jobs',
-  path: '/api/cv/atomization-jobs',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiAiIntegrationsSetupSessionRoute =
-  ApiAiIntegrationsSetupSessionRouteImport.update({
-    id: '/api/ai-integrations/setup-session',
-    path: '/api/ai-integrations/setup-session',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const AuthenticatedVurderingAvArbeidsgivereCompanyIdRoute =
-  AuthenticatedVurderingAvArbeidsgivereCompanyIdRouteImport.update({
-    id: '/vurdering-av-arbeidsgivere/$companyId',
-    path: '/vurdering-av-arbeidsgivere/$companyId',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedNettverkOversiktRoute =
-  AuthenticatedNettverkOversiktRouteImport.update({
-    id: '/oversikt',
-    path: '/oversikt',
-    getParentRoute: () => AuthenticatedNettverkRoute,
-  } as any)
-const AuthenticatedMinProfilOpplysningerRoute =
-  AuthenticatedMinProfilOpplysningerRouteImport.update({
-    id: '/min-profil/opplysninger',
-    path: '/min-profil/opplysninger',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedMinProfilKarriereretningRoute =
-  AuthenticatedMinProfilKarriereretningRouteImport.update({
-    id: '/min-profil/karriereretning',
-    path: '/min-profil/karriereretning',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedMinProfilImportgjennomgangRoute =
-  AuthenticatedMinProfilImportgjennomgangRouteImport.update({
-    id: '/min-profil/importgjennomgang',
-    path: '/min-profil/importgjennomgang',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedMinProfilImporterCvRoute =
-  AuthenticatedMinProfilImporterCvRouteImport.update({
-    id: '/min-profil/importer-cv',
-    path: '/min-profil/importer-cv',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedKarriereGapRoute =
-  AuthenticatedKarriereGapRouteImport.update({
-    id: '/karriere/gap',
-    path: '/karriere/gap',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedKarriereErfaringRoute =
-  AuthenticatedKarriereErfaringRouteImport.update({
-    id: '/karriere/erfaring',
-    path: '/karriere/erfaring',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedInnstillingerKontoRoute =
-  AuthenticatedInnstillingerKontoRouteImport.update({
-    id: '/innstillinger/konto',
-    path: '/innstillinger/konto',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedInnstillingerIntegrasjonerRoute =
-  AuthenticatedInnstillingerIntegrasjonerRouteImport.update({
-    id: '/innstillinger/integrasjoner',
-    path: '/innstillinger/integrasjoner',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedForslagCvRoute = AuthenticatedForslagCvRouteImport.update({
-  id: '/forslag/cv',
-  path: '/forslag/cv',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
-const AuthenticatedForslagAiRoute = AuthenticatedForslagAiRouteImport.update({
-  id: '/forslag/ai',
-  path: '/forslag/ai',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
-const AuthenticatedEmployersCompanyIdRoute =
-  AuthenticatedEmployersCompanyIdRouteImport.update({
-    id: '/employers/$companyId',
-    path: '/employers/$companyId',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedDocumentsNewRoute =
-  AuthenticatedDocumentsNewRouteImport.update({
-    id: '/documents/new',
-    path: '/documents/new',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedDocumentsIdRoute =
-  AuthenticatedDocumentsIdRouteImport.update({
-    id: '/documents/$id',
-    path: '/documents/$id',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedDocumentationSoknadsbrevRoute =
-  AuthenticatedDocumentationSoknadsbrevRouteImport.update({
-    id: '/documentation/soknadsbrev',
-    path: '/documentation/soknadsbrev',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedDocumentationResultaterRoute =
-  AuthenticatedDocumentationResultaterRouteImport.update({
-    id: '/documentation/resultater',
-    path: '/documentation/resultater',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedDocumentationPackagesRoute =
-  AuthenticatedDocumentationPackagesRouteImport.update({
-    id: '/documentation/packages',
-    path: '/documentation/packages',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedDocumentationLibraryRoute =
-  AuthenticatedDocumentationLibraryRouteImport.update({
-    id: '/documentation/library',
-    path: '/documentation/library',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedDocumentationKvalifikasjonerRoute =
-  AuthenticatedDocumentationKvalifikasjonerRouteImport.update({
-    id: '/documentation/kvalifikasjoner',
-    path: '/documentation/kvalifikasjoner',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedDocumentationKompetanseRoute =
-  AuthenticatedDocumentationKompetanseRouteImport.update({
-    id: '/documentation/kompetanse',
-    path: '/documentation/kompetanse',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedDocumentationCvRoute =
-  AuthenticatedDocumentationCvRouteImport.update({
-    id: '/documentation/cv',
-    path: '/documentation/cv',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedDocumentationCasesRoute =
-  AuthenticatedDocumentationCasesRouteImport.update({
-    id: '/documentation/cases',
-    path: '/documentation/cases',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedCareerCvReviewRoute =
-  AuthenticatedCareerCvReviewRouteImport.update({
-    id: '/career/cv-review',
-    path: '/career/cv-review',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedCareerAtomReviewRoute =
-  AuthenticatedCareerAtomReviewRouteImport.update({
-    id: '/career/atom-review',
-    path: '/career/atom-review',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedApplicationsNewRoute =
-  AuthenticatedApplicationsNewRouteImport.update({
-    id: '/applications/new',
-    path: '/applications/new',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedApplicationsIdRoute =
-  AuthenticatedApplicationsIdRouteImport.update({
-    id: '/applications/$id',
-    path: '/applications/$id',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedAdminSyncRoute = AuthenticatedAdminSyncRouteImport.update({
-  id: '/admin/sync',
-  path: '/admin/sync',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
-const AuthenticatedAdminRekruttererundersokelseRoute =
-  AuthenticatedAdminRekruttererundersokelseRouteImport.update({
-    id: '/admin/rekruttererundersokelse',
-    path: '/admin/rekruttererundersokelse',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedAdminRegnskapRoute =
-  AuthenticatedAdminRegnskapRouteImport.update({
-    id: '/admin/regnskap',
-    path: '/admin/regnskap',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedAdminNavSyncRoute =
-  AuthenticatedAdminNavSyncRouteImport.update({
-    id: '/admin/nav-sync',
-    path: '/admin/nav-sync',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedAdminLeadsRoute = AuthenticatedAdminLeadsRouteImport.update({
-  id: '/admin/leads',
-  path: '/admin/leads',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
-const AuthenticatedAdminIngestionRoute =
-  AuthenticatedAdminIngestionRouteImport.update({
-    id: '/admin/ingestion',
-    path: '/admin/ingestion',
+const AuthenticatedAdminChangelogRoute =
+  AuthenticatedAdminChangelogRouteImport.update({
+    id: '/admin/changelog',
+    path: '/admin/changelog',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedAdminCvTestRoute =
@@ -733,28 +368,387 @@ const AuthenticatedAdminCvTestRoute =
     path: '/admin/cv-test',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedAdminChangelogRoute =
-  AuthenticatedAdminChangelogRouteImport.update({
-    id: '/admin/changelog',
-    path: '/admin/changelog',
+const AuthenticatedAdminIngestionRoute =
+  AuthenticatedAdminIngestionRouteImport.update({
+    id: '/admin/ingestion',
+    path: '/admin/ingestion',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const DotwellKnownOauthProtectedResourceMcpRoute =
-  DotwellKnownOauthProtectedResourceMcpRouteImport.update({
-    id: '/mcp',
-    path: '/mcp',
-    getParentRoute: () => DotwellKnownOauthProtectedResourceRoute,
+const AuthenticatedAdminLeadsRoute = AuthenticatedAdminLeadsRouteImport.update({
+  id: '/admin/leads',
+  path: '/admin/leads',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedAdminNavSyncRoute =
+  AuthenticatedAdminNavSyncRouteImport.update({
+    id: '/admin/nav-sync',
+    path: '/admin/nav-sync',
+    getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedNettverkSelskaperIndexRoute =
-  AuthenticatedNettverkSelskaperIndexRouteImport.update({
-    id: '/selskaper/',
-    path: '/selskaper/',
+const AuthenticatedAdminRegnskapRoute =
+  AuthenticatedAdminRegnskapRouteImport.update({
+    id: '/admin/regnskap',
+    path: '/admin/regnskap',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedAdminRekruttererundersokelseRoute =
+  AuthenticatedAdminRekruttererundersokelseRouteImport.update({
+    id: '/admin/rekruttererundersokelse',
+    path: '/admin/rekruttererundersokelse',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedAdminSyncRoute = AuthenticatedAdminSyncRouteImport.update({
+  id: '/admin/sync',
+  path: '/admin/sync',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedApplicationsIndexRoute =
+  AuthenticatedApplicationsIndexRouteImport.update({
+    id: '/applications/',
+    path: '/applications/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedApplicationsIdRoute =
+  AuthenticatedApplicationsIdRouteImport.update({
+    id: '/applications/$id',
+    path: '/applications/$id',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedApplicationsNewRoute =
+  AuthenticatedApplicationsNewRouteImport.update({
+    id: '/applications/new',
+    path: '/applications/new',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedCareerAtomReviewRoute =
+  AuthenticatedCareerAtomReviewRouteImport.update({
+    id: '/career/atom-review',
+    path: '/career/atom-review',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedCareerCvReviewRoute =
+  AuthenticatedCareerCvReviewRouteImport.update({
+    id: '/career/cv-review',
+    path: '/career/cv-review',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedCvBuilderIndexRoute =
+  AuthenticatedCvBuilderIndexRouteImport.update({
+    id: '/cv-builder/',
+    path: '/cv-builder/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedDocumentationIndexRoute =
+  AuthenticatedDocumentationIndexRouteImport.update({
+    id: '/documentation/',
+    path: '/documentation/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedDocumentationCasesRoute =
+  AuthenticatedDocumentationCasesRouteImport.update({
+    id: '/documentation/cases',
+    path: '/documentation/cases',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedDocumentationCvRoute =
+  AuthenticatedDocumentationCvRouteImport.update({
+    id: '/documentation/cv',
+    path: '/documentation/cv',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedDocumentationKompetanseRoute =
+  AuthenticatedDocumentationKompetanseRouteImport.update({
+    id: '/documentation/kompetanse',
+    path: '/documentation/kompetanse',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedDocumentationKvalifikasjonerRoute =
+  AuthenticatedDocumentationKvalifikasjonerRouteImport.update({
+    id: '/documentation/kvalifikasjoner',
+    path: '/documentation/kvalifikasjoner',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedDocumentationLibraryRoute =
+  AuthenticatedDocumentationLibraryRouteImport.update({
+    id: '/documentation/library',
+    path: '/documentation/library',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedDocumentationPackagesRoute =
+  AuthenticatedDocumentationPackagesRouteImport.update({
+    id: '/documentation/packages',
+    path: '/documentation/packages',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedDocumentationResultaterRoute =
+  AuthenticatedDocumentationResultaterRouteImport.update({
+    id: '/documentation/resultater',
+    path: '/documentation/resultater',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedDocumentationSoknadsbrevRoute =
+  AuthenticatedDocumentationSoknadsbrevRouteImport.update({
+    id: '/documentation/soknadsbrev',
+    path: '/documentation/soknadsbrev',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedDocumentsIndexRoute =
+  AuthenticatedDocumentsIndexRouteImport.update({
+    id: '/documents/',
+    path: '/documents/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedDocumentsIdRoute =
+  AuthenticatedDocumentsIdRouteImport.update({
+    id: '/documents/$id',
+    path: '/documents/$id',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedDocumentsNewRoute =
+  AuthenticatedDocumentsNewRouteImport.update({
+    id: '/documents/new',
+    path: '/documents/new',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedEmployersIndexRoute =
+  AuthenticatedEmployersIndexRouteImport.update({
+    id: '/employers/',
+    path: '/employers/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedEmployersCompanyIdRoute =
+  AuthenticatedEmployersCompanyIdRouteImport.update({
+    id: '/employers/$companyId',
+    path: '/employers/$companyId',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedForslagIndexRoute =
+  AuthenticatedForslagIndexRouteImport.update({
+    id: '/forslag/',
+    path: '/forslag/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedForslagAiRoute = AuthenticatedForslagAiRouteImport.update({
+  id: '/forslag/ai',
+  path: '/forslag/ai',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedForslagCvRoute = AuthenticatedForslagCvRouteImport.update({
+  id: '/forslag/cv',
+  path: '/forslag/cv',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedInnstillingerIndexRoute =
+  AuthenticatedInnstillingerIndexRouteImport.update({
+    id: '/innstillinger/',
+    path: '/innstillinger/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedInnstillingerIntegrasjonerRoute =
+  AuthenticatedInnstillingerIntegrasjonerRouteImport.update({
+    id: '/innstillinger/integrasjoner',
+    path: '/innstillinger/integrasjoner',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedInnstillingerKontoRoute =
+  AuthenticatedInnstillingerKontoRouteImport.update({
+    id: '/innstillinger/konto',
+    path: '/innstillinger/konto',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedInterviewPrepIndexRoute =
+  AuthenticatedInterviewPrepIndexRouteImport.update({
+    id: '/interview-prep/',
+    path: '/interview-prep/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedKarriereErfaringRoute =
+  AuthenticatedKarriereErfaringRouteImport.update({
+    id: '/karriere/erfaring',
+    path: '/karriere/erfaring',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedKarriereGapRoute =
+  AuthenticatedKarriereGapRouteImport.update({
+    id: '/karriere/gap',
+    path: '/karriere/gap',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedMinProfilIndexRoute =
+  AuthenticatedMinProfilIndexRouteImport.update({
+    id: '/min-profil/',
+    path: '/min-profil/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedMinProfilImporterCvRoute =
+  AuthenticatedMinProfilImporterCvRouteImport.update({
+    id: '/min-profil/importer-cv',
+    path: '/min-profil/importer-cv',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedMinProfilImportgjennomgangRoute =
+  AuthenticatedMinProfilImportgjennomgangRouteImport.update({
+    id: '/min-profil/importgjennomgang',
+    path: '/min-profil/importgjennomgang',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedMinProfilKarriereretningRoute =
+  AuthenticatedMinProfilKarriereretningRouteImport.update({
+    id: '/min-profil/karriereretning',
+    path: '/min-profil/karriereretning',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedMinProfilOpplysningerRoute =
+  AuthenticatedMinProfilOpplysningerRouteImport.update({
+    id: '/min-profil/opplysninger',
+    path: '/min-profil/opplysninger',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedNettverkIndexRoute =
+  AuthenticatedNettverkIndexRouteImport.update({
+    id: '/',
+    path: '/',
     getParentRoute: () => AuthenticatedNettverkRoute,
   } as any)
-const AuthenticatedNettverkMuligheterIndexRoute =
-  AuthenticatedNettverkMuligheterIndexRouteImport.update({
-    id: '/muligheter/',
-    path: '/muligheter/',
+const AuthenticatedNettverkOversiktRoute =
+  AuthenticatedNettverkOversiktRouteImport.update({
+    id: '/oversikt',
+    path: '/oversikt',
+    getParentRoute: () => AuthenticatedNettverkRoute,
+  } as any)
+const AuthenticatedNextStepsIndexRoute =
+  AuthenticatedNextStepsIndexRouteImport.update({
+    id: '/next-steps/',
+    path: '/next-steps/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedOfferAnalysisIndexRoute =
+  AuthenticatedOfferAnalysisIndexRouteImport.update({
+    id: '/offer-analysis/',
+    path: '/offer-analysis/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedOnboardingIndexRoute =
+  AuthenticatedOnboardingIndexRouteImport.update({
+    id: '/onboarding/',
+    path: '/onboarding/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedVurderingAvArbeidsgivereIndexRoute =
+  AuthenticatedVurderingAvArbeidsgivereIndexRouteImport.update({
+    id: '/vurdering-av-arbeidsgivere/',
+    path: '/vurdering-av-arbeidsgivere/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedVurderingAvArbeidsgivereCompanyIdRoute =
+  AuthenticatedVurderingAvArbeidsgivereCompanyIdRouteImport.update({
+    id: '/vurdering-av-arbeidsgivere/$companyId',
+    path: '/vurdering-av-arbeidsgivere/$companyId',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const ApiAiIntegrationsIndexRoute = ApiAiIntegrationsIndexRouteImport.update({
+  id: '/api/ai-integrations/',
+  path: '/api/ai-integrations/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAiIntegrationsSetupSessionRoute =
+  ApiAiIntegrationsSetupSessionRouteImport.update({
+    id: '/api/ai-integrations/setup-session',
+    path: '/api/ai-integrations/setup-session',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiCvAtomizationJobsRoute = ApiCvAtomizationJobsRouteImport.update({
+  id: '/api/cv/atomization-jobs',
+  path: '/api/cv/atomization-jobs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiCvGenerationsRoute = ApiCvGenerationsRouteImport.update({
+  id: '/api/cv/generations',
+  path: '/api/cv/generations',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiCvProposeCvAtomsRoute = ApiCvProposeCvAtomsRouteImport.update({
+  id: '/api/cv/propose-cv-atoms',
+  path: '/api/cv/propose-cv-atoms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiInternalCvGenerationWorkerRoute =
+  ApiInternalCvGenerationWorkerRouteImport.update({
+    id: '/api/internal/cv-generation-worker',
+    path: '/api/internal/cv-generation-worker',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiInternalLinkedinImportWorkerRoute =
+  ApiInternalLinkedinImportWorkerRouteImport.update({
+    id: '/api/internal/linkedin-import-worker',
+    path: '/api/internal/linkedin-import-worker',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiInternalLinkedinReconciliationWorkerRoute =
+  ApiInternalLinkedinReconciliationWorkerRouteImport.update({
+    id: '/api/internal/linkedin-reconciliation-worker',
+    path: '/api/internal/linkedin-reconciliation-worker',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiLinkedinImportsRoute = ApiLinkedinImportsRouteImport.update({
+  id: '/api/linkedin/imports',
+  path: '/api/linkedin/imports',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiOauthConsentRoute = ApiOauthConsentRouteImport.update({
+  id: '/api/oauth/consent',
+  path: '/api/oauth/consent',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicIngestReportRoute = ApiPublicIngestReportRouteImport.update({
+  id: '/api/public/ingest-report',
+  path: '/api/public/ingest-report',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicMcpRoute = ApiPublicMcpRouteImport.update({
+  id: '/api/public/mcp',
+  path: '/api/public/mcp',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LovableEmailEventsRoute = LovableEmailEventsRouteImport.update({
+  id: '/lovable/email/events',
+  path: '/lovable/email/events',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const McpDotwellKnownOauthProtectedResourceRoute =
+  McpDotwellKnownOauthProtectedResourceRouteImport.update({
+    id: '/mcp/.well-known/oauth-protected-resource',
+    path: '/mcp/.well-known/oauth-protected-resource',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const RekruttererundersokelseResultaterIndexRoute =
+  RekruttererundersokelseResultaterIndexRouteImport.update({
+    id: '/resultater/',
+    path: '/resultater/',
+    getParentRoute: () => RekruttererundersokelseRoute,
+  } as any)
+const RekruttererundersokelseResultaterFullRoute =
+  RekruttererundersokelseResultaterFullRouteImport.update({
+    id: '/resultater/full',
+    path: '/resultater/full',
+    getParentRoute: () => RekruttererundersokelseRoute,
+  } as any)
+const SelskapsanalyseAnalysedatabaseIndexRoute =
+  SelskapsanalyseAnalysedatabaseIndexRouteImport.update({
+    id: '/analysedatabase/',
+    path: '/analysedatabase/',
+    getParentRoute: () => SelskapsanalyseRoute,
+  } as any)
+const SelskapsanalyseAnalysedatabaseIdRoute =
+  SelskapsanalyseAnalysedatabaseIdRouteImport.update({
+    id: '/analysedatabase/$id',
+    path: '/analysedatabase/$id',
+    getParentRoute: () => SelskapsanalyseRoute,
+  } as any)
+const AuthenticatedNettverkAktiviteterIndexRoute =
+  AuthenticatedNettverkAktiviteterIndexRouteImport.update({
+    id: '/aktiviteter/',
+    path: '/aktiviteter/',
     getParentRoute: () => AuthenticatedNettverkRoute,
   } as any)
 const AuthenticatedNettverkKontakterIndexRoute =
@@ -763,122 +757,10 @@ const AuthenticatedNettverkKontakterIndexRoute =
     path: '/kontakter/',
     getParentRoute: () => AuthenticatedNettverkRoute,
   } as any)
-const AuthenticatedNettverkAktiviteterIndexRoute =
-  AuthenticatedNettverkAktiviteterIndexRouteImport.update({
-    id: '/aktiviteter/',
-    path: '/aktiviteter/',
-    getParentRoute: () => AuthenticatedNettverkRoute,
-  } as any)
-const LovableEmailTransactionalPreviewRoute =
-  LovableEmailTransactionalPreviewRouteImport.update({
-    id: '/lovable/email/transactional/preview',
-    path: '/lovable/email/transactional/preview',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicSyncBrregEnheterRoute =
-  ApiPublicSyncBrregEnheterRouteImport.update({
-    id: '/api/public/sync/brreg-enheter',
-    path: '/api/public/sync/brreg-enheter',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicSelskapsanalysePreviewEmailRoute =
-  ApiPublicSelskapsanalysePreviewEmailRouteImport.update({
-    id: '/api/public/selskapsanalyse/preview-email',
-    path: '/api/public/selskapsanalyse/preview-email',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicSelskapsanalyseDownloadRoute =
-  ApiPublicSelskapsanalyseDownloadRouteImport.update({
-    id: '/api/public/selskapsanalyse/download',
-    path: '/api/public/selskapsanalyse/download',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicOpsWatchdogRoute = ApiPublicOpsWatchdogRouteImport.update({
-  id: '/api/public/ops/watchdog',
-  path: '/api/public/ops/watchdog',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicOauthTokenRoute = ApiPublicOauthTokenRouteImport.update({
-  id: '/api/public/oauth/token',
-  path: '/api/public/oauth/token',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicOauthRevokeRoute = ApiPublicOauthRevokeRouteImport.update({
-  id: '/api/public/oauth/revoke',
-  path: '/api/public/oauth/revoke',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicOauthReturnRoute = ApiPublicOauthReturnRouteImport.update({
-  id: '/api/public/oauth/return',
-  path: '/api/public/oauth/return',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicOauthRegisterRoute = ApiPublicOauthRegisterRouteImport.update({
-  id: '/api/public/oauth/register',
-  path: '/api/public/oauth/register',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicOauthPrepareRoute = ApiPublicOauthPrepareRouteImport.update({
-  id: '/api/public/oauth/prepare',
-  path: '/api/public/oauth/prepare',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicLinkedinWorkerRoute = ApiPublicLinkedinWorkerRouteImport.update({
-  id: '/api/public/linkedin/worker',
-  path: '/api/public/linkedin/worker',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicJobsNetworkSuggestionsRoute =
-  ApiPublicJobsNetworkSuggestionsRouteImport.update({
-    id: '/api/public/jobs/network-suggestions',
-    path: '/api/public/jobs/network-suggestions',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicInboundJobEmailRoute =
-  ApiPublicInboundJobEmailRouteImport.update({
-    id: '/api/public/inbound/job-email',
-    path: '/api/public/inbound/job-email',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicCvAtomizationWorkerRoute =
-  ApiPublicCvAtomizationWorkerRouteImport.update({
-    id: '/api/public/cv/atomization-worker',
-    path: '/api/public/cv/atomization-worker',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicAiIntegrationsClaimRoute =
-  ApiPublicAiIntegrationsClaimRouteImport.update({
-    id: '/api/public/ai-integrations/claim',
-    path: '/api/public/ai-integrations/claim',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiCvGenerationsJobIdRoute = ApiCvGenerationsJobIdRouteImport.update({
-  id: '/$jobId',
-  path: '/$jobId',
-  getParentRoute: () => ApiCvGenerationsRoute,
-} as any)
-const ApiCvAtomizationJobsJobIdRoute =
-  ApiCvAtomizationJobsJobIdRouteImport.update({
-    id: '/$jobId',
-    path: '/$jobId',
-    getParentRoute: () => ApiCvAtomizationJobsRoute,
-  } as any)
-const AuthenticatedNettverkSelskaperAvstemmingRoute =
-  AuthenticatedNettverkSelskaperAvstemmingRouteImport.update({
-    id: '/selskaper/avstemming',
-    path: '/selskaper/avstemming',
-    getParentRoute: () => AuthenticatedNettverkRoute,
-  } as any)
-const AuthenticatedNettverkSelskaperIdRoute =
-  AuthenticatedNettverkSelskaperIdRouteImport.update({
-    id: '/selskaper/$id',
-    path: '/selskaper/$id',
-    getParentRoute: () => AuthenticatedNettverkRoute,
-  } as any)
-const AuthenticatedNettverkMuligheterIdRoute =
-  AuthenticatedNettverkMuligheterIdRouteImport.update({
-    id: '/muligheter/$id',
-    path: '/muligheter/$id',
+const AuthenticatedNettverkKontakterIdRoute =
+  AuthenticatedNettverkKontakterIdRouteImport.update({
+    id: '/kontakter/$id',
+    path: '/kontakter/$id',
     getParentRoute: () => AuthenticatedNettverkRoute,
   } as any)
 const AuthenticatedNettverkKontakterImportRoute =
@@ -887,22 +769,128 @@ const AuthenticatedNettverkKontakterImportRoute =
     path: '/kontakter/import',
     getParentRoute: () => AuthenticatedNettverkRoute,
   } as any)
-const AuthenticatedNettverkKontakterIdRoute =
-  AuthenticatedNettverkKontakterIdRouteImport.update({
-    id: '/kontakter/$id',
-    path: '/kontakter/$id',
+const AuthenticatedNettverkMuligheterIndexRoute =
+  AuthenticatedNettverkMuligheterIndexRouteImport.update({
+    id: '/muligheter/',
+    path: '/muligheter/',
     getParentRoute: () => AuthenticatedNettverkRoute,
   } as any)
-const ApiPublicAiIntegrationsV1StatusRoute =
-  ApiPublicAiIntegrationsV1StatusRouteImport.update({
-    id: '/api/public/ai-integrations/v1/status',
-    path: '/api/public/ai-integrations/v1/status',
+const AuthenticatedNettverkMuligheterIdRoute =
+  AuthenticatedNettverkMuligheterIdRouteImport.update({
+    id: '/muligheter/$id',
+    path: '/muligheter/$id',
+    getParentRoute: () => AuthenticatedNettverkRoute,
+  } as any)
+const AuthenticatedNettverkSelskaperIndexRoute =
+  AuthenticatedNettverkSelskaperIndexRouteImport.update({
+    id: '/selskaper/',
+    path: '/selskaper/',
+    getParentRoute: () => AuthenticatedNettverkRoute,
+  } as any)
+const AuthenticatedNettverkSelskaperIdRoute =
+  AuthenticatedNettverkSelskaperIdRouteImport.update({
+    id: '/selskaper/$id',
+    path: '/selskaper/$id',
+    getParentRoute: () => AuthenticatedNettverkRoute,
+  } as any)
+const AuthenticatedNettverkSelskaperAvstemmingRoute =
+  AuthenticatedNettverkSelskaperAvstemmingRouteImport.update({
+    id: '/selskaper/avstemming',
+    path: '/selskaper/avstemming',
+    getParentRoute: () => AuthenticatedNettverkRoute,
+  } as any)
+const ApiCvAtomizationJobsJobIdRoute =
+  ApiCvAtomizationJobsJobIdRouteImport.update({
+    id: '/$jobId',
+    path: '/$jobId',
+    getParentRoute: () => ApiCvAtomizationJobsRoute,
+  } as any)
+const ApiCvGenerationsJobIdRoute = ApiCvGenerationsJobIdRouteImport.update({
+  id: '/$jobId',
+  path: '/$jobId',
+  getParentRoute: () => ApiCvGenerationsRoute,
+} as any)
+const ApiPublicAiIntegrationsClaimRoute =
+  ApiPublicAiIntegrationsClaimRouteImport.update({
+    id: '/api/public/ai-integrations/claim',
+    path: '/api/public/ai-integrations/claim',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiPublicAiIntegrationsV1RunRoute =
-  ApiPublicAiIntegrationsV1RunRouteImport.update({
-    id: '/api/public/ai-integrations/v1/run',
-    path: '/api/public/ai-integrations/v1/run',
+const ApiPublicCvAtomizationWorkerRoute =
+  ApiPublicCvAtomizationWorkerRouteImport.update({
+    id: '/api/public/cv/atomization-worker',
+    path: '/api/public/cv/atomization-worker',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicInboundJobEmailRoute =
+  ApiPublicInboundJobEmailRouteImport.update({
+    id: '/api/public/inbound/job-email',
+    path: '/api/public/inbound/job-email',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicJobsNetworkSuggestionsRoute =
+  ApiPublicJobsNetworkSuggestionsRouteImport.update({
+    id: '/api/public/jobs/network-suggestions',
+    path: '/api/public/jobs/network-suggestions',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicLinkedinWorkerRoute = ApiPublicLinkedinWorkerRouteImport.update({
+  id: '/api/public/linkedin/worker',
+  path: '/api/public/linkedin/worker',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicOauthPrepareRoute = ApiPublicOauthPrepareRouteImport.update({
+  id: '/api/public/oauth/prepare',
+  path: '/api/public/oauth/prepare',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicOauthRegisterRoute = ApiPublicOauthRegisterRouteImport.update({
+  id: '/api/public/oauth/register',
+  path: '/api/public/oauth/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicOauthReturnRoute = ApiPublicOauthReturnRouteImport.update({
+  id: '/api/public/oauth/return',
+  path: '/api/public/oauth/return',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicOauthRevokeRoute = ApiPublicOauthRevokeRouteImport.update({
+  id: '/api/public/oauth/revoke',
+  path: '/api/public/oauth/revoke',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicOauthTokenRoute = ApiPublicOauthTokenRouteImport.update({
+  id: '/api/public/oauth/token',
+  path: '/api/public/oauth/token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicOpsWatchdogRoute = ApiPublicOpsWatchdogRouteImport.update({
+  id: '/api/public/ops/watchdog',
+  path: '/api/public/ops/watchdog',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicSelskapsanalyseDownloadRoute =
+  ApiPublicSelskapsanalyseDownloadRouteImport.update({
+    id: '/api/public/selskapsanalyse/download',
+    path: '/api/public/selskapsanalyse/download',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicSelskapsanalysePreviewEmailRoute =
+  ApiPublicSelskapsanalysePreviewEmailRouteImport.update({
+    id: '/api/public/selskapsanalyse/preview-email',
+    path: '/api/public/selskapsanalyse/preview-email',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicSyncBrregEnheterRoute =
+  ApiPublicSyncBrregEnheterRouteImport.update({
+    id: '/api/public/sync/brreg-enheter',
+    path: '/api/public/sync/brreg-enheter',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const LovableEmailTransactionalPreviewRoute =
+  LovableEmailTransactionalPreviewRouteImport.update({
+    id: '/lovable/email/transactional/preview',
+    path: '/lovable/email/transactional/preview',
     getParentRoute: () => rootRouteImport,
   } as any)
 const DotwellKnownOauthProtectedResourceApiPublicMcpRoute =
@@ -910,6 +898,18 @@ const DotwellKnownOauthProtectedResourceApiPublicMcpRoute =
     id: '/api/public/mcp',
     path: '/api/public/mcp',
     getParentRoute: () => DotwellKnownOauthProtectedResourceRoute,
+  } as any)
+const ApiPublicAiIntegrationsV1RunRoute =
+  ApiPublicAiIntegrationsV1RunRouteImport.update({
+    id: '/api/public/ai-integrations/v1/run',
+    path: '/api/public/ai-integrations/v1/run',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicAiIntegrationsV1StatusRoute =
+  ApiPublicAiIntegrationsV1StatusRouteImport.update({
+    id: '/api/public/ai-integrations/v1/status',
+    path: '/api/public/ai-integrations/v1/status',
+    getParentRoute: () => rootRouteImport,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -1787,74 +1787,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/sporreskjema1': {
-      id: '/sporreskjema1'
-      path: '/sporreskjema1'
-      fullPath: '/sporreskjema1'
-      preLoaderRoute: typeof Sporreskjema1RouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sitemap.xml': {
-      id: '/sitemap.xml'
-      path: '/sitemap.xml'
-      fullPath: '/sitemap.xml'
-      preLoaderRoute: typeof SitemapDotxmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/signup': {
-      id: '/signup'
-      path: '/signup'
-      fullPath: '/signup'
-      preLoaderRoute: typeof SignupRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/selskapsanalyse': {
-      id: '/selskapsanalyse'
-      path: '/selskapsanalyse'
-      fullPath: '/selskapsanalyse'
-      preLoaderRoute: typeof SelskapsanalyseRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/rekruttererundersokelse': {
-      id: '/rekruttererundersokelse'
-      path: '/rekruttererundersokelse'
-      fullPath: '/rekruttererundersokelse'
-      preLoaderRoute: typeof RekruttererundersokelseRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/personvern': {
-      id: '/personvern'
-      path: '/personvern'
-      fullPath: '/personvern'
-      preLoaderRoute: typeof PersonvernRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/markedsinnsikt': {
-      id: '/markedsinnsikt'
-      path: '/markedsinnsikt'
-      fullPath: '/markedsinnsikt'
-      preLoaderRoute: typeof MarkedsinnsiktRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/glemt-passord': {
-      id: '/glemt-passord'
-      path: '/glemt-passord'
-      fullPath: '/glemt-passord'
-      preLoaderRoute: typeof GlemtPassordRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/arbeidsgivere': {
-      id: '/arbeidsgivere'
-      path: '/arbeidsgivere'
-      fullPath: '/arbeidsgivere'
-      preLoaderRoute: typeof ArbeidsgivereRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -1864,186 +1801,74 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/arbeidsgivere': {
+      id: '/arbeidsgivere'
+      path: '/arbeidsgivere'
+      fullPath: '/arbeidsgivere'
+      preLoaderRoute: typeof ArbeidsgivereRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/selskapsanalyse/': {
-      id: '/selskapsanalyse/'
-      path: '/'
-      fullPath: '/selskapsanalyse/'
-      preLoaderRoute: typeof SelskapsanalyseIndexRouteImport
-      parentRoute: typeof SelskapsanalyseRoute
-    }
-    '/rekruttererundersokelse/': {
-      id: '/rekruttererundersokelse/'
-      path: '/'
-      fullPath: '/rekruttererundersokelse/'
-      preLoaderRoute: typeof RekruttererundersokelseIndexRouteImport
-      parentRoute: typeof RekruttererundersokelseRoute
-    }
-    '/mcp/': {
-      id: '/mcp/'
-      path: '/mcp'
-      fullPath: '/mcp/'
-      preLoaderRoute: typeof McpIndexRouteImport
+    '/glemt-passord': {
+      id: '/glemt-passord'
+      path: '/glemt-passord'
+      fullPath: '/glemt-passord'
+      preLoaderRoute: typeof GlemtPassordRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/arbeidsgivere/': {
-      id: '/arbeidsgivere/'
-      path: '/'
-      fullPath: '/arbeidsgivere/'
-      preLoaderRoute: typeof ArbeidsgivereIndexRouteImport
-      parentRoute: typeof ArbeidsgivereRoute
-    }
-    '/selskapsanalyse/takk': {
-      id: '/selskapsanalyse/takk'
-      path: '/takk'
-      fullPath: '/selskapsanalyse/takk'
-      preLoaderRoute: typeof SelskapsanalyseTakkRouteImport
-      parentRoute: typeof SelskapsanalyseRoute
-    }
-    '/rekruttererundersokelse/takk': {
-      id: '/rekruttererundersokelse/takk'
-      path: '/takk'
-      fullPath: '/rekruttererundersokelse/takk'
-      preLoaderRoute: typeof RekruttererundersokelseTakkRouteImport
-      parentRoute: typeof RekruttererundersokelseRoute
-    }
-    '/oauth/authorize': {
-      id: '/oauth/authorize'
-      path: '/oauth/authorize'
-      fullPath: '/oauth/authorize'
-      preLoaderRoute: typeof OauthAuthorizeRouteImport
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/auth/nytt-passord': {
-      id: '/auth/nytt-passord'
-      path: '/auth/nytt-passord'
-      fullPath: '/auth/nytt-passord'
-      preLoaderRoute: typeof AuthNyttPassordRouteImport
+    '/markedsinnsikt': {
+      id: '/markedsinnsikt'
+      path: '/markedsinnsikt'
+      fullPath: '/markedsinnsikt'
+      preLoaderRoute: typeof MarkedsinnsiktRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/auth/linkedin-callback': {
-      id: '/auth/linkedin-callback'
-      path: '/auth/linkedin-callback'
-      fullPath: '/auth/linkedin-callback'
-      preLoaderRoute: typeof AuthLinkedinCallbackRouteImport
+    '/personvern': {
+      id: '/personvern'
+      path: '/personvern'
+      fullPath: '/personvern'
+      preLoaderRoute: typeof PersonvernRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/auth/callback': {
-      id: '/auth/callback'
-      path: '/auth/callback'
-      fullPath: '/auth/callback'
-      preLoaderRoute: typeof AuthCallbackRouteImport
+    '/rekruttererundersokelse': {
+      id: '/rekruttererundersokelse'
+      path: '/rekruttererundersokelse'
+      fullPath: '/rekruttererundersokelse'
+      preLoaderRoute: typeof RekruttererundersokelseRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/arbeidsgivere/$orgnr': {
-      id: '/arbeidsgivere/$orgnr'
-      path: '/$orgnr'
-      fullPath: '/arbeidsgivere/$orgnr'
-      preLoaderRoute: typeof ArbeidsgivereOrgnrRouteImport
-      parentRoute: typeof ArbeidsgivereRoute
+    '/selskapsanalyse': {
+      id: '/selskapsanalyse'
+      path: '/selskapsanalyse'
+      fullPath: '/selskapsanalyse'
+      preLoaderRoute: typeof SelskapsanalyseRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/soknadsdokumenter': {
-      id: '/_authenticated/soknadsdokumenter'
-      path: '/soknadsdokumenter'
-      fullPath: '/soknadsdokumenter'
-      preLoaderRoute: typeof AuthenticatedSoknadsdokumenterRouteImport
-      parentRoute: typeof AuthenticatedRoute
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/preferences': {
-      id: '/_authenticated/preferences'
-      path: '/preferences'
-      fullPath: '/preferences'
-      preLoaderRoute: typeof AuthenticatedPreferencesRouteImport
-      parentRoute: typeof AuthenticatedRoute
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/nettverk': {
-      id: '/_authenticated/nettverk'
-      path: '/nettverk'
-      fullPath: '/nettverk'
-      preLoaderRoute: typeof AuthenticatedNettverkRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/my-applications': {
-      id: '/_authenticated/my-applications'
-      path: '/my-applications'
-      fullPath: '/my-applications'
-      preLoaderRoute: typeof AuthenticatedMyApplicationsRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/marked': {
-      id: '/_authenticated/marked'
-      path: '/marked'
-      fullPath: '/marked'
-      preLoaderRoute: typeof AuthenticatedMarkedRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/kilder': {
-      id: '/_authenticated/kilder'
-      path: '/kilder'
-      fullPath: '/kilder'
-      preLoaderRoute: typeof AuthenticatedKilderRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/kildegjennomgang': {
-      id: '/_authenticated/kildegjennomgang'
-      path: '/kildegjennomgang'
-      fullPath: '/kildegjennomgang'
-      preLoaderRoute: typeof AuthenticatedKildegjennomgangRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/job-leads': {
-      id: '/_authenticated/job-leads'
-      path: '/job-leads'
-      fullPath: '/job-leads'
-      preLoaderRoute: typeof AuthenticatedJobLeadsRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/integrations': {
-      id: '/_authenticated/integrations'
-      path: '/integrations'
-      fullPath: '/integrations'
-      preLoaderRoute: typeof AuthenticatedIntegrationsRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/dashboard': {
-      id: '/_authenticated/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/cover-letters': {
-      id: '/_authenticated/cover-letters'
-      path: '/cover-letters'
-      fullPath: '/cover-letters'
-      preLoaderRoute: typeof AuthenticatedCoverLettersRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/app': {
-      id: '/_authenticated/app'
-      path: '/app'
-      fullPath: '/app'
-      preLoaderRoute: typeof AuthenticatedAppRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/about-me': {
-      id: '/_authenticated/about-me'
-      path: '/about-me'
-      fullPath: '/about-me'
-      preLoaderRoute: typeof AuthenticatedAboutMeRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/.well-known/oauth-protected-resource': {
-      id: '/.well-known/oauth-protected-resource'
-      path: '/.well-known/oauth-protected-resource'
-      fullPath: '/.well-known/oauth-protected-resource'
-      preLoaderRoute: typeof DotwellKnownOauthProtectedResourceRouteImport
+    '/sporreskjema1': {
+      id: '/sporreskjema1'
+      path: '/sporreskjema1'
+      fullPath: '/sporreskjema1'
+      preLoaderRoute: typeof Sporreskjema1RouteImport
       parentRoute: typeof rootRouteImport
     }
     '/.well-known/oauth-authorization-server': {
@@ -2053,473 +1878,193 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DotwellKnownOauthAuthorizationServerRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/selskapsanalyse/analysedatabase/': {
-      id: '/selskapsanalyse/analysedatabase/'
-      path: '/analysedatabase'
-      fullPath: '/selskapsanalyse/analysedatabase/'
-      preLoaderRoute: typeof SelskapsanalyseAnalysedatabaseIndexRouteImport
-      parentRoute: typeof SelskapsanalyseRoute
-    }
-    '/rekruttererundersokelse/resultater/': {
-      id: '/rekruttererundersokelse/resultater/'
-      path: '/resultater'
-      fullPath: '/rekruttererundersokelse/resultater/'
-      preLoaderRoute: typeof RekruttererundersokelseResultaterIndexRouteImport
-      parentRoute: typeof RekruttererundersokelseRoute
-    }
-    '/api/ai-integrations/': {
-      id: '/api/ai-integrations/'
-      path: '/api/ai-integrations'
-      fullPath: '/api/ai-integrations/'
-      preLoaderRoute: typeof ApiAiIntegrationsIndexRouteImport
+    '/.well-known/oauth-protected-resource': {
+      id: '/.well-known/oauth-protected-resource'
+      path: '/.well-known/oauth-protected-resource'
+      fullPath: '/.well-known/oauth-protected-resource'
+      preLoaderRoute: typeof DotwellKnownOauthProtectedResourceRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/vurdering-av-arbeidsgivere/': {
-      id: '/_authenticated/vurdering-av-arbeidsgivere/'
-      path: '/vurdering-av-arbeidsgivere'
-      fullPath: '/vurdering-av-arbeidsgivere/'
-      preLoaderRoute: typeof AuthenticatedVurderingAvArbeidsgivereIndexRouteImport
+    '/_authenticated/about-me': {
+      id: '/_authenticated/about-me'
+      path: '/about-me'
+      fullPath: '/about-me'
+      preLoaderRoute: typeof AuthenticatedAboutMeRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/onboarding/': {
-      id: '/_authenticated/onboarding/'
-      path: '/onboarding'
-      fullPath: '/onboarding/'
-      preLoaderRoute: typeof AuthenticatedOnboardingIndexRouteImport
+    '/_authenticated/app': {
+      id: '/_authenticated/app'
+      path: '/app'
+      fullPath: '/app'
+      preLoaderRoute: typeof AuthenticatedAppRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/offer-analysis/': {
-      id: '/_authenticated/offer-analysis/'
-      path: '/offer-analysis'
-      fullPath: '/offer-analysis/'
-      preLoaderRoute: typeof AuthenticatedOfferAnalysisIndexRouteImport
+    '/_authenticated/cover-letters': {
+      id: '/_authenticated/cover-letters'
+      path: '/cover-letters'
+      fullPath: '/cover-letters'
+      preLoaderRoute: typeof AuthenticatedCoverLettersRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/next-steps/': {
-      id: '/_authenticated/next-steps/'
-      path: '/next-steps'
-      fullPath: '/next-steps/'
-      preLoaderRoute: typeof AuthenticatedNextStepsIndexRouteImport
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/nettverk/': {
-      id: '/_authenticated/nettverk/'
+    '/_authenticated/integrations': {
+      id: '/_authenticated/integrations'
+      path: '/integrations'
+      fullPath: '/integrations'
+      preLoaderRoute: typeof AuthenticatedIntegrationsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/job-leads': {
+      id: '/_authenticated/job-leads'
+      path: '/job-leads'
+      fullPath: '/job-leads'
+      preLoaderRoute: typeof AuthenticatedJobLeadsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/kildegjennomgang': {
+      id: '/_authenticated/kildegjennomgang'
+      path: '/kildegjennomgang'
+      fullPath: '/kildegjennomgang'
+      preLoaderRoute: typeof AuthenticatedKildegjennomgangRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/kilder': {
+      id: '/_authenticated/kilder'
+      path: '/kilder'
+      fullPath: '/kilder'
+      preLoaderRoute: typeof AuthenticatedKilderRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/marked': {
+      id: '/_authenticated/marked'
+      path: '/marked'
+      fullPath: '/marked'
+      preLoaderRoute: typeof AuthenticatedMarkedRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/my-applications': {
+      id: '/_authenticated/my-applications'
+      path: '/my-applications'
+      fullPath: '/my-applications'
+      preLoaderRoute: typeof AuthenticatedMyApplicationsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/nettverk': {
+      id: '/_authenticated/nettverk'
+      path: '/nettverk'
+      fullPath: '/nettverk'
+      preLoaderRoute: typeof AuthenticatedNettverkRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/preferences': {
+      id: '/_authenticated/preferences'
+      path: '/preferences'
+      fullPath: '/preferences'
+      preLoaderRoute: typeof AuthenticatedPreferencesRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/soknadsdokumenter': {
+      id: '/_authenticated/soknadsdokumenter'
+      path: '/soknadsdokumenter'
+      fullPath: '/soknadsdokumenter'
+      preLoaderRoute: typeof AuthenticatedSoknadsdokumenterRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/arbeidsgivere/': {
+      id: '/arbeidsgivere/'
       path: '/'
-      fullPath: '/nettverk/'
-      preLoaderRoute: typeof AuthenticatedNettverkIndexRouteImport
-      parentRoute: typeof AuthenticatedNettverkRoute
+      fullPath: '/arbeidsgivere/'
+      preLoaderRoute: typeof ArbeidsgivereIndexRouteImport
+      parentRoute: typeof ArbeidsgivereRoute
     }
-    '/_authenticated/min-profil/': {
-      id: '/_authenticated/min-profil/'
-      path: '/min-profil'
-      fullPath: '/min-profil/'
-      preLoaderRoute: typeof AuthenticatedMinProfilIndexRouteImport
-      parentRoute: typeof AuthenticatedRoute
+    '/arbeidsgivere/$orgnr': {
+      id: '/arbeidsgivere/$orgnr'
+      path: '/$orgnr'
+      fullPath: '/arbeidsgivere/$orgnr'
+      preLoaderRoute: typeof ArbeidsgivereOrgnrRouteImport
+      parentRoute: typeof ArbeidsgivereRoute
     }
-    '/_authenticated/interview-prep/': {
-      id: '/_authenticated/interview-prep/'
-      path: '/interview-prep'
-      fullPath: '/interview-prep/'
-      preLoaderRoute: typeof AuthenticatedInterviewPrepIndexRouteImport
-      parentRoute: typeof AuthenticatedRoute
+    '/auth/callback': {
+      id: '/auth/callback'
+      path: '/auth/callback'
+      fullPath: '/auth/callback'
+      preLoaderRoute: typeof AuthCallbackRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/innstillinger/': {
-      id: '/_authenticated/innstillinger/'
-      path: '/innstillinger'
-      fullPath: '/innstillinger/'
-      preLoaderRoute: typeof AuthenticatedInnstillingerIndexRouteImport
-      parentRoute: typeof AuthenticatedRoute
+    '/auth/linkedin-callback': {
+      id: '/auth/linkedin-callback'
+      path: '/auth/linkedin-callback'
+      fullPath: '/auth/linkedin-callback'
+      preLoaderRoute: typeof AuthLinkedinCallbackRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/forslag/': {
-      id: '/_authenticated/forslag/'
-      path: '/forslag'
-      fullPath: '/forslag/'
-      preLoaderRoute: typeof AuthenticatedForslagIndexRouteImport
-      parentRoute: typeof AuthenticatedRoute
+    '/auth/nytt-passord': {
+      id: '/auth/nytt-passord'
+      path: '/auth/nytt-passord'
+      fullPath: '/auth/nytt-passord'
+      preLoaderRoute: typeof AuthNyttPassordRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/employers/': {
-      id: '/_authenticated/employers/'
-      path: '/employers'
-      fullPath: '/employers/'
-      preLoaderRoute: typeof AuthenticatedEmployersIndexRouteImport
-      parentRoute: typeof AuthenticatedRoute
+    '/mcp/': {
+      id: '/mcp/'
+      path: '/mcp'
+      fullPath: '/mcp/'
+      preLoaderRoute: typeof McpIndexRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/documents/': {
-      id: '/_authenticated/documents/'
-      path: '/documents'
-      fullPath: '/documents/'
-      preLoaderRoute: typeof AuthenticatedDocumentsIndexRouteImport
-      parentRoute: typeof AuthenticatedRoute
+    '/oauth/authorize': {
+      id: '/oauth/authorize'
+      path: '/oauth/authorize'
+      fullPath: '/oauth/authorize'
+      preLoaderRoute: typeof OauthAuthorizeRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/documentation/': {
-      id: '/_authenticated/documentation/'
-      path: '/documentation'
-      fullPath: '/documentation/'
-      preLoaderRoute: typeof AuthenticatedDocumentationIndexRouteImport
-      parentRoute: typeof AuthenticatedRoute
+    '/rekruttererundersokelse/': {
+      id: '/rekruttererundersokelse/'
+      path: '/'
+      fullPath: '/rekruttererundersokelse/'
+      preLoaderRoute: typeof RekruttererundersokelseIndexRouteImport
+      parentRoute: typeof RekruttererundersokelseRoute
     }
-    '/_authenticated/cv-builder/': {
-      id: '/_authenticated/cv-builder/'
-      path: '/cv-builder'
-      fullPath: '/cv-builder/'
-      preLoaderRoute: typeof AuthenticatedCvBuilderIndexRouteImport
-      parentRoute: typeof AuthenticatedRoute
+    '/rekruttererundersokelse/takk': {
+      id: '/rekruttererundersokelse/takk'
+      path: '/takk'
+      fullPath: '/rekruttererundersokelse/takk'
+      preLoaderRoute: typeof RekruttererundersokelseTakkRouteImport
+      parentRoute: typeof RekruttererundersokelseRoute
     }
-    '/_authenticated/applications/': {
-      id: '/_authenticated/applications/'
-      path: '/applications'
-      fullPath: '/applications/'
-      preLoaderRoute: typeof AuthenticatedApplicationsIndexRouteImport
-      parentRoute: typeof AuthenticatedRoute
+    '/selskapsanalyse/': {
+      id: '/selskapsanalyse/'
+      path: '/'
+      fullPath: '/selskapsanalyse/'
+      preLoaderRoute: typeof SelskapsanalyseIndexRouteImport
+      parentRoute: typeof SelskapsanalyseRoute
+    }
+    '/selskapsanalyse/takk': {
+      id: '/selskapsanalyse/takk'
+      path: '/takk'
+      fullPath: '/selskapsanalyse/takk'
+      preLoaderRoute: typeof SelskapsanalyseTakkRouteImport
+      parentRoute: typeof SelskapsanalyseRoute
+    }
+    '/.well-known/oauth-protected-resource/mcp': {
+      id: '/.well-known/oauth-protected-resource/mcp'
+      path: '/mcp'
+      fullPath: '/.well-known/oauth-protected-resource/mcp'
+      preLoaderRoute: typeof DotwellKnownOauthProtectedResourceMcpRouteImport
+      parentRoute: typeof DotwellKnownOauthProtectedResourceRoute
     }
     '/_authenticated/admin/': {
       id: '/_authenticated/admin/'
       path: '/admin'
       fullPath: '/admin/'
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/selskapsanalyse/analysedatabase/$id': {
-      id: '/selskapsanalyse/analysedatabase/$id'
-      path: '/analysedatabase/$id'
-      fullPath: '/selskapsanalyse/analysedatabase/$id'
-      preLoaderRoute: typeof SelskapsanalyseAnalysedatabaseIdRouteImport
-      parentRoute: typeof SelskapsanalyseRoute
-    }
-    '/rekruttererundersokelse/resultater/full': {
-      id: '/rekruttererundersokelse/resultater/full'
-      path: '/resultater/full'
-      fullPath: '/rekruttererundersokelse/resultater/full'
-      preLoaderRoute: typeof RekruttererundersokelseResultaterFullRouteImport
-      parentRoute: typeof RekruttererundersokelseRoute
-    }
-    '/mcp/.well-known/oauth-protected-resource': {
-      id: '/mcp/.well-known/oauth-protected-resource'
-      path: '/mcp/.well-known/oauth-protected-resource'
-      fullPath: '/mcp/.well-known/oauth-protected-resource'
-      preLoaderRoute: typeof McpDotwellKnownOauthProtectedResourceRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/lovable/email/events': {
-      id: '/lovable/email/events'
-      path: '/lovable/email/events'
-      fullPath: '/lovable/email/events'
-      preLoaderRoute: typeof LovableEmailEventsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/mcp': {
-      id: '/api/public/mcp'
-      path: '/api/public/mcp'
-      fullPath: '/api/public/mcp'
-      preLoaderRoute: typeof ApiPublicMcpRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/ingest-report': {
-      id: '/api/public/ingest-report'
-      path: '/api/public/ingest-report'
-      fullPath: '/api/public/ingest-report'
-      preLoaderRoute: typeof ApiPublicIngestReportRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/oauth/consent': {
-      id: '/api/oauth/consent'
-      path: '/api/oauth/consent'
-      fullPath: '/api/oauth/consent'
-      preLoaderRoute: typeof ApiOauthConsentRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/linkedin/imports': {
-      id: '/api/linkedin/imports'
-      path: '/api/linkedin/imports'
-      fullPath: '/api/linkedin/imports'
-      preLoaderRoute: typeof ApiLinkedinImportsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/internal/linkedin-reconciliation-worker': {
-      id: '/api/internal/linkedin-reconciliation-worker'
-      path: '/api/internal/linkedin-reconciliation-worker'
-      fullPath: '/api/internal/linkedin-reconciliation-worker'
-      preLoaderRoute: typeof ApiInternalLinkedinReconciliationWorkerRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/internal/linkedin-import-worker': {
-      id: '/api/internal/linkedin-import-worker'
-      path: '/api/internal/linkedin-import-worker'
-      fullPath: '/api/internal/linkedin-import-worker'
-      preLoaderRoute: typeof ApiInternalLinkedinImportWorkerRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/internal/cv-generation-worker': {
-      id: '/api/internal/cv-generation-worker'
-      path: '/api/internal/cv-generation-worker'
-      fullPath: '/api/internal/cv-generation-worker'
-      preLoaderRoute: typeof ApiInternalCvGenerationWorkerRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/cv/propose-cv-atoms': {
-      id: '/api/cv/propose-cv-atoms'
-      path: '/api/cv/propose-cv-atoms'
-      fullPath: '/api/cv/propose-cv-atoms'
-      preLoaderRoute: typeof ApiCvProposeCvAtomsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/cv/generations': {
-      id: '/api/cv/generations'
-      path: '/api/cv/generations'
-      fullPath: '/api/cv/generations'
-      preLoaderRoute: typeof ApiCvGenerationsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/cv/atomization-jobs': {
-      id: '/api/cv/atomization-jobs'
-      path: '/api/cv/atomization-jobs'
-      fullPath: '/api/cv/atomization-jobs'
-      preLoaderRoute: typeof ApiCvAtomizationJobsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/ai-integrations/setup-session': {
-      id: '/api/ai-integrations/setup-session'
-      path: '/api/ai-integrations/setup-session'
-      fullPath: '/api/ai-integrations/setup-session'
-      preLoaderRoute: typeof ApiAiIntegrationsSetupSessionRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_authenticated/vurdering-av-arbeidsgivere/$companyId': {
-      id: '/_authenticated/vurdering-av-arbeidsgivere/$companyId'
-      path: '/vurdering-av-arbeidsgivere/$companyId'
-      fullPath: '/vurdering-av-arbeidsgivere/$companyId'
-      preLoaderRoute: typeof AuthenticatedVurderingAvArbeidsgivereCompanyIdRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/nettverk/oversikt': {
-      id: '/_authenticated/nettverk/oversikt'
-      path: '/oversikt'
-      fullPath: '/nettverk/oversikt'
-      preLoaderRoute: typeof AuthenticatedNettverkOversiktRouteImport
-      parentRoute: typeof AuthenticatedNettverkRoute
-    }
-    '/_authenticated/min-profil/opplysninger': {
-      id: '/_authenticated/min-profil/opplysninger'
-      path: '/min-profil/opplysninger'
-      fullPath: '/min-profil/opplysninger'
-      preLoaderRoute: typeof AuthenticatedMinProfilOpplysningerRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/min-profil/karriereretning': {
-      id: '/_authenticated/min-profil/karriereretning'
-      path: '/min-profil/karriereretning'
-      fullPath: '/min-profil/karriereretning'
-      preLoaderRoute: typeof AuthenticatedMinProfilKarriereretningRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/min-profil/importgjennomgang': {
-      id: '/_authenticated/min-profil/importgjennomgang'
-      path: '/min-profil/importgjennomgang'
-      fullPath: '/min-profil/importgjennomgang'
-      preLoaderRoute: typeof AuthenticatedMinProfilImportgjennomgangRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/min-profil/importer-cv': {
-      id: '/_authenticated/min-profil/importer-cv'
-      path: '/min-profil/importer-cv'
-      fullPath: '/min-profil/importer-cv'
-      preLoaderRoute: typeof AuthenticatedMinProfilImporterCvRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/karriere/gap': {
-      id: '/_authenticated/karriere/gap'
-      path: '/karriere/gap'
-      fullPath: '/karriere/gap'
-      preLoaderRoute: typeof AuthenticatedKarriereGapRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/karriere/erfaring': {
-      id: '/_authenticated/karriere/erfaring'
-      path: '/karriere/erfaring'
-      fullPath: '/karriere/erfaring'
-      preLoaderRoute: typeof AuthenticatedKarriereErfaringRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/innstillinger/konto': {
-      id: '/_authenticated/innstillinger/konto'
-      path: '/innstillinger/konto'
-      fullPath: '/innstillinger/konto'
-      preLoaderRoute: typeof AuthenticatedInnstillingerKontoRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/innstillinger/integrasjoner': {
-      id: '/_authenticated/innstillinger/integrasjoner'
-      path: '/innstillinger/integrasjoner'
-      fullPath: '/innstillinger/integrasjoner'
-      preLoaderRoute: typeof AuthenticatedInnstillingerIntegrasjonerRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/forslag/cv': {
-      id: '/_authenticated/forslag/cv'
-      path: '/forslag/cv'
-      fullPath: '/forslag/cv'
-      preLoaderRoute: typeof AuthenticatedForslagCvRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/forslag/ai': {
-      id: '/_authenticated/forslag/ai'
-      path: '/forslag/ai'
-      fullPath: '/forslag/ai'
-      preLoaderRoute: typeof AuthenticatedForslagAiRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/employers/$companyId': {
-      id: '/_authenticated/employers/$companyId'
-      path: '/employers/$companyId'
-      fullPath: '/employers/$companyId'
-      preLoaderRoute: typeof AuthenticatedEmployersCompanyIdRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/documents/new': {
-      id: '/_authenticated/documents/new'
-      path: '/documents/new'
-      fullPath: '/documents/new'
-      preLoaderRoute: typeof AuthenticatedDocumentsNewRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/documents/$id': {
-      id: '/_authenticated/documents/$id'
-      path: '/documents/$id'
-      fullPath: '/documents/$id'
-      preLoaderRoute: typeof AuthenticatedDocumentsIdRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/documentation/soknadsbrev': {
-      id: '/_authenticated/documentation/soknadsbrev'
-      path: '/documentation/soknadsbrev'
-      fullPath: '/documentation/soknadsbrev'
-      preLoaderRoute: typeof AuthenticatedDocumentationSoknadsbrevRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/documentation/resultater': {
-      id: '/_authenticated/documentation/resultater'
-      path: '/documentation/resultater'
-      fullPath: '/documentation/resultater'
-      preLoaderRoute: typeof AuthenticatedDocumentationResultaterRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/documentation/packages': {
-      id: '/_authenticated/documentation/packages'
-      path: '/documentation/packages'
-      fullPath: '/documentation/packages'
-      preLoaderRoute: typeof AuthenticatedDocumentationPackagesRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/documentation/library': {
-      id: '/_authenticated/documentation/library'
-      path: '/documentation/library'
-      fullPath: '/documentation/library'
-      preLoaderRoute: typeof AuthenticatedDocumentationLibraryRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/documentation/kvalifikasjoner': {
-      id: '/_authenticated/documentation/kvalifikasjoner'
-      path: '/documentation/kvalifikasjoner'
-      fullPath: '/documentation/kvalifikasjoner'
-      preLoaderRoute: typeof AuthenticatedDocumentationKvalifikasjonerRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/documentation/kompetanse': {
-      id: '/_authenticated/documentation/kompetanse'
-      path: '/documentation/kompetanse'
-      fullPath: '/documentation/kompetanse'
-      preLoaderRoute: typeof AuthenticatedDocumentationKompetanseRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/documentation/cv': {
-      id: '/_authenticated/documentation/cv'
-      path: '/documentation/cv'
-      fullPath: '/documentation/cv'
-      preLoaderRoute: typeof AuthenticatedDocumentationCvRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/documentation/cases': {
-      id: '/_authenticated/documentation/cases'
-      path: '/documentation/cases'
-      fullPath: '/documentation/cases'
-      preLoaderRoute: typeof AuthenticatedDocumentationCasesRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/career/cv-review': {
-      id: '/_authenticated/career/cv-review'
-      path: '/career/cv-review'
-      fullPath: '/career/cv-review'
-      preLoaderRoute: typeof AuthenticatedCareerCvReviewRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/career/atom-review': {
-      id: '/_authenticated/career/atom-review'
-      path: '/career/atom-review'
-      fullPath: '/career/atom-review'
-      preLoaderRoute: typeof AuthenticatedCareerAtomReviewRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/applications/new': {
-      id: '/_authenticated/applications/new'
-      path: '/applications/new'
-      fullPath: '/applications/new'
-      preLoaderRoute: typeof AuthenticatedApplicationsNewRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/applications/$id': {
-      id: '/_authenticated/applications/$id'
-      path: '/applications/$id'
-      fullPath: '/applications/$id'
-      preLoaderRoute: typeof AuthenticatedApplicationsIdRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/admin/sync': {
-      id: '/_authenticated/admin/sync'
-      path: '/admin/sync'
-      fullPath: '/admin/sync'
-      preLoaderRoute: typeof AuthenticatedAdminSyncRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/admin/rekruttererundersokelse': {
-      id: '/_authenticated/admin/rekruttererundersokelse'
-      path: '/admin/rekruttererundersokelse'
-      fullPath: '/admin/rekruttererundersokelse'
-      preLoaderRoute: typeof AuthenticatedAdminRekruttererundersokelseRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/admin/regnskap': {
-      id: '/_authenticated/admin/regnskap'
-      path: '/admin/regnskap'
-      fullPath: '/admin/regnskap'
-      preLoaderRoute: typeof AuthenticatedAdminRegnskapRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/admin/nav-sync': {
-      id: '/_authenticated/admin/nav-sync'
-      path: '/admin/nav-sync'
-      fullPath: '/admin/nav-sync'
-      preLoaderRoute: typeof AuthenticatedAdminNavSyncRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/admin/leads': {
-      id: '/_authenticated/admin/leads'
-      path: '/admin/leads'
-      fullPath: '/admin/leads'
-      preLoaderRoute: typeof AuthenticatedAdminLeadsRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/admin/ingestion': {
-      id: '/_authenticated/admin/ingestion'
-      path: '/admin/ingestion'
-      fullPath: '/admin/ingestion'
-      preLoaderRoute: typeof AuthenticatedAdminIngestionRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/admin/cv-test': {
-      id: '/_authenticated/admin/cv-test'
-      path: '/admin/cv-test'
-      fullPath: '/admin/cv-test'
-      preLoaderRoute: typeof AuthenticatedAdminCvTestRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/admin/changelog': {
@@ -2529,25 +2074,473 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminChangelogRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/.well-known/oauth-protected-resource/mcp': {
-      id: '/.well-known/oauth-protected-resource/mcp'
-      path: '/mcp'
-      fullPath: '/.well-known/oauth-protected-resource/mcp'
-      preLoaderRoute: typeof DotwellKnownOauthProtectedResourceMcpRouteImport
-      parentRoute: typeof DotwellKnownOauthProtectedResourceRoute
+    '/_authenticated/admin/cv-test': {
+      id: '/_authenticated/admin/cv-test'
+      path: '/admin/cv-test'
+      fullPath: '/admin/cv-test'
+      preLoaderRoute: typeof AuthenticatedAdminCvTestRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/nettverk/selskaper/': {
-      id: '/_authenticated/nettverk/selskaper/'
-      path: '/selskaper'
-      fullPath: '/nettverk/selskaper/'
-      preLoaderRoute: typeof AuthenticatedNettverkSelskaperIndexRouteImport
+    '/_authenticated/admin/ingestion': {
+      id: '/_authenticated/admin/ingestion'
+      path: '/admin/ingestion'
+      fullPath: '/admin/ingestion'
+      preLoaderRoute: typeof AuthenticatedAdminIngestionRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/admin/leads': {
+      id: '/_authenticated/admin/leads'
+      path: '/admin/leads'
+      fullPath: '/admin/leads'
+      preLoaderRoute: typeof AuthenticatedAdminLeadsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/admin/nav-sync': {
+      id: '/_authenticated/admin/nav-sync'
+      path: '/admin/nav-sync'
+      fullPath: '/admin/nav-sync'
+      preLoaderRoute: typeof AuthenticatedAdminNavSyncRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/admin/regnskap': {
+      id: '/_authenticated/admin/regnskap'
+      path: '/admin/regnskap'
+      fullPath: '/admin/regnskap'
+      preLoaderRoute: typeof AuthenticatedAdminRegnskapRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/admin/rekruttererundersokelse': {
+      id: '/_authenticated/admin/rekruttererundersokelse'
+      path: '/admin/rekruttererundersokelse'
+      fullPath: '/admin/rekruttererundersokelse'
+      preLoaderRoute: typeof AuthenticatedAdminRekruttererundersokelseRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/admin/sync': {
+      id: '/_authenticated/admin/sync'
+      path: '/admin/sync'
+      fullPath: '/admin/sync'
+      preLoaderRoute: typeof AuthenticatedAdminSyncRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/applications/': {
+      id: '/_authenticated/applications/'
+      path: '/applications'
+      fullPath: '/applications/'
+      preLoaderRoute: typeof AuthenticatedApplicationsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/applications/$id': {
+      id: '/_authenticated/applications/$id'
+      path: '/applications/$id'
+      fullPath: '/applications/$id'
+      preLoaderRoute: typeof AuthenticatedApplicationsIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/applications/new': {
+      id: '/_authenticated/applications/new'
+      path: '/applications/new'
+      fullPath: '/applications/new'
+      preLoaderRoute: typeof AuthenticatedApplicationsNewRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/career/atom-review': {
+      id: '/_authenticated/career/atom-review'
+      path: '/career/atom-review'
+      fullPath: '/career/atom-review'
+      preLoaderRoute: typeof AuthenticatedCareerAtomReviewRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/career/cv-review': {
+      id: '/_authenticated/career/cv-review'
+      path: '/career/cv-review'
+      fullPath: '/career/cv-review'
+      preLoaderRoute: typeof AuthenticatedCareerCvReviewRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/cv-builder/': {
+      id: '/_authenticated/cv-builder/'
+      path: '/cv-builder'
+      fullPath: '/cv-builder/'
+      preLoaderRoute: typeof AuthenticatedCvBuilderIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/documentation/': {
+      id: '/_authenticated/documentation/'
+      path: '/documentation'
+      fullPath: '/documentation/'
+      preLoaderRoute: typeof AuthenticatedDocumentationIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/documentation/cases': {
+      id: '/_authenticated/documentation/cases'
+      path: '/documentation/cases'
+      fullPath: '/documentation/cases'
+      preLoaderRoute: typeof AuthenticatedDocumentationCasesRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/documentation/cv': {
+      id: '/_authenticated/documentation/cv'
+      path: '/documentation/cv'
+      fullPath: '/documentation/cv'
+      preLoaderRoute: typeof AuthenticatedDocumentationCvRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/documentation/kompetanse': {
+      id: '/_authenticated/documentation/kompetanse'
+      path: '/documentation/kompetanse'
+      fullPath: '/documentation/kompetanse'
+      preLoaderRoute: typeof AuthenticatedDocumentationKompetanseRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/documentation/kvalifikasjoner': {
+      id: '/_authenticated/documentation/kvalifikasjoner'
+      path: '/documentation/kvalifikasjoner'
+      fullPath: '/documentation/kvalifikasjoner'
+      preLoaderRoute: typeof AuthenticatedDocumentationKvalifikasjonerRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/documentation/library': {
+      id: '/_authenticated/documentation/library'
+      path: '/documentation/library'
+      fullPath: '/documentation/library'
+      preLoaderRoute: typeof AuthenticatedDocumentationLibraryRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/documentation/packages': {
+      id: '/_authenticated/documentation/packages'
+      path: '/documentation/packages'
+      fullPath: '/documentation/packages'
+      preLoaderRoute: typeof AuthenticatedDocumentationPackagesRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/documentation/resultater': {
+      id: '/_authenticated/documentation/resultater'
+      path: '/documentation/resultater'
+      fullPath: '/documentation/resultater'
+      preLoaderRoute: typeof AuthenticatedDocumentationResultaterRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/documentation/soknadsbrev': {
+      id: '/_authenticated/documentation/soknadsbrev'
+      path: '/documentation/soknadsbrev'
+      fullPath: '/documentation/soknadsbrev'
+      preLoaderRoute: typeof AuthenticatedDocumentationSoknadsbrevRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/documents/': {
+      id: '/_authenticated/documents/'
+      path: '/documents'
+      fullPath: '/documents/'
+      preLoaderRoute: typeof AuthenticatedDocumentsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/documents/$id': {
+      id: '/_authenticated/documents/$id'
+      path: '/documents/$id'
+      fullPath: '/documents/$id'
+      preLoaderRoute: typeof AuthenticatedDocumentsIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/documents/new': {
+      id: '/_authenticated/documents/new'
+      path: '/documents/new'
+      fullPath: '/documents/new'
+      preLoaderRoute: typeof AuthenticatedDocumentsNewRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/employers/': {
+      id: '/_authenticated/employers/'
+      path: '/employers'
+      fullPath: '/employers/'
+      preLoaderRoute: typeof AuthenticatedEmployersIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/employers/$companyId': {
+      id: '/_authenticated/employers/$companyId'
+      path: '/employers/$companyId'
+      fullPath: '/employers/$companyId'
+      preLoaderRoute: typeof AuthenticatedEmployersCompanyIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/forslag/': {
+      id: '/_authenticated/forslag/'
+      path: '/forslag'
+      fullPath: '/forslag/'
+      preLoaderRoute: typeof AuthenticatedForslagIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/forslag/ai': {
+      id: '/_authenticated/forslag/ai'
+      path: '/forslag/ai'
+      fullPath: '/forslag/ai'
+      preLoaderRoute: typeof AuthenticatedForslagAiRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/forslag/cv': {
+      id: '/_authenticated/forslag/cv'
+      path: '/forslag/cv'
+      fullPath: '/forslag/cv'
+      preLoaderRoute: typeof AuthenticatedForslagCvRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/innstillinger/': {
+      id: '/_authenticated/innstillinger/'
+      path: '/innstillinger'
+      fullPath: '/innstillinger/'
+      preLoaderRoute: typeof AuthenticatedInnstillingerIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/innstillinger/integrasjoner': {
+      id: '/_authenticated/innstillinger/integrasjoner'
+      path: '/innstillinger/integrasjoner'
+      fullPath: '/innstillinger/integrasjoner'
+      preLoaderRoute: typeof AuthenticatedInnstillingerIntegrasjonerRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/innstillinger/konto': {
+      id: '/_authenticated/innstillinger/konto'
+      path: '/innstillinger/konto'
+      fullPath: '/innstillinger/konto'
+      preLoaderRoute: typeof AuthenticatedInnstillingerKontoRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/interview-prep/': {
+      id: '/_authenticated/interview-prep/'
+      path: '/interview-prep'
+      fullPath: '/interview-prep/'
+      preLoaderRoute: typeof AuthenticatedInterviewPrepIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/karriere/erfaring': {
+      id: '/_authenticated/karriere/erfaring'
+      path: '/karriere/erfaring'
+      fullPath: '/karriere/erfaring'
+      preLoaderRoute: typeof AuthenticatedKarriereErfaringRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/karriere/gap': {
+      id: '/_authenticated/karriere/gap'
+      path: '/karriere/gap'
+      fullPath: '/karriere/gap'
+      preLoaderRoute: typeof AuthenticatedKarriereGapRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/min-profil/': {
+      id: '/_authenticated/min-profil/'
+      path: '/min-profil'
+      fullPath: '/min-profil/'
+      preLoaderRoute: typeof AuthenticatedMinProfilIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/min-profil/importer-cv': {
+      id: '/_authenticated/min-profil/importer-cv'
+      path: '/min-profil/importer-cv'
+      fullPath: '/min-profil/importer-cv'
+      preLoaderRoute: typeof AuthenticatedMinProfilImporterCvRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/min-profil/importgjennomgang': {
+      id: '/_authenticated/min-profil/importgjennomgang'
+      path: '/min-profil/importgjennomgang'
+      fullPath: '/min-profil/importgjennomgang'
+      preLoaderRoute: typeof AuthenticatedMinProfilImportgjennomgangRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/min-profil/karriereretning': {
+      id: '/_authenticated/min-profil/karriereretning'
+      path: '/min-profil/karriereretning'
+      fullPath: '/min-profil/karriereretning'
+      preLoaderRoute: typeof AuthenticatedMinProfilKarriereretningRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/min-profil/opplysninger': {
+      id: '/_authenticated/min-profil/opplysninger'
+      path: '/min-profil/opplysninger'
+      fullPath: '/min-profil/opplysninger'
+      preLoaderRoute: typeof AuthenticatedMinProfilOpplysningerRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/nettverk/': {
+      id: '/_authenticated/nettverk/'
+      path: '/'
+      fullPath: '/nettverk/'
+      preLoaderRoute: typeof AuthenticatedNettverkIndexRouteImport
       parentRoute: typeof AuthenticatedNettverkRoute
     }
-    '/_authenticated/nettverk/muligheter/': {
-      id: '/_authenticated/nettverk/muligheter/'
-      path: '/muligheter'
-      fullPath: '/nettverk/muligheter/'
-      preLoaderRoute: typeof AuthenticatedNettverkMuligheterIndexRouteImport
+    '/_authenticated/nettverk/oversikt': {
+      id: '/_authenticated/nettverk/oversikt'
+      path: '/oversikt'
+      fullPath: '/nettverk/oversikt'
+      preLoaderRoute: typeof AuthenticatedNettverkOversiktRouteImport
+      parentRoute: typeof AuthenticatedNettverkRoute
+    }
+    '/_authenticated/next-steps/': {
+      id: '/_authenticated/next-steps/'
+      path: '/next-steps'
+      fullPath: '/next-steps/'
+      preLoaderRoute: typeof AuthenticatedNextStepsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/offer-analysis/': {
+      id: '/_authenticated/offer-analysis/'
+      path: '/offer-analysis'
+      fullPath: '/offer-analysis/'
+      preLoaderRoute: typeof AuthenticatedOfferAnalysisIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/onboarding/': {
+      id: '/_authenticated/onboarding/'
+      path: '/onboarding'
+      fullPath: '/onboarding/'
+      preLoaderRoute: typeof AuthenticatedOnboardingIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/vurdering-av-arbeidsgivere/': {
+      id: '/_authenticated/vurdering-av-arbeidsgivere/'
+      path: '/vurdering-av-arbeidsgivere'
+      fullPath: '/vurdering-av-arbeidsgivere/'
+      preLoaderRoute: typeof AuthenticatedVurderingAvArbeidsgivereIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/vurdering-av-arbeidsgivere/$companyId': {
+      id: '/_authenticated/vurdering-av-arbeidsgivere/$companyId'
+      path: '/vurdering-av-arbeidsgivere/$companyId'
+      fullPath: '/vurdering-av-arbeidsgivere/$companyId'
+      preLoaderRoute: typeof AuthenticatedVurderingAvArbeidsgivereCompanyIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/api/ai-integrations/': {
+      id: '/api/ai-integrations/'
+      path: '/api/ai-integrations'
+      fullPath: '/api/ai-integrations/'
+      preLoaderRoute: typeof ApiAiIntegrationsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/ai-integrations/setup-session': {
+      id: '/api/ai-integrations/setup-session'
+      path: '/api/ai-integrations/setup-session'
+      fullPath: '/api/ai-integrations/setup-session'
+      preLoaderRoute: typeof ApiAiIntegrationsSetupSessionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/cv/atomization-jobs': {
+      id: '/api/cv/atomization-jobs'
+      path: '/api/cv/atomization-jobs'
+      fullPath: '/api/cv/atomization-jobs'
+      preLoaderRoute: typeof ApiCvAtomizationJobsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/cv/generations': {
+      id: '/api/cv/generations'
+      path: '/api/cv/generations'
+      fullPath: '/api/cv/generations'
+      preLoaderRoute: typeof ApiCvGenerationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/cv/propose-cv-atoms': {
+      id: '/api/cv/propose-cv-atoms'
+      path: '/api/cv/propose-cv-atoms'
+      fullPath: '/api/cv/propose-cv-atoms'
+      preLoaderRoute: typeof ApiCvProposeCvAtomsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/internal/cv-generation-worker': {
+      id: '/api/internal/cv-generation-worker'
+      path: '/api/internal/cv-generation-worker'
+      fullPath: '/api/internal/cv-generation-worker'
+      preLoaderRoute: typeof ApiInternalCvGenerationWorkerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/internal/linkedin-import-worker': {
+      id: '/api/internal/linkedin-import-worker'
+      path: '/api/internal/linkedin-import-worker'
+      fullPath: '/api/internal/linkedin-import-worker'
+      preLoaderRoute: typeof ApiInternalLinkedinImportWorkerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/internal/linkedin-reconciliation-worker': {
+      id: '/api/internal/linkedin-reconciliation-worker'
+      path: '/api/internal/linkedin-reconciliation-worker'
+      fullPath: '/api/internal/linkedin-reconciliation-worker'
+      preLoaderRoute: typeof ApiInternalLinkedinReconciliationWorkerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/linkedin/imports': {
+      id: '/api/linkedin/imports'
+      path: '/api/linkedin/imports'
+      fullPath: '/api/linkedin/imports'
+      preLoaderRoute: typeof ApiLinkedinImportsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/oauth/consent': {
+      id: '/api/oauth/consent'
+      path: '/api/oauth/consent'
+      fullPath: '/api/oauth/consent'
+      preLoaderRoute: typeof ApiOauthConsentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/ingest-report': {
+      id: '/api/public/ingest-report'
+      path: '/api/public/ingest-report'
+      fullPath: '/api/public/ingest-report'
+      preLoaderRoute: typeof ApiPublicIngestReportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/mcp': {
+      id: '/api/public/mcp'
+      path: '/api/public/mcp'
+      fullPath: '/api/public/mcp'
+      preLoaderRoute: typeof ApiPublicMcpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/events': {
+      id: '/lovable/email/events'
+      path: '/lovable/email/events'
+      fullPath: '/lovable/email/events'
+      preLoaderRoute: typeof LovableEmailEventsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mcp/.well-known/oauth-protected-resource': {
+      id: '/mcp/.well-known/oauth-protected-resource'
+      path: '/mcp/.well-known/oauth-protected-resource'
+      fullPath: '/mcp/.well-known/oauth-protected-resource'
+      preLoaderRoute: typeof McpDotwellKnownOauthProtectedResourceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rekruttererundersokelse/resultater/': {
+      id: '/rekruttererundersokelse/resultater/'
+      path: '/resultater'
+      fullPath: '/rekruttererundersokelse/resultater/'
+      preLoaderRoute: typeof RekruttererundersokelseResultaterIndexRouteImport
+      parentRoute: typeof RekruttererundersokelseRoute
+    }
+    '/rekruttererundersokelse/resultater/full': {
+      id: '/rekruttererundersokelse/resultater/full'
+      path: '/resultater/full'
+      fullPath: '/rekruttererundersokelse/resultater/full'
+      preLoaderRoute: typeof RekruttererundersokelseResultaterFullRouteImport
+      parentRoute: typeof RekruttererundersokelseRoute
+    }
+    '/selskapsanalyse/analysedatabase/': {
+      id: '/selskapsanalyse/analysedatabase/'
+      path: '/analysedatabase'
+      fullPath: '/selskapsanalyse/analysedatabase/'
+      preLoaderRoute: typeof SelskapsanalyseAnalysedatabaseIndexRouteImport
+      parentRoute: typeof SelskapsanalyseRoute
+    }
+    '/selskapsanalyse/analysedatabase/$id': {
+      id: '/selskapsanalyse/analysedatabase/$id'
+      path: '/analysedatabase/$id'
+      fullPath: '/selskapsanalyse/analysedatabase/$id'
+      preLoaderRoute: typeof SelskapsanalyseAnalysedatabaseIdRouteImport
+      parentRoute: typeof SelskapsanalyseRoute
+    }
+    '/_authenticated/nettverk/aktiviteter/': {
+      id: '/_authenticated/nettverk/aktiviteter/'
+      path: '/aktiviteter'
+      fullPath: '/nettverk/aktiviteter/'
+      preLoaderRoute: typeof AuthenticatedNettverkAktiviteterIndexRouteImport
       parentRoute: typeof AuthenticatedNettverkRoute
     }
     '/_authenticated/nettverk/kontakter/': {
@@ -2557,151 +2550,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedNettverkKontakterIndexRouteImport
       parentRoute: typeof AuthenticatedNettverkRoute
     }
-    '/_authenticated/nettverk/aktiviteter/': {
-      id: '/_authenticated/nettverk/aktiviteter/'
-      path: '/aktiviteter'
-      fullPath: '/nettverk/aktiviteter/'
-      preLoaderRoute: typeof AuthenticatedNettverkAktiviteterIndexRouteImport
-      parentRoute: typeof AuthenticatedNettverkRoute
-    }
-    '/lovable/email/transactional/preview': {
-      id: '/lovable/email/transactional/preview'
-      path: '/lovable/email/transactional/preview'
-      fullPath: '/lovable/email/transactional/preview'
-      preLoaderRoute: typeof LovableEmailTransactionalPreviewRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/sync/brreg-enheter': {
-      id: '/api/public/sync/brreg-enheter'
-      path: '/api/public/sync/brreg-enheter'
-      fullPath: '/api/public/sync/brreg-enheter'
-      preLoaderRoute: typeof ApiPublicSyncBrregEnheterRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/selskapsanalyse/preview-email': {
-      id: '/api/public/selskapsanalyse/preview-email'
-      path: '/api/public/selskapsanalyse/preview-email'
-      fullPath: '/api/public/selskapsanalyse/preview-email'
-      preLoaderRoute: typeof ApiPublicSelskapsanalysePreviewEmailRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/selskapsanalyse/download': {
-      id: '/api/public/selskapsanalyse/download'
-      path: '/api/public/selskapsanalyse/download'
-      fullPath: '/api/public/selskapsanalyse/download'
-      preLoaderRoute: typeof ApiPublicSelskapsanalyseDownloadRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/ops/watchdog': {
-      id: '/api/public/ops/watchdog'
-      path: '/api/public/ops/watchdog'
-      fullPath: '/api/public/ops/watchdog'
-      preLoaderRoute: typeof ApiPublicOpsWatchdogRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/oauth/token': {
-      id: '/api/public/oauth/token'
-      path: '/api/public/oauth/token'
-      fullPath: '/api/public/oauth/token'
-      preLoaderRoute: typeof ApiPublicOauthTokenRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/oauth/revoke': {
-      id: '/api/public/oauth/revoke'
-      path: '/api/public/oauth/revoke'
-      fullPath: '/api/public/oauth/revoke'
-      preLoaderRoute: typeof ApiPublicOauthRevokeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/oauth/return': {
-      id: '/api/public/oauth/return'
-      path: '/api/public/oauth/return'
-      fullPath: '/api/public/oauth/return'
-      preLoaderRoute: typeof ApiPublicOauthReturnRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/oauth/register': {
-      id: '/api/public/oauth/register'
-      path: '/api/public/oauth/register'
-      fullPath: '/api/public/oauth/register'
-      preLoaderRoute: typeof ApiPublicOauthRegisterRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/oauth/prepare': {
-      id: '/api/public/oauth/prepare'
-      path: '/api/public/oauth/prepare'
-      fullPath: '/api/public/oauth/prepare'
-      preLoaderRoute: typeof ApiPublicOauthPrepareRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/linkedin/worker': {
-      id: '/api/public/linkedin/worker'
-      path: '/api/public/linkedin/worker'
-      fullPath: '/api/public/linkedin/worker'
-      preLoaderRoute: typeof ApiPublicLinkedinWorkerRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/jobs/network-suggestions': {
-      id: '/api/public/jobs/network-suggestions'
-      path: '/api/public/jobs/network-suggestions'
-      fullPath: '/api/public/jobs/network-suggestions'
-      preLoaderRoute: typeof ApiPublicJobsNetworkSuggestionsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/inbound/job-email': {
-      id: '/api/public/inbound/job-email'
-      path: '/api/public/inbound/job-email'
-      fullPath: '/api/public/inbound/job-email'
-      preLoaderRoute: typeof ApiPublicInboundJobEmailRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/cv/atomization-worker': {
-      id: '/api/public/cv/atomization-worker'
-      path: '/api/public/cv/atomization-worker'
-      fullPath: '/api/public/cv/atomization-worker'
-      preLoaderRoute: typeof ApiPublicCvAtomizationWorkerRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/ai-integrations/claim': {
-      id: '/api/public/ai-integrations/claim'
-      path: '/api/public/ai-integrations/claim'
-      fullPath: '/api/public/ai-integrations/claim'
-      preLoaderRoute: typeof ApiPublicAiIntegrationsClaimRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/cv/generations/$jobId': {
-      id: '/api/cv/generations/$jobId'
-      path: '/$jobId'
-      fullPath: '/api/cv/generations/$jobId'
-      preLoaderRoute: typeof ApiCvGenerationsJobIdRouteImport
-      parentRoute: typeof ApiCvGenerationsRoute
-    }
-    '/api/cv/atomization-jobs/$jobId': {
-      id: '/api/cv/atomization-jobs/$jobId'
-      path: '/$jobId'
-      fullPath: '/api/cv/atomization-jobs/$jobId'
-      preLoaderRoute: typeof ApiCvAtomizationJobsJobIdRouteImport
-      parentRoute: typeof ApiCvAtomizationJobsRoute
-    }
-    '/_authenticated/nettverk/selskaper/avstemming': {
-      id: '/_authenticated/nettverk/selskaper/avstemming'
-      path: '/selskaper/avstemming'
-      fullPath: '/nettverk/selskaper/avstemming'
-      preLoaderRoute: typeof AuthenticatedNettverkSelskaperAvstemmingRouteImport
-      parentRoute: typeof AuthenticatedNettverkRoute
-    }
-    '/_authenticated/nettverk/selskaper/$id': {
-      id: '/_authenticated/nettverk/selskaper/$id'
-      path: '/selskaper/$id'
-      fullPath: '/nettverk/selskaper/$id'
-      preLoaderRoute: typeof AuthenticatedNettverkSelskaperIdRouteImport
-      parentRoute: typeof AuthenticatedNettverkRoute
-    }
-    '/_authenticated/nettverk/muligheter/$id': {
-      id: '/_authenticated/nettverk/muligheter/$id'
-      path: '/muligheter/$id'
-      fullPath: '/nettverk/muligheter/$id'
-      preLoaderRoute: typeof AuthenticatedNettverkMuligheterIdRouteImport
+    '/_authenticated/nettverk/kontakter/$id': {
+      id: '/_authenticated/nettverk/kontakter/$id'
+      path: '/kontakter/$id'
+      fullPath: '/nettverk/kontakter/$id'
+      preLoaderRoute: typeof AuthenticatedNettverkKontakterIdRouteImport
       parentRoute: typeof AuthenticatedNettverkRoute
     }
     '/_authenticated/nettverk/kontakter/import': {
@@ -2711,25 +2564,158 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedNettverkKontakterImportRouteImport
       parentRoute: typeof AuthenticatedNettverkRoute
     }
-    '/_authenticated/nettverk/kontakter/$id': {
-      id: '/_authenticated/nettverk/kontakter/$id'
-      path: '/kontakter/$id'
-      fullPath: '/nettverk/kontakter/$id'
-      preLoaderRoute: typeof AuthenticatedNettverkKontakterIdRouteImport
+    '/_authenticated/nettverk/muligheter/': {
+      id: '/_authenticated/nettverk/muligheter/'
+      path: '/muligheter'
+      fullPath: '/nettverk/muligheter/'
+      preLoaderRoute: typeof AuthenticatedNettverkMuligheterIndexRouteImport
       parentRoute: typeof AuthenticatedNettverkRoute
     }
-    '/api/public/ai-integrations/v1/status': {
-      id: '/api/public/ai-integrations/v1/status'
-      path: '/api/public/ai-integrations/v1/status'
-      fullPath: '/api/public/ai-integrations/v1/status'
-      preLoaderRoute: typeof ApiPublicAiIntegrationsV1StatusRouteImport
+    '/_authenticated/nettverk/muligheter/$id': {
+      id: '/_authenticated/nettverk/muligheter/$id'
+      path: '/muligheter/$id'
+      fullPath: '/nettverk/muligheter/$id'
+      preLoaderRoute: typeof AuthenticatedNettverkMuligheterIdRouteImport
+      parentRoute: typeof AuthenticatedNettverkRoute
+    }
+    '/_authenticated/nettverk/selskaper/': {
+      id: '/_authenticated/nettverk/selskaper/'
+      path: '/selskaper'
+      fullPath: '/nettverk/selskaper/'
+      preLoaderRoute: typeof AuthenticatedNettverkSelskaperIndexRouteImport
+      parentRoute: typeof AuthenticatedNettverkRoute
+    }
+    '/_authenticated/nettverk/selskaper/$id': {
+      id: '/_authenticated/nettverk/selskaper/$id'
+      path: '/selskaper/$id'
+      fullPath: '/nettverk/selskaper/$id'
+      preLoaderRoute: typeof AuthenticatedNettverkSelskaperIdRouteImport
+      parentRoute: typeof AuthenticatedNettverkRoute
+    }
+    '/_authenticated/nettverk/selskaper/avstemming': {
+      id: '/_authenticated/nettverk/selskaper/avstemming'
+      path: '/selskaper/avstemming'
+      fullPath: '/nettverk/selskaper/avstemming'
+      preLoaderRoute: typeof AuthenticatedNettverkSelskaperAvstemmingRouteImport
+      parentRoute: typeof AuthenticatedNettverkRoute
+    }
+    '/api/cv/atomization-jobs/$jobId': {
+      id: '/api/cv/atomization-jobs/$jobId'
+      path: '/$jobId'
+      fullPath: '/api/cv/atomization-jobs/$jobId'
+      preLoaderRoute: typeof ApiCvAtomizationJobsJobIdRouteImport
+      parentRoute: typeof ApiCvAtomizationJobsRoute
+    }
+    '/api/cv/generations/$jobId': {
+      id: '/api/cv/generations/$jobId'
+      path: '/$jobId'
+      fullPath: '/api/cv/generations/$jobId'
+      preLoaderRoute: typeof ApiCvGenerationsJobIdRouteImport
+      parentRoute: typeof ApiCvGenerationsRoute
+    }
+    '/api/public/ai-integrations/claim': {
+      id: '/api/public/ai-integrations/claim'
+      path: '/api/public/ai-integrations/claim'
+      fullPath: '/api/public/ai-integrations/claim'
+      preLoaderRoute: typeof ApiPublicAiIntegrationsClaimRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/ai-integrations/v1/run': {
-      id: '/api/public/ai-integrations/v1/run'
-      path: '/api/public/ai-integrations/v1/run'
-      fullPath: '/api/public/ai-integrations/v1/run'
-      preLoaderRoute: typeof ApiPublicAiIntegrationsV1RunRouteImport
+    '/api/public/cv/atomization-worker': {
+      id: '/api/public/cv/atomization-worker'
+      path: '/api/public/cv/atomization-worker'
+      fullPath: '/api/public/cv/atomization-worker'
+      preLoaderRoute: typeof ApiPublicCvAtomizationWorkerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/inbound/job-email': {
+      id: '/api/public/inbound/job-email'
+      path: '/api/public/inbound/job-email'
+      fullPath: '/api/public/inbound/job-email'
+      preLoaderRoute: typeof ApiPublicInboundJobEmailRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/jobs/network-suggestions': {
+      id: '/api/public/jobs/network-suggestions'
+      path: '/api/public/jobs/network-suggestions'
+      fullPath: '/api/public/jobs/network-suggestions'
+      preLoaderRoute: typeof ApiPublicJobsNetworkSuggestionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/linkedin/worker': {
+      id: '/api/public/linkedin/worker'
+      path: '/api/public/linkedin/worker'
+      fullPath: '/api/public/linkedin/worker'
+      preLoaderRoute: typeof ApiPublicLinkedinWorkerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/oauth/prepare': {
+      id: '/api/public/oauth/prepare'
+      path: '/api/public/oauth/prepare'
+      fullPath: '/api/public/oauth/prepare'
+      preLoaderRoute: typeof ApiPublicOauthPrepareRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/oauth/register': {
+      id: '/api/public/oauth/register'
+      path: '/api/public/oauth/register'
+      fullPath: '/api/public/oauth/register'
+      preLoaderRoute: typeof ApiPublicOauthRegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/oauth/return': {
+      id: '/api/public/oauth/return'
+      path: '/api/public/oauth/return'
+      fullPath: '/api/public/oauth/return'
+      preLoaderRoute: typeof ApiPublicOauthReturnRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/oauth/revoke': {
+      id: '/api/public/oauth/revoke'
+      path: '/api/public/oauth/revoke'
+      fullPath: '/api/public/oauth/revoke'
+      preLoaderRoute: typeof ApiPublicOauthRevokeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/oauth/token': {
+      id: '/api/public/oauth/token'
+      path: '/api/public/oauth/token'
+      fullPath: '/api/public/oauth/token'
+      preLoaderRoute: typeof ApiPublicOauthTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/ops/watchdog': {
+      id: '/api/public/ops/watchdog'
+      path: '/api/public/ops/watchdog'
+      fullPath: '/api/public/ops/watchdog'
+      preLoaderRoute: typeof ApiPublicOpsWatchdogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/selskapsanalyse/download': {
+      id: '/api/public/selskapsanalyse/download'
+      path: '/api/public/selskapsanalyse/download'
+      fullPath: '/api/public/selskapsanalyse/download'
+      preLoaderRoute: typeof ApiPublicSelskapsanalyseDownloadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/selskapsanalyse/preview-email': {
+      id: '/api/public/selskapsanalyse/preview-email'
+      path: '/api/public/selskapsanalyse/preview-email'
+      fullPath: '/api/public/selskapsanalyse/preview-email'
+      preLoaderRoute: typeof ApiPublicSelskapsanalysePreviewEmailRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/sync/brreg-enheter': {
+      id: '/api/public/sync/brreg-enheter'
+      path: '/api/public/sync/brreg-enheter'
+      fullPath: '/api/public/sync/brreg-enheter'
+      preLoaderRoute: typeof ApiPublicSyncBrregEnheterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/transactional/preview': {
+      id: '/lovable/email/transactional/preview'
+      path: '/lovable/email/transactional/preview'
+      fullPath: '/lovable/email/transactional/preview'
+      preLoaderRoute: typeof LovableEmailTransactionalPreviewRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/.well-known/oauth-protected-resource/api/public/mcp': {
@@ -2738,6 +2724,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/.well-known/oauth-protected-resource/api/public/mcp'
       preLoaderRoute: typeof DotwellKnownOauthProtectedResourceApiPublicMcpRouteImport
       parentRoute: typeof DotwellKnownOauthProtectedResourceRoute
+    }
+    '/api/public/ai-integrations/v1/run': {
+      id: '/api/public/ai-integrations/v1/run'
+      path: '/api/public/ai-integrations/v1/run'
+      fullPath: '/api/public/ai-integrations/v1/run'
+      preLoaderRoute: typeof ApiPublicAiIntegrationsV1RunRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/ai-integrations/v1/status': {
+      id: '/api/public/ai-integrations/v1/status'
+      path: '/api/public/ai-integrations/v1/status'
+      fullPath: '/api/public/ai-integrations/v1/status'
+      preLoaderRoute: typeof ApiPublicAiIntegrationsV1StatusRouteImport
+      parentRoute: typeof rootRouteImport
     }
   }
 }

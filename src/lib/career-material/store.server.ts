@@ -166,7 +166,15 @@ export async function processCareerMaterialIntake(
         rpc: (fn: string, args: Record<string, unknown>) => Promise<{ data: unknown }>;
       }
     ).rpc("internal_ai_get_active_profile", { p_task_key: CAREER_MATERIAL_TASK_KEY });
-    const p = profileRow as Record<string, any> | null;
+    const p = profileRow as {
+      profile_id?: string;
+      profile_key?: string;
+      model_id?: string;
+      prompt_version?: string;
+      max_tokens?: number;
+      request_options?: Record<string, unknown>;
+      capabilities?: Record<string, unknown>;
+    } | null;
     if (!p?.model_id) return await fail("missing_profile", true);
 
     const declaredType = isCareerMaterialType(intake.declared_type) ? intake.declared_type : null;
@@ -226,25 +234,22 @@ export async function processCareerMaterialIntake(
         })
       : [];
 
-    const { data: storeRows, error: storeErr } = await admin.rpc(
-      "career_material_store_analysis",
-      {
-        p_intake_id: input.intakeId,
-        p_user_id: input.userId,
-        p_claim_token: token,
-        p_ai_type: analysis.aiType,
-        p_ai_confidence: analysis.aiConfidence,
-        p_ai_rationale: analysis.rationale,
-        p_effective_type: effectiveType ?? undefined,
-        p_input_signature: effectiveType
-          ? analysisSignature({ contentSha256: intake.content_sha256, effectiveType })
-          : undefined,
-        p_prompt_version: CAREER_MATERIAL_PROMPT_VERSION,
-        p_normalizer_version: CAREER_MATERIAL_NORMALIZER_VERSION,
-        p_items: items as unknown as Json,
-        p_items_dropped: analysis.dropped,
-      } as never,
-    );
+    const { data: storeRows, error: storeErr } = await admin.rpc("career_material_store_analysis", {
+      p_intake_id: input.intakeId,
+      p_user_id: input.userId,
+      p_claim_token: token,
+      p_ai_type: analysis.aiType,
+      p_ai_confidence: analysis.aiConfidence,
+      p_ai_rationale: analysis.rationale,
+      p_effective_type: effectiveType ?? undefined,
+      p_input_signature: effectiveType
+        ? analysisSignature({ contentSha256: intake.content_sha256, effectiveType })
+        : undefined,
+      p_prompt_version: CAREER_MATERIAL_PROMPT_VERSION,
+      p_normalizer_version: CAREER_MATERIAL_NORMALIZER_VERSION,
+      p_items: items as unknown as Json,
+      p_items_dropped: analysis.dropped,
+    } as never);
     if (storeErr) {
       console.error("[career-material] store failed", storeErr.code ?? "unknown");
       return await fail("store_failed", true);
@@ -266,7 +271,10 @@ export async function processCareerMaterialIntake(
       superseded: stored.superseded_count,
     };
   } catch (err) {
-    console.error("[career-material] processing crashed", err instanceof Error ? err.name : "unknown");
+    console.error(
+      "[career-material] processing crashed",
+      err instanceof Error ? err.name : "unknown",
+    );
     return await fail("store_failed", true);
   }
 }

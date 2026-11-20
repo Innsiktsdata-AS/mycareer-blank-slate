@@ -1,7 +1,10 @@
 // Lesing av karrieremateriale-inntak for innlogget bruker (RLS: kun egne rader).
 import { queryOptions } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
-import type { CareerMaterialAttachment, CareerMaterialStatus } from "@/lib/career-material/contract";
+import type {
+  CareerMaterialAttachment,
+  CareerMaterialStatus,
+} from "@/lib/career-material/contract";
 
 export type CareerMaterialIntakeView = {
   id: string;

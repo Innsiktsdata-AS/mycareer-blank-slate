@@ -108,7 +108,12 @@ function request(): Request {
   const raw = JSON.stringify({
     type: "email.received",
     created_at: "2026-09-11T08:00:00.000Z",
-    data: { email_id: EMAIL_ID, from: "meg@example.com", to: [`${ALIAS}@${DOMAIN}`], subject: "Fwd: Notat" },
+    data: {
+      email_id: EMAIL_ID,
+      from: "meg@example.com",
+      to: [`${ALIAS}@${DOMAIN}`],
+      subject: "Fwd: Notat",
+    },
   });
   const id = "msg_career";
   const ts = Math.floor(Date.now() / 1000);
@@ -174,7 +179,9 @@ describe("Resend-mottak: ruting av karrieremateriale", () => {
 
   it("vedlegg registreres som ikke behandlet", async () => {
     fetchSpy.mockResolvedValue(
-      fetched(BODY, [{ id: "att-1", filename: "attest.pdf", contentType: "application/pdf", sizeBytes: 1234 }]),
+      fetched(BODY, [
+        { id: "att-1", filename: "attest.pdf", contentType: "application/pdf", sizeBytes: 1234 },
+      ]),
     );
     await POST({ request: request() });
     expect(state.creates[0]!["p_attachments"]).toEqual([
@@ -208,7 +215,11 @@ describe("Resend-mottak: ruting av karrieremateriale", () => {
     state.intakeMode = "forwarding";
     fetchSpy.mockResolvedValue({
       ...fetched(),
-      email: { ...fetched().email, subject: "Ny stilling", text: "Se stilling https://www.finn.no/job/fulltime/ad.html?finnkode=123" },
+      email: {
+        ...fetched().email,
+        subject: "Ny stilling",
+        text: "Se stilling https://www.finn.no/job/fulltime/ad.html?finnkode=123",
+      },
     });
     await POST({ request: request() });
     expect(state.creates).toHaveLength(0);

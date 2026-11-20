@@ -1,5 +1,17 @@
 # Oppgaveliste
 
+## Inntak av karrieremateriale P1.1–P1.4 (2026-11)
+
+- [x] P1.1 Hurtigskjema på /kilder (tittel, type, tekst); original lagres privat i arkivet og låses
+- [x] P1.2 Egen karrierealias på samme Resend-mottak; ruting kun etter alias; jobbvarsler uendret
+- [x] P1.2 Vedlegg registreres som «ikke behandlet» (innhold lastes ikke ned)
+- [x] P1.3 KI-klassifisering med usikkerhet/ukjent, brukerretting, status/feil og sikker ny behandling
+- [x] P1.4 Atomisering med ordrett utdrag, ingen oppdiktede måltall, typepolicy, redigering før godkjenning
+- [x] Idempotens: tekst-hash, leveranse-ID og forslags-hash; avviste forslag foreslås ikke på nytt
+- [ ] E-postmottak i produksjon — blokkert av DNS/secrets (INBOUND_EMAIL_DOMAIN, RESEND_WEBHOOK_SECRET, RESEND_API_KEY)
+- [ ] Vedleggsinnhold (PDF/DOCX) — ikke implementert; krever Resend vedlegg-API + tekstuttrekk
+- [ ] Bakgrunnsanalyse av e-postinntak — i dag startes analysen når brukeren åpner /kilder
+
 ## Rekruttererundersøkelsen
 
 - [x] Gjør primær sektor til flervalg med bakoverkompatibel lagring og resultatvisning.

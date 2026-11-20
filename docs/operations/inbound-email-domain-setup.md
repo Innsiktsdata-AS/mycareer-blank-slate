@@ -170,3 +170,10 @@ Each user gets one address `<alias>@jobb.karrierenmin.no`. The alias is a
 32-character base32 token from server-side cryptographic randomness, never
 derived from the user id or e-mail, uniquely bound to the user in the database
 and readable only by its owner in Settings → Integrations.
+
+## Karrieremateriale på samme mottak (lagt til 2026-11)
+
+Samme domene og webhook tar også imot videresendte karrierenotater. Rutingen avgjøres kun av
+aliasens `intake_mode`: `forwarding` → jobb-lead (uendret), `career_material` → privat arkiv og
+analyse, aldri jobb-lead. Ingen ekstra DNS, secret eller webhook kreves. Vedleggsinnhold lastes ikke
+ned; vedlegg registreres som «ikke behandlet». Se `docs/features/career-material-intake.md`.

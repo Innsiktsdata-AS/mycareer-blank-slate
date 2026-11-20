@@ -238,9 +238,6 @@ export const atomEnrichmentProposalsByImportQuery = (userId: string, importId: s
     },
   });
 
-
-
-
 function asRecord(payload: Json | null | undefined): Record<string, unknown> {
   if (payload == null || typeof payload !== "object" || Array.isArray(payload)) return {};
   return payload as Record<string, unknown>;
@@ -265,21 +262,15 @@ function numField(obj: Record<string, unknown>, key: string): number | null {
 function strArrayField(obj: Record<string, unknown>, key: string): string[] {
   const v = obj[key];
   if (!Array.isArray(v)) return [];
-  return v.filter((entry): entry is string => typeof entry === "string" && entry.trim().length > 0)
+  return v
+    .filter((entry): entry is string => typeof entry === "string" && entry.trim().length > 0)
     .map((entry) => entry.trim());
 }
 
 /** Klasser som bare kan belegges indirekte — de krever pekere til andre atomer. */
 const ATOM_TYPES_REQUIRING_EVIDENCE_POINTERS = new Set(["skill", "domain"]);
 
-const CAREER_ATOM_KINDS = new Set([
-  "evidens",
-  "mangel",
-  "onske",
-  "maal",
-  "begrensning",
-  "verdi",
-]);
+const CAREER_ATOM_KINDS = new Set(["evidens", "mangel", "onske", "maal", "begrensning", "verdi"]);
 
 const CAREER_ATOM_TYPES = new Set([
   "role",
@@ -351,16 +342,18 @@ function buildCareerAtomFields(
   const rawType = strField(payload, "atom_type")?.trim() || null;
   if (atomKind === "evidens") {
     if (!rawType || !CAREER_ATOM_TYPES.has(rawType)) {
-      throw new Error(
-        `Evidensforslag krever gyldig atom_type (fikk «${rawType ?? "ingen"}»).`,
-      );
+      throw new Error(`Evidensforslag krever gyldig atom_type (fikk «${rawType ?? "ingen"}»).`);
     }
   } else if (rawType) {
     throw new Error("atom_type kan bare brukes for evidens-atomer.");
   }
 
   const evidenceAtomIds = strArrayField(payload, "evidence_atom_ids");
-  if (rawType && ATOM_TYPES_REQUIRING_EVIDENCE_POINTERS.has(rawType) && evidenceAtomIds.length === 0) {
+  if (
+    rawType &&
+    ATOM_TYPES_REQUIRING_EVIDENCE_POINTERS.has(rawType) &&
+    evidenceAtomIds.length === 0
+  ) {
     throw new Error(
       "Forslaget mangler evidence_atom_ids. Kompetanse og eksponering kan bare belegges indirekte, via pekere til kvalifikasjons-, resultat- eller rolleatomer.",
     );
@@ -444,7 +437,11 @@ async function resolveEvidenceProposalAtoms(
     .eq("user_id", userId)
     .in("id", proposalIds);
   if (error) throw error;
-  const rows = (data ?? []) as Array<{ id: string; status: string; applied_atom_id: string | null }>;
+  const rows = (data ?? []) as Array<{
+    id: string;
+    status: string;
+    applied_atom_id: string | null;
+  }>;
   return rows
     .filter((r) => r.status === "approved" && typeof r.applied_atom_id === "string")
     .map((r) => r.applied_atom_id as string);
@@ -565,7 +562,6 @@ async function applyApprovedUserAtomProposal(
   );
 }
 
-
 /**
  * Databasefeil er ikke Error-objekter. Uten oversettelse endte alt som
  * «Kunne ikke behandle forslaget» i UI-et, og den reelle årsaken forsvant.
@@ -662,7 +658,6 @@ export async function approveAtomEnrichmentProposal(
   }
 }
 
-
 export async function rejectAtomEnrichmentProposal(
   userId: string,
   proposalId: string,
@@ -684,7 +679,6 @@ export async function rejectAtomEnrichmentProposal(
     .maybeSingle();
   if (error) throw readableProposalError(error);
   if (!data) throw new Error("Fant ikke forslaget, eller det er allerede behandlet.");
-
 }
 
 export async function markAtomEnrichmentProposalNeedsContext(
@@ -708,7 +702,6 @@ export async function markAtomEnrichmentProposalNeedsContext(
     .maybeSingle();
   if (error) throw readableProposalError(error);
   if (!data) throw new Error("Fant ikke forslaget, eller det er allerede behandlet.");
-
 }
 
 export async function reopenAtomEnrichmentProposalToPending(
@@ -824,8 +817,7 @@ export async function supersedeAtomEnrichmentProposal(
     .select("id")
     .maybeSingle();
   if (error) throw error;
-  if (!data)
-    throw new Error("Fant ikke forslaget, eller det er ikke lenger til vurdering.");
+  if (!data) throw new Error("Fant ikke forslaget, eller det er ikke lenger til vurdering.");
 }
 
 /**

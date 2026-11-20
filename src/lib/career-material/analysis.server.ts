@@ -37,7 +37,7 @@ export function sha256Hex(input: string): string {
 
 /** Normaliserer originaltekst før lagring og hashing (linjeskift + trim). */
 export function normalizeOriginalText(text: string): string {
-  return text.replace(/\r\n?/g, "\n").replace(/\u0000/g, "").trim();
+  return text.replace(/\r\n?/g, "\n").split(String.fromCharCode(0)).join("").trim();
 }
 
 /** Sammenligningsform: Unicode-normalisert, like anførselstegn, én mellomromstype, små bokstaver. */
@@ -479,7 +479,11 @@ export function buildCareerMaterialProposals(
         source_quote: s.quote,
         structured_data: baseStructured(
           ctx,
-          isRoleDescription ? "stillingsbeskrivelse" : isAttest ? "tredjepartsutsagn" : "eget_materiale",
+          isRoleDescription
+            ? "stillingsbeskrivelse"
+            : isAttest
+              ? "tredjepartsutsagn"
+              : "eget_materiale",
         ),
       },
       rationale: isRoleDescription

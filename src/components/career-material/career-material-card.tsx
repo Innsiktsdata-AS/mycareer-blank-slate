@@ -289,7 +289,10 @@ export function CareerMaterialCard() {
                   <IntakeRow
                     key={r.id}
                     r={r}
-                    busy={busyId === r.id || (setTypeM.isPending && setTypeM.variables?.intakeId === r.id)}
+                    busy={
+                      busyId === r.id ||
+                      (setTypeM.isPending && setTypeM.variables?.intakeId === r.id)
+                    }
                     onProcess={(force) => processM.mutate({ intakeId: r.id, force })}
                     onSetType={(type) => setTypeM.mutate({ intakeId: r.id, type })}
                   />
@@ -350,8 +353,8 @@ function EmailAddressSection(props: {
             </Button>
           </div>
           <p className="text-xs text-muted-foreground">
-            Denne adressen er bare for karrieremateriale. Jobbvarsler sendes til
-            jobbvarsel-adressen din under Innstillinger.
+            Denne adressen er bare for karrieremateriale. Jobbvarsler sendes til jobbvarsel-adressen
+            din under Innstillinger.
           </p>
         </div>
       ) : (
@@ -406,7 +409,11 @@ function IntakeRow(props: {
         </div>
         <Badge variant={statusVariant} className="shrink-0">
           {processing && <Loader2 className="mr-1 h-3 w-3 animate-spin" aria-hidden />}
-          {CAREER_MATERIAL_STATUS_LABELS[processing ? "processing" : r.status === "processing" ? "queued" : r.status]}
+          {
+            CAREER_MATERIAL_STATUS_LABELS[
+              processing ? "processing" : r.status === "processing" ? "queued" : r.status
+            ]
+          }
         </Badge>
       </div>
 
@@ -426,9 +433,7 @@ function IntakeRow(props: {
         )}
         {r.status === "completed" && (
           <p>
-            {r.proposalsCreated > 0
-              ? `${r.proposalsCreated} nye forslag`
-              : "Ingen nye forslag"}
+            {r.proposalsCreated > 0 ? `${r.proposalsCreated} nye forslag` : "Ingen nye forslag"}
             {r.proposalsReused > 0 ? `, ${r.proposalsReused} fantes fra før` : ""}
             {r.pendingProposals > 0 ? ` · ${r.pendingProposals} venter på deg` : ""}
           </p>
@@ -443,9 +448,7 @@ function IntakeRow(props: {
         {r.attachments.length > 0 && (
           <p>
             Vedlegg ikke behandlet:{" "}
-            {r.attachments
-              .map((a) => a.filename ?? a.content_type ?? "ukjent fil")
-              .join(", ")}
+            {r.attachments.map((a) => a.filename ?? a.content_type ?? "ukjent fil").join(", ")}
           </p>
         )}
         {r.status === "failed" && (
@@ -506,7 +509,11 @@ function IntakeRow(props: {
             ) : (
               <RefreshCw className="mr-1.5 h-3.5 w-3.5" aria-hidden />
             )}
-            {r.status === "failed" ? "Prøv igjen" : r.status === "queued" ? "Analyser nå" : "Analyser på nytt"}
+            {r.status === "failed"
+              ? "Prøv igjen"
+              : r.status === "queued"
+                ? "Analyser nå"
+                : "Analyser på nytt"}
           </Button>
         )}
         {r.pendingProposals > 0 && (

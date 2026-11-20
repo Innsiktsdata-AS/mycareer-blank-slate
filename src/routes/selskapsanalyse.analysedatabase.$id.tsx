@@ -42,7 +42,9 @@ export const Route = createFileRoute("/selskapsanalyse/analysedatabase/$id")({
       <Header />
       <main className="flex-1 mx-auto max-w-3xl px-6 py-24 text-center">
         <h1 className="text-2xl font-serif">Noe gikk galt</h1>
-        <p className="mt-2 text-muted-foreground">{error.message}</p>
+        <p className="mt-2 text-muted-foreground">
+          {error instanceof Error ? error.message : String(error)}
+        </p>
       </main>
       <Footer />
     </div>

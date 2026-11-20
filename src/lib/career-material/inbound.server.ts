@@ -37,7 +37,9 @@ export function bodyTextFromEmail(email: Pick<ReceivedEmail, "text" | "html">): 
   return email.html ? normalizeText("", email.html) : "";
 }
 
-export function attachmentReport(email: Pick<ReceivedEmail, "attachments">): CareerMaterialAttachment[] {
+export function attachmentReport(
+  email: Pick<ReceivedEmail, "attachments">,
+): CareerMaterialAttachment[] {
   return (email.attachments ?? []).slice(0, 25).map((a) => ({
     filename: a.filename ? a.filename.slice(0, 200) : null,
     content_type: a.contentType ? a.contentType.slice(0, 100) : null,
@@ -56,7 +58,8 @@ export async function ingestCareerMaterialEmail(
   input: { userId: string; deliveryId: string; email: ReceivedEmail; receivedAt?: Date },
 ): Promise<CareerEmailResult> {
   const body = bodyTextFromEmail(input.email);
-  if (body.length < PASTE_TEXT_MIN) return { ok: false, kind: "permanent", reason: "text_too_short" };
+  if (body.length < PASTE_TEXT_MIN)
+    return { ok: false, kind: "permanent", reason: "text_too_short" };
   const truncated = body.length > EMAIL_ORIGINAL_MAX;
   const created = await createCareerMaterial(admin, {
     userId: input.userId,

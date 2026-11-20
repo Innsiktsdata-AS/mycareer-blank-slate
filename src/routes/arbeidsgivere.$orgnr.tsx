@@ -267,13 +267,15 @@ function Shell({ children }: { children: React.ReactNode }) {
   );
 }
 
-function DetailError({ error, reset }: { error: Error; reset: () => void }) {
+function DetailError({ error, reset }: { error: unknown; reset: () => void }) {
   const router = useRouter();
   return (
     <Shell>
       <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-6">
         <p className="text-sm font-medium text-foreground">Kunne ikke hente arbeidsgiver</p>
-        <p className="mt-1 text-sm text-muted-foreground">{error.message}</p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          {error instanceof Error ? error.message : String(error)}
+        </p>
         <div className="mt-3">
           <Button
             size="sm"

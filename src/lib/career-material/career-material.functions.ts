@@ -146,9 +146,14 @@ export const createCareerNotesAddress = createServerFn({ method: "POST" })
       import("@/integrations/supabase/client.server"),
       import("@/lib/job-leads/inbound-alias.server"),
     ]);
-    const result = await ensureInboundAlias(supabaseAdmin as never, context.userId, "career_material");
+    const result = await ensureInboundAlias(
+      supabaseAdmin as never,
+      context.userId,
+      "career_material",
+    );
     const cfg = await readReceivingConfigured();
-    if (!result.ok) return { ok: false, address: null, hasAlias: false, receivingConfigured: cfg.ok };
+    if (!result.ok)
+      return { ok: false, address: null, hasAlias: false, receivingConfigured: cfg.ok };
     return {
       ok: true,
       address: cfg.ok && cfg.domain ? `${result.token}@${cfg.domain}` : null,

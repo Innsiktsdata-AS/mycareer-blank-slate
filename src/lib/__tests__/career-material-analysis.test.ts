@@ -33,7 +33,8 @@ function raw(overrides: Partial<RawAnalysis> = {}): RawAnalysis {
     prestasjoner: [
       {
         tekst: "Ledet migrering av kundeportalen og reduserte responstiden med 40 %",
-        sitat: "ledet migreringen av kundeportalen til ny plattform og reduserte responstiden med 40 % på tre måneder",
+        sitat:
+          "ledet migreringen av kundeportalen til ny plattform og reduserte responstiden med 40 % på tre måneder",
         maltall: [{ verdi: "40 %", sitat: "reduserte responstiden med 40 %" }],
       },
     ],
@@ -50,7 +51,9 @@ describe("validateAnalysis", () => {
   it("forkaster funn der sitatet ikke står i teksten", () => {
     const v = validateAnalysis(
       raw({
-        prestasjoner: [{ tekst: "Vant Nobelpris i fysikk", sitat: "Kari vant Nobelprisen i 2024", maltall: [] }],
+        prestasjoner: [
+          { tekst: "Vant Nobelpris i fysikk", sitat: "Kari vant Nobelprisen i 2024", maltall: [] },
+        ],
         kompetanser: [],
       }),
       SOURCE,
@@ -150,18 +153,30 @@ describe("buildCareerMaterialProposals — typepolicy", () => {
   });
 
   it("samme analyse gir samme hasher (retry/ny analyse gir ingen duplikater)", () => {
-    const a = buildCareerMaterialProposals(validateAnalysis(raw(), SOURCE), { ...CTX, type: "prestasjon" });
-    const b = buildCareerMaterialProposals(validateAnalysis(raw(), SOURCE), { ...CTX, type: "prestasjon" });
+    const a = buildCareerMaterialProposals(validateAnalysis(raw(), SOURCE), {
+      ...CTX,
+      type: "prestasjon",
+    });
+    const b = buildCareerMaterialProposals(validateAnalysis(raw(), SOURCE), {
+      ...CTX,
+      type: "prestasjon",
+    });
     expect(a.map((i) => i.source_hash)).toEqual(b.map((i) => i.source_hash));
     expect(new Set(a.map((i) => i.source_hash)).size).toBe(a.length);
   });
 
   it("kompetansens hash endres når resultatet den bygger på endres", () => {
-    const a = buildCareerMaterialProposals(validateAnalysis(raw(), SOURCE), { ...CTX, type: "prestasjon" });
+    const a = buildCareerMaterialProposals(validateAnalysis(raw(), SOURCE), {
+      ...CTX,
+      type: "prestasjon",
+    });
     const changed = raw();
     changed.prestasjoner![0]!.sitat = "ledet migreringen av kundeportalen til ny plattform";
     changed.prestasjoner![0]!.tekst = "Ledet migrering av kundeportalen";
-    const b = buildCareerMaterialProposals(validateAnalysis(changed, SOURCE), { ...CTX, type: "prestasjon" });
+    const b = buildCareerMaterialProposals(validateAnalysis(changed, SOURCE), {
+      ...CTX,
+      type: "prestasjon",
+    });
     const skillA = a.find((i) => i.payload["atom_type"] === "skill")!;
     const skillB = b.find((i) => i.payload["atom_type"] === "skill")!;
     expect(skillA.source_hash).not.toBe(skillB.source_hash);
@@ -171,20 +186,40 @@ describe("buildCareerMaterialProposals — typepolicy", () => {
 describe("resolveEffectiveType", () => {
   it("brukerens valg vinner over KI", () => {
     expect(
-      resolveEffectiveType({ userType: "attest", declaredType: "prestasjon", aiType: "prosjektnotat", aiConfidence: 0.99 }),
+      resolveEffectiveType({
+        userType: "attest",
+        declaredType: "prestasjon",
+        aiType: "prosjektnotat",
+        aiConfidence: 0.99,
+      }),
     ).toBe("attest");
   });
   it("usikker KI gir ingen type — brukeren må velge", () => {
     expect(
-      resolveEffectiveType({ userType: null, declaredType: null, aiType: "prosjektnotat", aiConfidence: 0.59 }),
+      resolveEffectiveType({
+        userType: null,
+        declaredType: null,
+        aiType: "prosjektnotat",
+        aiConfidence: 0.59,
+      }),
     ).toBeNull();
     expect(
-      resolveEffectiveType({ userType: null, declaredType: null, aiType: "ukjent", aiConfidence: 0.95 }),
+      resolveEffectiveType({
+        userType: null,
+        declaredType: null,
+        aiType: "ukjent",
+        aiConfidence: 0.95,
+      }),
     ).toBeNull();
   });
   it("sikker KI-klassifisering brukes når brukeren ikke har valgt", () => {
     expect(
-      resolveEffectiveType({ userType: null, declaredType: null, aiType: "prosjektnotat", aiConfidence: 0.6 }),
+      resolveEffectiveType({
+        userType: null,
+        declaredType: null,
+        aiType: "prosjektnotat",
+        aiConfidence: 0.6,
+      }),
     ).toBe("prosjektnotat");
   });
 });
@@ -202,7 +237,9 @@ describe("prompt-isolasjon og tolkning", () => {
   });
 
   it("leser JSON i kodeblokk og avviser ugyldig svar", () => {
-    expect(parseModelJson('```json\n{"dokumenttype":"attest","sikkerhet":0.7}\n```')?.dokumenttype).toBe("attest");
+    expect(
+      parseModelJson('```json\n{"dokumenttype":"attest","sikkerhet":0.7}\n```')?.dokumenttype,
+    ).toBe("attest");
     expect(parseModelJson("Beklager, jeg kan ikke")).toBeNull();
     expect(parseModelJson('{"dokumenttype":"attest","sikkerhet":7}')).toBeNull();
   });
