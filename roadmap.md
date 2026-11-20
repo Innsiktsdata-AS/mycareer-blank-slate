@@ -97,3 +97,12 @@
 - [ ] Unik importidentitet håndhevet i databasen på importlaget.
 - [ ] Reelle samtidighetstester: 1 suksess + 24 replay, ingest_failed→retry, parse_failed→retry, utløpt lease.
 - [ ] RLS/privilegier kontrollert; full test, typecheck, lint, build. Ingen publisering.
+
+## Flere inntakstyper, kontaktkort og kontaktimport (plan godkjent 20.11.2026)
+
+- [x] Fase 1: gjenkjent-men-ikke-støttet type (KI-forslag), norsk veiledning med lenke, reversibel «Behold i arkivet» med egen beskrivelse. Dokumentinnhold utløser aldri handlinger.
+- [x] Fase 2a: nedlastbart kontaktkort (vCard 3.0) på /kilder, laget i nettleseren uten lagring.
+- [ ] Fase 2a: manuell import av kortet i iOS, Google og Outlook — ikke testet (krever enheter/kontoer).
+- [ ] Fase 2b: bytte mottaksadresse (egen leveranse, etter undersøkelse av aliasmodell og Resend-atferd).
+- [ ] Fase 3: CV, kursbevis, rolle og lønn til riktige flyter (venter på fase 1/2a-godkjenning).
+- [ ] Fase 4: kontaktimport fra fil. Fase 5: kontaktforslag fra e-post. Fase 6: undersøke direkte kontokoblinger.
