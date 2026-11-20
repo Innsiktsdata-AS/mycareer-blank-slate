@@ -109,6 +109,8 @@ function DocumentDetail() {
       is_base_version: d.is_base_version,
       tailored_for: d.tailored_for,
       version: (d.version ?? 1) + 1,
+      // Ny versjon i samme dokumentgruppe; databasen godtar bare egen gruppe.
+      document_group_id: d.document_group_id,
     }).select().single();
     if (error) return toast.error(error.message);
     navigate({ to: "/documents/$id", params: { id: data.id } });

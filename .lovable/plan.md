@@ -69,6 +69,8 @@ For at CV, søknadsbrev og oppsummeringer senere skal kunne bruke den felles les
   - Testet i appen: opplasting på Kvalifikasjoner viser «Dokumentert» med en gang.
 - **R1b (funnet og rettet under R1, migrasjon 0010):** Det var ikke mulig å lagre nye dokumenter fra appen. Det gjaldt filer på kvalifikasjoner, nye dokumenter, nye versjoner og lagrede søknadsbrev. Feilen kom av et krav om dokumentgruppe. Det siste dokumentet som ble lagret fra appen, er fra 12.08. Nå blir et nytt dokument sin egen gruppe, med mindre det legges i en gruppe som tilhører samme bruker. Rettingen virker også i den publiserte appen.
   - Testet: nytt dokument blir egen gruppe, A kan legge en ny versjon i egen gruppe, B kan ikke legge dokument i A sin gruppe.
+  - Gjennomgått alle steder dokumenter lagres: kvalifikasjonsfiler, nytt dokument, ny versjon, tre lagringer av søknadsbrev, arbeidsgiveranalyse, CV-generering (to databasefunksjoner) og karrieremateriale. Alle virker nå. «Ny versjon» legges i samme gruppe som originalen (testet i appen; kommer med publiseringen). Lagring av søknadsbrev er ikke kjørt gjennom siden.
+  - Genererte CV-er peker på oppføringer, men teller ikke som dokumentasjon. Det er riktig, ellers ville CV-en dokumentert seg selv.
 - **R2 (liten):** Etter ny innlasting vises «Send til CV-import» fortsatt, selv om CV-en er sendt. Et nytt klikk sier bare «allerede sendt». Knappen skal byttes ut med en statuslinje.
 - **R3 (opprydding):** Den syntetiske PDF-en på 1,7 KB fjernes fra testbrukerens mappe.
 - **R4 (liten):** Ubrukte filkopier etter en avbrutt CV-sending skal ryddes av den eksisterende oppryddingsjobben.
