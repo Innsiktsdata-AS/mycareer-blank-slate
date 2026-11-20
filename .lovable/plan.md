@@ -118,7 +118,7 @@ Hvert steg testes før neste starter. Ingen publisering uten din godkjenning.
   - Mangler hendelsesdato, vises «Registrert [importdato]», aldri som hendelsesdato. Et dokument som bare oppgir år, lagres med presisjon «år», uten oppdiktet dag og måned.
 - **Dokumentasjonskobling:** en ny tabell `career_atom_sources` (fakta ↔ dokument, utdrag, hvem som godkjente, når, status). Gjelder både filer og låste tekstkilder.
   - «Dokumentert» med lenke vises likt under Resultater og Kvalifikasjoner.
-  - Eksisterende `structured_data.dokumentasjon` leses som en godkjent kobling (lastet opp av brukeren selv), uten at noe annet oppgraderes.
+  - Eksisterende `structured_data.dokumentasjon` vises som dokumentasjon bare når filen finnes og er tilgjengelig (gyldig kobling med fungerende lenke). Slettede eller uklare kilder får egen status («Kilde utilgjengelig»), og faktaet slettes ikke.
 - *Test:* ukjent dato, bare år, kryssbruker-test, sletting av kilden (koblingen vises som «kilde slettet» og faktaet beholdes), og ingen oppgradering av gamle oppføringer.
 
 ### Steg 4 — Inntakstyper som kan velges

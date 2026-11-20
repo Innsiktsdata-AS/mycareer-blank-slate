@@ -106,3 +106,12 @@
 - [ ] Fase 2b: bytte mottaksadresse (egen leveranse, etter undersøkelse av aliasmodell og Resend-atferd).
 - [ ] Fase 3: CV, kursbevis, rolle og lønn til riktige flyter (venter på fase 1/2a-godkjenning).
 - [ ] Fase 4: kontaktimport fra fil. Fase 5: kontaktforslag fra e-post. Fase 6: undersøke direkte kontokoblinger.
+
+## Reparasjonsplan karrieremateriale og dokumentasjon (godkjent 20.11.2026)
+- [ ] Steg 1: sammenlign publisert versjon med koden; kartlegg godkjenningsløp
+- [ ] Steg 2: atomisk godkjenning (karrieremateriale først)
+- [ ] Steg 3: bekreftelsesnivå, tre datoer, dokumentasjonskobling (gyldig/utilgjengelig)
+- [ ] Steg 4: velgbare typer (CV, kursbevis, rolle, lønn, annet) og matching mot eksisterende kvalifikasjon
+- [ ] Steg 5: mottatt CV til CV-import etter valg
+- [ ] Steg 6: felles faktaleser
+- [ ] Steg 7: kjede-test (ny sertifisering og dokumentasjon av eksisterende)
