@@ -74,19 +74,68 @@ Hele kjeden fra kilde til profil er altså aldri kjørt i produksjon.
   - Søknadsbrevets prompt og at profilen kommer fra klienten
   - At «dokumentert» betyr det samme på alle sider
 
-## Prioritert reparasjonsplan
-Hvert steg krever din godkjenning før det bygges, og tester før det publiseres. KI leser aldri filer automatisk. Bare kilden brukeren selv har valgt analyseres, innenfor faste tegngrenser.
+## Tilleggsfunn: hva «verified» betyr i dag
+- `confidence = "verified"` settes når brukeren bekrefter i CV-gjennomgangen eller legger inn manuelt (`cv-review-progress.ts:200`, `cv-review-manual-skills.ts:77`, `career-atoms.ts:310`). Kommentaren i `cv-review-progress.ts:219` sier at dette er atom-tillit, ikke tredjepartsverifisering.
+- I praksis betyr «verified» altså «brukerbekreftet». Produksjon har 78 slike, 77 av dem med `user_confirmed = true`, og 15 importerte.
 
-1. **Publiser fase 1 og 2a etter din test.** *Godkjenningspunkt:* du tester /kilder i forhåndsvisningen.
-2. **Trygg godkjenning (atomisk):** flytt godkjenningen til ett server-RPC som lager elementet og merker forslaget i samme transaksjon, med eierskapskontroll. *Test:* feil midt i gir ingen halve tilstander, og to samtidige godkjenninger gir ett element.
-3. **Hvordan godkjente funn fra kilder blir med i CV-en:** bestem regelen for når et brukergodkjent element fra en kilde kan brukes, for eksempel en egen bekreftelse i CV-gjennomgangen. Godkjenningen skal ikke automatisk regnes som `verified`. *Godkjenningspunkt:* du velger regelen, så skrives tester for hva som tas med i CV-en.
-4. **Hendelsesdato:** KI kan foreslå en dato bare når den står ordrett i utdraget. Brukeren bekrefter eller retter den, og den lagres i `valid_from`/`valid_to`. Importdato og godkjenningsdato holdes adskilt og vises med navn. *Test:* ingen dato uten utdrag, og norske datoformater.
-5. **Én definisjon av «dokumentert»:** et element er dokumentert når en låst kildefil er koblet til det og brukeren har godkjent koblingen. Resultater og Kvalifikasjoner skal vise det samme, og `attestation` skal fortsatt settes av databasen etter denne regelen. Rett også filteret og kommentaren om «bekreftede» elementer. *Test:* kryssbruker-test og at sidene stemmer med hverandre.
-6. **Kursbevis og sertifikat (fase 3):** egen type som foreslår en `certification`/`course` med utsteder, dato og gyldighet bare fra utdraget. KI foreslår samsvar med eksisterende kvalifikasjoner hos samme bruker (navn og utsteder). Brukeren velger «dokumenterer eksisterende», «ny» eller «ingen». *Test:* ingen automatisk kobling, og ingen oppdiktet gyldighet.
-7. **CV til CV-importen (fase 3):** brukeren bekrefter og kobler kilden til `cv_imports`. Unikhet avgjøres først etter at CV-flyten er kartlagt.
-8. **Søknadsbrev:** serveren henter selv godkjente profilelementer (samme regel som i steg 3) i stedet for at nettleseren sender hele profilen. Klare grenser for hva som tas med, ingen kildetekst, og en budsjettert kontekst. *Test:* profil fra nettleseren ignoreres, og grensene håndheves.
-9. **Testdekning:** fyll hullene i seksjon 7 som del av hvert steg.
+## Hva KI faktisk leser (presisert)
+- Materiale brukeren selv sender inn (innliming, e-post til den private adressen, PDF/DOCX-vedlegg med tekstlag) analyseres automatisk.
+- Analysen får tittel pluss inntil 40 000 tegn av kildeteksten, med dataavgrensning og forbud mot å følge instruksjoner i teksten. Den får ikke andre dokumenter, profilen eller kontakter.
+- Det som endrer profilen eller kobler dokumentasjon, krever alltid brukerens godkjenning.
+- CV-generatoren leser bare godkjente fakta, aldri kildetekst. Søknadsbrevet leser i dag profilraden (se 6).
+
+## Implementeringsplan (prioritert)
+Hvert steg testes før neste starter. Ingen publisering uten din godkjenning.
+
+### Steg 1 — Publiseringsstatus og kontroll
+- Bekreft hva som er publisert (fase 1 og 2a er det ikke ennå). Gå gjennom eksisterende funksjoner på nytt.
+- *Godkjenningspunkt:* du tester /kilder i forhåndsvisningen, og deretter publiseres fase 1 og 2a.
+
+### Steg 2 — Én atomisk godkjenning som tåler gjentak
+- Et nytt server-RPC (`atom_proposal_approve`), tilgjengelig bare for serveren og kalt etter eierskapskontroll, gjør alt i én transaksjon:
+  - oppretter eller oppdaterer faktaet (også godkjenning mot en eksisterende oppføring)
+  - lagrer kildekoblingen
+  - setter status på forslaget
+- Brukes for alle forslag, ikke bare de fra karrieremateriale.
+- Gjentak er trygt: radlås på forslaget, og et forslag som allerede er godkjent returnerer samme ID uten ny oppføring.
+- *Test:* samtidige klikk gir én oppføring, en feil midt i ruller tilbake alt, nye forsøk gir ingen duplikater, og kryssbruker-test.
+
+### Steg 3 — Bekreftelsesnivå, datoer og dokumentasjonsmodell
+- **Tre adskilte nivåer:**
+  1. *Brukerbekreftet:* godkjenning i forslagskøen eller i CV-gjennomgangen. Den ene godkjenningen er nok, og faktaet blir da kandidat til senere generering.
+  2. *Dokumentert:* koblet til en låst kilde (fil eller innlimt tekst), og koblingen er godkjent av brukeren.
+  3. *Uavhengig verifisert:* finnes ikke ennå, og settes ikke av appen.
+- **Overgang uten å svekke kontrollen:** dagens `verified` og `user_confirmed = true` tolkes som brukerbekreftet, uten å endre data. Godkjenning i forslagskøen gir samme nivå. Generatorens krav endres fra «verified» til «brukerbekreftet», med uendret strenghet. Ingen gammel oppføring oppgraderes til «dokumentert» uten en faktisk godkjent kobling. Dagens `attestation` vises som før, med forklaring.
+- **Datoer hver for seg:**
+  - Hendelsesdato eller -periode fra dokumentet: `event_start`/`event_end` med presisjon (dag, måned eller år). KI foreslår den bare fra ordrett utdrag, og brukeren bekrefter eller retter.
+  - Importdato: kildens mottakstid.
+  - Godkjenningsdato: når forslaget ble godkjent.
+  - Mangler hendelsesdato, vises «Registrert [importdato]», aldri som hendelsesdato. Et dokument som bare oppgir år, lagres med presisjon «år», uten oppdiktet dag og måned.
+- **Dokumentasjonskobling:** en ny tabell `career_atom_sources` (fakta ↔ dokument, utdrag, hvem som godkjente, når, status). Gjelder både filer og låste tekstkilder.
+  - «Dokumentert» med lenke vises likt under Resultater og Kvalifikasjoner.
+  - Eksisterende `structured_data.dokumentasjon` leses som en godkjent kobling (lastet opp av brukeren selv), uten at noe annet oppgraderes.
+- *Test:* ukjent dato, bare år, kryssbruker-test, sletting av kilden (koblingen vises som «kilde slettet» og faktaet beholdes), og ingen oppgradering av gamle oppføringer.
+
+### Steg 4 — Inntakstyper som kan velges
+- Brukeren kan velge: CV, kursbevis/sertifikat, rolleendring, lønnsendring og «annet» med egen beskrivelse, i tillegg til dagens fem.
+  - **Kursbevis/sertifikat:** forslag om sertifisering eller kurs med utsteder, dato og gyldighet bare fra utdraget. Systemet foreslår samsvar med brukerens egne kvalifikasjoner (normalisert navn og utsteder). Brukeren velger «dokumenterer eksisterende», «ny» eller «ingen». Dette bruker godkjenningen fra steg 2 og koblingen fra steg 3.
+  - **Rolleendring:** forslag om rolle med hendelsesdato fra utdraget.
+  - **Lønnsendring:** beløpet blir bare i den private kilden. Et forslag sier bare at en lønnsendring er funnet, uten beløp, og ingen profiloppdatering.
+- *Test:* nytt kursbevis, og kursbevis som dokumenterer en eksisterende sertifisering (riktig forslag, valg, dato, oppføring og «Dokumentert» med lenke), gjentatt import og samtidige godkjenninger.
+
+### Steg 5 — Mottatt CV til CV-importen
+- Etter brukerens valg kobles kilden til den eksisterende CV-importen (`cv_imports` med kildekobling). Unikhet og ny analyse avgjøres etter kartlegging. Ingen automatisk profilendring.
+- *Test:* test-PDF-en uten ny e-post, dobbeltklikk gir ingen duplikat, og historikk ved ny analyse beholdes.
+
+### Steg 6 — Felles henting av fakta (grunnlag for neste fase)
+- En felles server-leser `getApprovedCareerFacts(userId, filter)` henter aktive, brukerbekreftede fakta med hendelsesdato og presisjon, registreringsdato, kilde og dokumentasjonsstatus. Den kan filtreres på rolle og periode, og fakta uten hendelsesdato leveres separat.
+- Avviste, slettede og inaktive fakta og andre brukeres opplysninger følger aldri med.
+- Generatorene (CV, søknadsbrev, kvartals-, års- og stillingsoppsummering) bygges ikke nå. Søknadsbrevets bruk av profilraden noteres til neste fase.
+- *Test:* filtrering på rolle og periode, ukjent dato skilt ut, og utelukkelse av avviste, slettede og andre brukeres fakta.
+
+### Steg 7 — Hele kjeden og dokumentasjon
+- Kjede-test fra inntak til «Dokumentert» med syntetiske data, med opprydding etterpå.
+- Dokumentere hvilke fakta som er klare til neste fase, og hvilken tekst som sendes til analyse.
 
 ## Åpne spørsmål
-- Godkjente funn fra kilder i CV-en (steg 3): skal de kreve en egen bekreftelse i CV-gjennomgangen, eller holder godkjenningen i forslagskøen?
-- «Karriereoppsummering»: holder CV-ens oppsummeringsdel, eller ønskes en egen funksjon?
+- Ingen. Valgene om bekreftelsesnivå og karriereoppsummering er avklart av deg.
