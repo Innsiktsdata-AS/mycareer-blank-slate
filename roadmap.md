@@ -18,6 +18,19 @@
 - [x] Ekte Resend-vedlegg ende til ende i produksjon (PDF-lesing i Workers)
 - [ ] PDF-lesing i publisert miljø (Cloudflare) — kun verifisert lokalt; må sjekkes etter publisering
 
+## Karrierefakta: typer, datoer, kilder og godkjenning (2026-11)
+
+- [x] Nye inntakstyper: kursbevis/sertifikat, rolleendring, lønnsendring (lønn gir ingen forslag)
+- [x] Hendelsesdato med presisjon (dag/måned/år), skilt fra registrerings- og godkjenningsdato
+- [x] Kursbevis kan dokumentere eksisterende kvalifikasjon (brukerens valg) eller bli ny oppføring
+- [x] Atomisk, idempotent godkjenning for kildeforslag (dobbeltklikk gir én oppføring)
+- [x] Felles dokumentasjonsstatus: «Dokumentert» med lenke, slettet kilde gir «Kilde utilgjengelig» uten å fjerne faktaet
+- [x] Felles leser for godkjente fakta med rolle-/periodefilter
+- [x] Mottatt CV kan sendes til CV-importen; ingen duplikater, ny import mulig etter feil
+- [x] Syntetisk ende-til-ende: ny og eksisterende sertifisering helt til felles faktagrunnlag; testdata slettet
+- [ ] Publisering og kontroll i publisert app (venter på din godkjenning)
+- [ ] Generatorer (CV, søknadsbrev, oppsummering) tar i bruk felles leser — senere fase
+
 ## Rekruttererundersøkelsen
 
 - [x] Gjør primær sektor til flervalg med bakoverkompatibel lagring og resultatvisning.

@@ -990,6 +990,60 @@ export type Database = {
           },
         ]
       }
+      career_atom_sources: {
+        Row: {
+          approved_at: string
+          approved_by: string | null
+          atom_id: string
+          created_at: string
+          document_id: string | null
+          id: string
+          origin: string
+          proposal_id: string | null
+          source_quote: string | null
+          user_id: string
+        }
+        Insert: {
+          approved_at?: string
+          approved_by?: string | null
+          atom_id: string
+          created_at?: string
+          document_id?: string | null
+          id?: string
+          origin: string
+          proposal_id?: string | null
+          source_quote?: string | null
+          user_id: string
+        }
+        Update: {
+          approved_at?: string
+          approved_by?: string | null
+          atom_id?: string
+          created_at?: string
+          document_id?: string | null
+          id?: string
+          origin?: string
+          proposal_id?: string | null
+          source_quote?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "career_atom_sources_atom_id_fkey"
+            columns: ["atom_id"]
+            isOneToOne: false
+            referencedRelation: "career_atoms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "career_atom_sources_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       career_atoms: {
         Row: {
           atom_class: string | null
@@ -1001,6 +1055,9 @@ export type Database = {
           content_no: string | null
           created_at: string
           due_at: string | null
+          event_end: string | null
+          event_precision: string | null
+          event_start: string | null
           evidence_atom_ids: string[]
           id: string
           is_active: boolean
@@ -1034,6 +1091,9 @@ export type Database = {
           content_no?: string | null
           created_at?: string
           due_at?: string | null
+          event_end?: string | null
+          event_precision?: string | null
+          event_start?: string | null
           evidence_atom_ids?: string[]
           id?: string
           is_active?: boolean
@@ -1067,6 +1127,9 @@ export type Database = {
           content_no?: string | null
           created_at?: string
           due_at?: string | null
+          event_end?: string | null
+          event_precision?: string | null
+          event_start?: string | null
           evidence_atom_ids?: string[]
           id?: string
           is_active?: boolean
@@ -3022,6 +3085,7 @@ export type Database = {
           import_type: string
           parsed_at: string | null
           raw_parsed_data: Json | null
+          source_document_id: string | null
           source_file_path: string | null
           source_filename: string | null
           started_at: string
@@ -3039,6 +3103,7 @@ export type Database = {
           import_type: string
           parsed_at?: string | null
           raw_parsed_data?: Json | null
+          source_document_id?: string | null
           source_file_path?: string | null
           source_filename?: string | null
           started_at?: string
@@ -3056,6 +3121,7 @@ export type Database = {
           import_type?: string
           parsed_at?: string | null
           raw_parsed_data?: Json | null
+          source_document_id?: string | null
           source_file_path?: string | null
           source_filename?: string | null
           started_at?: string
@@ -3063,7 +3129,15 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "cv_imports_source_document_id_fkey"
+            columns: ["source_document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       cv_parse_candidates: {
         Row: {
@@ -10682,6 +10756,22 @@ export type Database = {
       career_atom_promote_parse_candidate: {
         Args: { p_atom: Json; p_candidate_id: string }
         Returns: Json
+      }
+      career_material_approve_proposal: {
+        Args: {
+          p_edited_content: string
+          p_event_end: string
+          p_event_precision: string
+          p_event_start: string
+          p_proposal_id: string
+          p_reviewer_comment: string
+          p_target_atom_id: string
+          p_user_id: string
+        }
+        Returns: {
+          atom_id: string
+          status: string
+        }[]
       }
       career_material_attachment_claim_next: {
         Args: { p_lease_seconds?: number }

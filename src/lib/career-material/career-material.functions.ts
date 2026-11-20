@@ -139,6 +139,158 @@ export const setCareerMaterialArchived = createServerFn({ method: "POST" })
     return { status: (status ?? "error") as "ok" | "in_progress" | "not_found" | "error" };
   });
 
+const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
+const approveSchema = z.object({
+  proposalId: z.string().uuid(),
+  editedContent: z.string().trim().max(400).nullable(),
+  reviewerComment: z.string().trim().max(1000).nullable(),
+  eventStart: isoDate.nullable(),
+  eventEnd: isoDate.nullable(),
+  eventPrecision: z.enum(["day", "month", "year"]).nullable(),
+  targetAtomId: z.string().uuid().nullable(),
+});
+
+export type ApproveCareerProposalStatus =
+  | "approved"
+  | "linked"
+  | "already_approved"
+  | "not_found"
+  | "not_pending"
+  | "invalid_edit"
+  | "invalid_date"
+  | "invalid_payload"
+  | "needs_evidence"
+  | "target_not_found"
+  | "error";
+
+/**
+ * Godkjenner et forslag fra karrieremateriale i én transaksjon: profil-
+ * oppføring (eller kobling til en eksisterende), kildekobling og status.
+ * Gjentatte kall gir samme resultat uten duplikater.
+ */
+export const approveCareerMaterialProposal = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => approveSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    const { data: own } = await context.supabase
+      .from("atom_enrichment_proposals")
+      .select("id")
+      .eq("id", data.proposalId)
+      .eq("source_type", "career_material")
+      .maybeSingle();
+    if (!own) return { status: "not_found" as ApproveCareerProposalStatus, atomId: null };
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: rows, error } = await supabaseAdmin.rpc("career_material_approve_proposal", {
+      p_proposal_id: data.proposalId,
+      p_user_id: context.userId,
+      p_edited_content: data.editedContent ?? null,
+      p_reviewer_comment: data.reviewerComment ?? null,
+      p_event_start: data.eventStart ?? null,
+      p_event_end: data.eventEnd ?? null,
+      p_event_precision: data.eventPrecision ?? null,
+      p_target_atom_id: data.targetAtomId ?? null,
+    } as never);
+    if (error) {
+      console.error("[career-material] approve failed", error.code ?? "unknown");
+      return { status: "error" as ApproveCareerProposalStatus, atomId: null };
+    }
+    const row = (Array.isArray(rows) ? rows[0] : null) as {
+      status: string;
+      atom_id: string | null;
+    } | null;
+    return {
+      status: (row?.status ?? "error") as ApproveCareerProposalStatus,
+      atomId: row?.atom_id ?? null,
+    };
+  });
+
+const cvSchema = z.object({ intakeId: z.string().uuid() });
+
+/**
+ * Sender en mottatt CV-fil til den vanlige CV-importen etter brukerens valg.
+ * Originalen i arkivet beholdes; en kopi legges der CV-importen leser.
+ * Gjentatte klikk gir samme import så lenge den ikke har feilet.
+ * Profilen endres ikke før brukeren går gjennom CV-en i CV-flyten.
+ */
+export const sendCareerMaterialToCvImport = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => cvSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    const { data: intake } = await context.supabase
+      .from("career_material_intakes")
+      .select("id, document_id")
+      .eq("id", data.intakeId)
+      .maybeSingle();
+    if (!intake) return { status: "not_found" as const, importId: null };
+    const { data: doc } = await context.supabase
+      .from("documents")
+      .select("id, file_path, file_name, mime_type, deleted_at")
+      .eq("id", intake.document_id)
+      .maybeSingle();
+    if (!doc || doc.deleted_at || !doc.file_path)
+      return { status: "no_file" as const, importId: null };
+    const mime = doc.mime_type ?? "";
+    const isPdf = mime === "application/pdf";
+    const isDocx = mime.includes("wordprocessingml");
+    if (!isPdf && !isDocx) return { status: "unsupported" as const, importId: null };
+
+    const { data: existing } = await context.supabase
+      .from("cv_imports")
+      .select("id, status")
+      .eq("source_document_id", doc.id)
+      .neq("status", "failed")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (existing) return { status: "exists" as const, importId: existing.id as string };
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    // Filen må ligge under brukerens egen mappe i arkivet.
+    if (!doc.file_path.startsWith(`${context.userId}/`))
+      return { status: "no_file" as const, importId: null };
+    const { data: blob, error: dlErr } = await supabaseAdmin.storage
+      .from("career-material")
+      .download(doc.file_path);
+    if (dlErr || !blob) return { status: "error" as const, importId: null };
+    const safeName = (doc.file_name ?? (isPdf ? "cv.pdf" : "cv.docx"))
+      .replace(/[^a-zA-Z0-9._-]+/g, "_")
+      .slice(0, 120);
+    const path = `${context.userId}/${Date.now()}-${safeName}`;
+    const { error: upErr } = await supabaseAdmin.storage
+      .from("cv-uploads")
+      .upload(path, blob, { contentType: mime, upsert: false });
+    if (upErr) return { status: "error" as const, importId: null };
+    const { data: row, error: insErr } = await context.supabase
+      .from("cv_imports")
+      .insert({
+        user_id: context.userId,
+        import_type: isPdf ? "old_cv_pdf" : "old_cv_docx",
+        source_filename: doc.file_name ?? safeName,
+        source_file_path: path,
+        source_document_id: doc.id,
+        status: "pending",
+        started_at: new Date().toISOString(),
+      })
+      .select("id")
+      .single();
+    if (insErr || !row) {
+      await supabaseAdmin.storage.from("cv-uploads").remove([path]);
+      if (insErr?.code === "23505") {
+        // Samtidig klikk: den andre forespørselen opprettet importen.
+        const { data: other } = await context.supabase
+          .from("cv_imports")
+          .select("id")
+          .eq("source_document_id", doc.id)
+          .neq("status", "failed")
+          .limit(1)
+          .maybeSingle();
+        if (other) return { status: "exists" as const, importId: other.id as string };
+      }
+      return { status: "error" as const, importId: null };
+    }
+    return { status: "created" as const, importId: row.id as string };
+  });
+
 const deleteSchema = z.object({
   intakeId: z.string().uuid(),
   removeApprovedAtoms: z.boolean(),

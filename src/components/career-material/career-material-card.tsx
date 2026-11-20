@@ -68,6 +68,7 @@ import {
   processCareerMaterial,
   setCareerMaterialType,
   setCareerMaterialArchived,
+  sendCareerMaterialToCvImport,
   submitCareerMaterialPaste,
 } from "@/lib/career-material/career-material.functions";
 import {
@@ -416,6 +417,63 @@ export function CareerMaterialCard() {
   );
 }
 
+function CvImportAction(props: { intakeId: string; highlighted: boolean }) {
+  const sendFn = useServerFn(sendCareerMaterialToCvImport);
+  const [confirm, setConfirm] = useState(false);
+  const [done, setDone] = useState(false);
+  const m = useMutation({
+    mutationFn: () => sendFn({ data: { intakeId: props.intakeId } }),
+    onSuccess: (res) => {
+      if (res.status === "created" || res.status === "exists") {
+        setDone(true);
+        toast.success(
+          res.status === "exists"
+            ? "CV-en er allerede sendt til CV-importen."
+            : "CV-en er sendt til CV-importen. Fullfør gjennomgangen der.",
+        );
+      } else if (res.status === "unsupported") toast.error("Bare PDF og Word (.docx) kan sendes til CV-importen.");
+      else if (res.status === "no_file") toast.error("Fant ikke filen i arkivet.");
+      else toast.error("Kunne ikke sende CV-en. Prøv igjen.");
+    },
+  });
+  if (done)
+    return (
+      <p className="text-xs text-muted-foreground">
+        Sendt til CV-importen.{" "}
+        <Link to="/onboarding" className="text-primary underline underline-offset-2">
+          Fortsett i CV-importen
+        </Link>
+        . Profilen endres ikke før du har gått gjennom CV-en der.
+      </p>
+    );
+  return (
+    <div className="flex flex-wrap items-center gap-2 text-xs">
+      {!confirm ? (
+        <Button
+          size="sm"
+          variant={props.highlighted ? "secondary" : "ghost"}
+          onClick={() => setConfirm(true)}
+        >
+          Dette er en CV — send til CV-import
+        </Button>
+      ) : (
+        <>
+          <span className="text-muted-foreground">
+            Originalen blir liggende i arkivet. Ingenting endres i profilen før du går gjennom CV-en.
+          </span>
+          <Button size="sm" disabled={m.isPending} onClick={() => m.mutate()}>
+            {m.isPending && <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" aria-hidden />}
+            Send
+          </Button>
+          <Button size="sm" variant="ghost" onClick={() => setConfirm(false)}>
+            Avbryt
+          </Button>
+        </>
+      )}
+    </div>
+  );
+}
+
 function downloadArchiveVcard(address: string) {
   const card = buildArchiveVcard(address);
   if (!card) {
@@ -727,6 +785,10 @@ function IntakeRow(props: {
             </Link>
           )}
         </div>
+      )}
+
+      {r.filePath && (recognized === "cv" || r.status === "needs_type") && !archived && (
+        <CvImportAction intakeId={r.id} highlighted={recognized === "cv"} />
       )}
 
       {(r.status === "needs_type" || r.status === "failed") && !archived && (

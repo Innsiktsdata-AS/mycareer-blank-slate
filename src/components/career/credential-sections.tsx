@@ -19,6 +19,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { careerAtomSourcesQuery } from "@/lib/queries/career-atom-sources";
+import { SourceStatusBadge } from "@/components/documentation/source-status-badge";
 import { useAuth } from "@/lib/auth-context";
 import {
   CREDENTIAL_DOCUMENTABLE,
@@ -257,6 +259,8 @@ function CredentialRow({
   onChanged: () => void;
 }) {
   const data = sd(row);
+  const sources = useQuery(careerAtomSourcesQuery(userId));
+  const sourceStatus = sources.data?.get(row.id);
   const docs = credentialDocuments(row.structured_data);
   const level = data.sprak_niva as string | undefined;
   const classes: string[] = Array.isArray(data.forerkort_klasser) ? data.forerkort_klasser : [];
@@ -277,7 +281,9 @@ function CredentialRow({
             Klasse {classes.join(", ")}
           </Badge>
         ) : null}
-        {CREDENTIAL_DOCUMENTABLE[kind] ? (
+        {sourceStatus && sourceStatus.kind !== "none" ? (
+          <SourceStatusBadge status={sourceStatus} />
+        ) : CREDENTIAL_DOCUMENTABLE[kind] ? (
           <Badge
             variant="outline"
             className={

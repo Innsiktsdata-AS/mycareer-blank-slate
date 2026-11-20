@@ -7,6 +7,7 @@ import { ChevronDown, ClipboardList, Loader2, Pencil } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import {
   approveAtomEnrichmentProposal,
+  type CareerMaterialApprovalOptions,
   ATOM_ENRICHMENT_PROPOSAL_LIST_LIMIT,
   atomEnrichmentBatchesQuery,
   atomEnrichmentProposalsByStatusQuery,
@@ -45,6 +46,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { formatEventRange, parseEventDate } from "@/lib/career-material/event-date";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { EmptyState } from "@/components/empty-state";
@@ -82,7 +86,7 @@ function ProposalCard(props: {
   showCheckbox: boolean;
   selected: boolean;
   onToggleSelected: (id: string, checked: boolean) => void;
-  onApprove: (editedContent?: string | null) => void;
+  onApprove: (editedContent?: string | null, cm?: CareerMaterialApprovalOptions) => void;
   onNeeds?: () => void;
   onReject: () => void;
   onReopen?: () => void;
@@ -118,6 +122,31 @@ function ProposalCard(props: {
       : "";
   const [editing, setEditing] = useState(false);
   const [editText, setEditText] = useState(originalContent);
+
+  // Karrieremateriale: hendelsesdato og ev. kobling til eksisterende oppføring.
+  const isCareerFact =
+    p.source_type === "career_material" &&
+    p.proposal_action === "create_atom" &&
+    p.target_atom_type === "career_atom";
+  const sd = ((p.proposal_payload as Record<string, unknown> | null)?.["structured_data"] ??
+    {}) as Record<string, unknown>;
+  const suggestion = sd["event_suggestion"] as { text?: string } | null | undefined;
+  const candidates = Array.isArray(sd["match_candidates"])
+    ? (sd["match_candidates"] as Array<{ id: string; content: string }>)
+    : [];
+  const [dateText, setDateText] = useState(suggestion?.text ?? "");
+  const [target, setTarget] = useState<string>("new");
+  const parsedDate = dateText.trim() ? parseEventDate(dateText) : null;
+  const dateInvalid = dateText.trim().length > 0 && !parsedDate;
+  const cmOptions = (): CareerMaterialApprovalOptions | undefined =>
+    isCareerFact
+      ? {
+          eventStart: target === "new" ? (parsedDate?.start ?? null) : null,
+          eventEnd: target === "new" ? (parsedDate?.end ?? null) : null,
+          eventPrecision: target === "new" ? (parsedDate?.precision ?? null) : null,
+          targetAtomId: target === "new" ? null : target,
+        }
+      : undefined;
 
   return (
     <div className="rounded-lg border bg-card/50 p-4 space-y-4">
@@ -265,6 +294,54 @@ function ProposalCard(props: {
               )}
             </div>
           )}
+          {isCareerFact && candidates.length > 0 && (
+            <div className="space-y-1.5 rounded-md border p-2">
+              <p className="text-xs font-medium">Gjelder dette en kvalifikasjon du allerede har?</p>
+              <RadioGroup value={target} onValueChange={setTarget} className="gap-1.5">
+                <div className="flex items-center gap-2 text-sm">
+                  <RadioGroupItem value="new" id={`t-new-${p.id}`} />
+                  <Label htmlFor={`t-new-${p.id}`} className="font-normal">
+                    Nei, lag ny oppføring
+                  </Label>
+                </div>
+                {candidates.map((c) => (
+                  <div key={c.id} className="flex items-center gap-2 text-sm">
+                    <RadioGroupItem value={c.id} id={`t-${c.id}-${p.id}`} />
+                    <Label htmlFor={`t-${c.id}-${p.id}`} className="font-normal">
+                      Ja, kilden dokumenterer «{c.content}»
+                    </Label>
+                  </div>
+                ))}
+              </RadioGroup>
+              <p className="text-xs text-muted-foreground">
+                KI-forslag basert på navnet. Du velger selv.
+              </p>
+            </div>
+          )}
+          {isCareerFact && target === "new" && (
+            <div className="space-y-1">
+              <Label htmlFor={`d-${p.id}`} className="text-xs">
+                Når skjedde dette? (valgfritt, f.eks. 2021, mars 2021 eller 15.03.2021)
+              </Label>
+              <Input
+                id={`d-${p.id}`}
+                value={dateText}
+                maxLength={60}
+                onChange={(e) => setDateText(e.target.value)}
+                className="h-8 max-w-xs text-sm"
+              />
+              <p className="text-xs text-muted-foreground">
+                {dateInvalid
+                  ? "Datoen kan ikke tolkes."
+                  : parsedDate
+                    ? `Lagres som ${formatEventRange(parsedDate.start, parsedDate.end, parsedDate.precision)}.`
+                    : suggestion?.text
+                      ? ""
+                      : "Ingen dato står i utdraget. Uten dato vises registreringsdatoen."}
+                {suggestion?.text ? ` Forslag fra utdraget: «${suggestion.text}».` : ""}
+              </p>
+            </div>
+          )}
           <div className="space-y-2">
             <Label htmlFor={`c-${p.id}`} className="text-xs">
               Kommentar til beslutning (valgfritt)
@@ -283,9 +360,12 @@ function ProposalCard(props: {
             <Button
               type="button"
               size="sm"
-              disabled={busy || (editing && editText.trim().length < 2)}
+              disabled={busy || (editing && editText.trim().length < 2) || dateInvalid}
               onClick={() =>
-                onApprove(editing && editText.trim() !== originalContent ? editText.trim() : null)
+                onApprove(
+                  editing && editText.trim() !== originalContent ? editText.trim() : null,
+                  cmOptions(),
+                )
               }
             >
               {editing && editText.trim() !== originalContent ? "Godkjenn redigert" : "Godkjenn"}
@@ -380,10 +460,15 @@ export function AtomReviewPage() {
   }, [tab]);
 
   const approveM = useMutation({
-    mutationFn: async (input: { p: AtomEnrichmentProposalRow; editedContent?: string | null }) => {
+    mutationFn: async (input: {
+      p: AtomEnrichmentProposalRow;
+      editedContent?: string | null;
+      cm?: CareerMaterialApprovalOptions;
+    }) => {
       await approveAtomEnrichmentProposal(uid, input.p.id, {
         reviewerComment: commentFor(input.p.id),
         editedContent: input.editedContent ?? null,
+        ...(input.cm ? { careerMaterial: input.cm } : {}),
       });
     },
     onSuccess: (_void, { p }) => {
@@ -828,7 +913,7 @@ export function AtomReviewPage() {
                         showCheckbox={showCb}
                         selected={selected.has(p.id)}
                         onToggleSelected={toggleSelected}
-                        onApprove={(editedContent) => approveM.mutate({ p, editedContent })}
+                        onApprove={(editedContent, cm) => approveM.mutate({ p, editedContent, ...(cm ? { cm } : {}) })}
                         onNeeds={t === "pending" ? () => needsM.mutate(p) : undefined}
                         onReject={() => rejectM.mutate(p)}
                         onReopen={t === "needs_more_context" ? () => reopenM.mutate(p) : undefined}

@@ -36,6 +36,34 @@
       "when": 1795175238206,
       "tag": "0004_career_material_archive_and_recognized_kind",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1795177272103,
+      "tag": "0005_career_facts_dates_sources_atomic_approval",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1795177552783,
+      "tag": "0006_cv_imports_source_document",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1795177580648,
+      "tag": "0007_cv_imports_source_document_active_unique",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1795177963168,
+      "tag": "0008_career_material_approve_fix_ambiguous",
+      "breakpoints": true
     }
   ]
 }

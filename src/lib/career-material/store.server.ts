@@ -24,6 +24,7 @@ import {
   resolveEffectiveType,
   sha256Hex,
   validateAnalysis,
+  matchExistingQualifications,
 } from "./analysis.server";
 import {
   isCareerMaterialType,
@@ -245,6 +246,22 @@ export async function processCareerMaterialIntake(
     const raw = parseModelJson(result.text);
     if (!raw) return await fail("invalid_model_output", true);
     const analysis = validateAnalysis(raw, doc.content_text.slice(0, 40_000));
+    if (analysis.qualifications.length > 0) {
+      // Bare brukerens egne, aktive kvalifikasjoner. Kun forslag til brukeren.
+      const { data: existing } = await admin
+        .from("career_atoms")
+        .select("id, content_no")
+        .eq("user_id", input.userId)
+        .eq("is_active", true)
+        .in("atom_type", ["certification", "course", "education"])
+        .limit(200);
+      const list = ((existing ?? []) as Array<{ id: string; content_no: string | null }>)
+        .filter((e) => e.content_no)
+        .map((e) => ({ id: e.id, content: e.content_no as string }));
+      for (const q of analysis.qualifications) {
+        q.matchCandidates = matchExistingQualifications(q.name, list);
+      }
+    }
 
     const effectiveType = resolveEffectiveType({
       userType,

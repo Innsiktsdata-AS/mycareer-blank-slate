@@ -113,6 +113,24 @@ function careerMaterialCopy(
         "Kompetansen legges inn koblet til resultatet den bygger på. Godkjenn resultatet først — uten det kan kompetansen ikke lagres.",
     };
   }
+  if (p.proposal_action === "create_atom" && atomType === "certification") {
+    const issuer = str(sd, "issuer");
+    return {
+      title: `Kvalifikasjon: ${content}`,
+      summary: `«${content}»${issuer ? `, utstedt av ${issuer}` : ""}.`,
+      why,
+      impact:
+        "Velg om kilden dokumenterer en kvalifikasjon du allerede har, eller om den skal legges inn som ny. Kilden kobles til oppføringen som dokumentasjon.",
+    };
+  }
+  if (p.proposal_action === "create_atom" && atomType === "role") {
+    return {
+      title: `Rolle: ${content}`,
+      summary: `«${content}».`,
+      why,
+      impact: "Rollen legges inn i karriereprofilen med kobling til kilden og datoen du bekrefter.",
+    };
+  }
   const label =
     kind === "rollekrav" || kind === "ansvar"
       ? "Fra stillingsinstruks"

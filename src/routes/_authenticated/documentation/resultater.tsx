@@ -15,6 +15,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { careerAtomSourcesQuery } from "@/lib/queries/career-atom-sources";
+import { SourceStatusBadge } from "@/components/documentation/source-status-badge";
 
 export const Route = createFileRoute("/_authenticated/documentation/resultater")({
   component: DocumentationResultsPage,
@@ -32,6 +34,7 @@ function DocumentationResultsPage() {
   const userId = user?.id ?? "";
   const basis = useQuery(documentationAtomBasisQuery(userId));
   const manual = useQuery(professionalResultsListQuery());
+  const sources = useQuery(careerAtomSourcesQuery(userId));
 
   const data = basis.data;
   const grouped = (data?.roles ?? []).map((role) => ({
@@ -104,7 +107,8 @@ function DocumentationResultsPage() {
                                 className="h-5 px-1.5 text-[11px] font-normal"
                               >
                                 {ATTESTATION_LABEL[String(r.attestation ?? "")] ?? "Selvrapportert"}
-                              </Badge>
+                              </Badge>{" "}
+                              <SourceStatusBadge status={sources.data?.get(r.id)} />
                             </li>
                           ))}
                         </ul>
@@ -122,7 +126,8 @@ function DocumentationResultsPage() {
                       <ul className="space-y-2">
                         {loose.map((r) => (
                           <li key={r.id} className="text-sm leading-snug">
-                            {r.content_no ?? "(uten tekst)"}
+                            {r.content_no ?? "(uten tekst)"}{" "}
+                            <SourceStatusBadge status={sources.data?.get(r.id)} />
                           </li>
                         ))}
                       </ul>

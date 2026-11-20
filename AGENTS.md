@@ -7,3 +7,6 @@
 - Karrieremateriale fra e-post behandles av bakgrunnsarbeideren (`/api/public/jobs/career-material`, planlagt jobb) med databaselås, claim/lease og pause — aldri ved sidevisning — så behandling er pålitelig og kostnadsbegrenset.
 - Vedlegg valideres på filsignatur og leses uten OCR; hvert lesbart vedlegg blir en egen låst kilde med originalfil i privat lagring under brukerens mappe — så kilde- og vedleggssporing bevares.
 - Valgfrie RPC-parametre uten standardverdi i databasen sendes som eksplisitt `null`, aldri `undefined` — et utelatt felt gir PGRST202 (funksjonen finnes ikke).
+- Godkjenning av forslag fra karrieremateriale går kun gjennom service-only `career_material_approve_proposal` (låst rad, idempotent) og lagrer kildekobling i `career_atom_sources` — så dobbeltklikk aldri gir duplikater og godkjenningen overlever sletting av kilden.
+- Hendelsesdato (`event_start/end/precision`) settes bare fra brukerbekreftet eller ordrett sitert dato, aldri fra import- eller godkjenningstid — så ingen dato diktes opp.
+- Generatorer skal hente fakta via `getApprovedCareerFacts` (felles regel for brukerbekreftet), ikke egne spørringer — så alle bruker samme grunnlag.

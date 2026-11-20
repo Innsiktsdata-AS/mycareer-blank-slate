@@ -598,11 +598,62 @@ export function readableProposalError(e: unknown): Error {
   return new Error(raw || "Kunne ikke behandle forslaget.");
 }
 
+export type CareerMaterialApprovalOptions = {
+  eventStart: string | null;
+  eventEnd: string | null;
+  eventPrecision: "day" | "month" | "year" | null;
+  /** Kilden dokumenterer en eksisterende oppføring i stedet for å lage ny. */
+  targetAtomId: string | null;
+};
+
+const CAREER_APPROVE_ERRORS: Record<string, string> = {
+  not_found: "Fant ikke forslaget.",
+  not_pending: "Forslaget er ikke lenger til vurdering.",
+  invalid_edit: `Teksten må være mellom 2 og ${400} tegn.`,
+  invalid_date: "Datoen er ugyldig. Bruk f.eks. 2021, mars 2021 eller 15.03.2021.",
+  invalid_payload: "Forslaget mangler innhold og kan ikke godkjennes.",
+  needs_evidence:
+    "Godkjenn først resultatet denne kompetansen bygger på. Kompetanser kan bare lagres med et konkret resultat som grunnlag.",
+  target_not_found: "Fant ikke oppføringen du valgte.",
+  error: "Kunne ikke godkjenne forslaget. Prøv igjen.",
+};
+
 export async function approveAtomEnrichmentProposal(
   userId: string,
   proposalId: string,
-  opts?: { reviewerComment?: string; editedContent?: string | null },
+  opts?: {
+    reviewerComment?: string;
+    editedContent?: string | null;
+    careerMaterial?: CareerMaterialApprovalOptions;
+  },
 ): Promise<void> {
+  const { data: src } = await supabase
+    .from("atom_enrichment_proposals")
+    .select("source_type")
+    .eq("id", proposalId)
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (src?.source_type === "career_material") {
+    // Samlet, gjentakbar godkjenning på serveren (én transaksjon).
+    const { approveCareerMaterialProposal } = await import(
+      "@/lib/career-material/career-material.functions"
+    );
+    const cm = opts?.careerMaterial;
+    const res = await approveCareerMaterialProposal({
+      data: {
+        proposalId,
+        editedContent: opts?.editedContent?.trim() || null,
+        reviewerComment: opts?.reviewerComment?.trim() || null,
+        eventStart: cm?.eventStart ?? null,
+        eventEnd: cm?.eventEnd ?? null,
+        eventPrecision: cm?.eventPrecision ?? null,
+        targetAtomId: cm?.targetAtomId ?? null,
+      },
+    });
+    if (res.status === "approved" || res.status === "linked" || res.status === "already_approved")
+      return;
+    throw new Error(CAREER_APPROVE_ERRORS[res.status] ?? CAREER_APPROVE_ERRORS["error"]);
+  }
   try {
     const { data: row, error: fetchErr } = await supabase
       .from("atom_enrichment_proposals")

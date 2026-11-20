@@ -12,6 +12,9 @@ export const CAREER_MATERIAL_TYPES = [
   "medarbeidersamtale",
   "attest",
   "prestasjon",
+  "kursbevis",
+  "rolleendring",
+  "lonnsendring",
 ] as const;
 
 export type CareerMaterialType = (typeof CAREER_MATERIAL_TYPES)[number];
@@ -23,6 +26,9 @@ export const CAREER_MATERIAL_TYPE_LABELS: Record<CareerMaterialAiType, string> =
   medarbeidersamtale: "Medarbeidersamtale",
   attest: "Attest / referanse",
   prestasjon: "Prestasjon",
+  kursbevis: "Kursbevis / sertifikat",
+  rolleendring: "Rolleendring",
+  lonnsendring: "Lønnsendring",
   ukjent: "Ukjent",
 };
 
@@ -36,6 +42,12 @@ export const CAREER_MATERIAL_TYPE_HINTS: Record<CareerMaterialType, string> = {
   attest:
     "Andres utsagn om deg. Kan gi forslag til resultater, men regnes ikke som bevis på kompetanse.",
   prestasjon: "En konkret prestasjon du har oppnådd. Gir forslag til resultater og kompetanser.",
+  kursbevis:
+    "Kursbevis eller sertifikat. Gir forslag til kvalifikasjon — ny, eller som dokumentasjon av en du allerede har registrert.",
+  rolleendring:
+    "Endring i stilling eller rolle. Gir forslag til rolle med dato når den står i dokumentet.",
+  lonnsendring:
+    "Lønnsendring. Beløpet blir bare i den private kilden — ingenting kopieres til profilen.",
 };
 
 /**
@@ -69,7 +81,7 @@ export const RECOGNIZED_KIND_GUIDES: Record<RecognizedKind, RecognizedKindGuide>
   cv: {
     label: "CV",
     explanation:
-      "CV-er behandles i CV-importen, ikke her. Du kan beholde dokumentet i arkivet, eller laste opp CV-en manuelt i CV-importen.",
+      "CV-er behandles i CV-importen, ikke her. Bruk «send til CV-import» under, eller behold dokumentet i arkivet.",
     link: { to: "/onboarding", label: "Gå til CV-import" },
   },
   kontaktliste: {
@@ -81,17 +93,17 @@ export const RECOGNIZED_KIND_GUIDES: Record<RecognizedKind, RecognizedKindGuide>
   kursbevis: {
     label: "Kursbevis / sertifikat",
     explanation:
-      "Kursbevis og sertifikater får egen behandling senere. Inntil videre kan du beholde dokumentet i arkivet.",
+      "Velg typen «Kursbevis / sertifikat» for å få forslag til kvalifikasjon, eller behold dokumentet i arkivet.",
   },
   rolleendring: {
     label: "Endret rolle",
     explanation:
-      "Rolleendringer får egen behandling senere. Inntil videre kan du beholde dokumentet i arkivet.",
+      "Velg typen «Rolleendring» for å få forslag til rolle, eller behold dokumentet i arkivet.",
   },
   lonnsendring: {
     label: "Lønnsendring",
     explanation:
-      "Lønnsopplysninger behandles ikke. Dokumentet kan beholdes privat i arkivet; ingenting kopieres til profilen.",
+      "Velg typen «Lønnsendring» eller behold dokumentet i arkivet. Beløpet blir bare i den private kilden; ingenting kopieres til profilen.",
   },
   faktura: {
     label: "Faktura / kvittering",
