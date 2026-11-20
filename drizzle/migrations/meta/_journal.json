@@ -22,6 +22,13 @@
       "when": 1795162132897,
       "tag": "0002_career_material_delete_cleanup_hardening",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1795170836058,
+      "tag": "0003_lock_survey_inserts_and_employer_reports",
+      "breakpoints": true
     }
   ]
 }
