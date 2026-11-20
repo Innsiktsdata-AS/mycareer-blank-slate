@@ -78,6 +78,13 @@
       "when": 1795180137936,
       "tag": "0010_documents_default_own_group",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1795181304211,
+      "tag": "0011_career_material_link_updates_event_date",
+      "breakpoints": true
     }
   ]
 }

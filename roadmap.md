@@ -38,9 +38,10 @@
 - [ ] R2: «Send til CV-import» vises fortsatt etter ny innlasting når CV-en allerede er sendt
 - [ ] R4: ubrukt filkopi etter avbrutt CV-sending ryddes ikke automatisk
 - [x] Publisering og kontroll i publisert app (20.11: «Dokumentert» og ny versjon i samme gruppe)
-- [ ] Kobling til eksisterende oppføring lagrer ikke dato fra kilden (bevisst, ikke overskriving) — avklares med deg
+- [x] Kobling til eksisterende oppføring: datoen fra kilden foreslås og blir ny dato på oppføringen (testet A/B og i appen)
+- [ ] Publisere dato ved kobling (skjermbildet) — venter på klarsignal
 - [ ] Én oppdiktet testfil (1,7 kB) i testbrukermappen kunne ikke slettes fra sandkassen
-- [ ] Generatorer (CV, søknadsbrev, oppsummering) tar i bruk felles leser — senere fase
+- [ ] Generatorer (CV, søknadsbrev, oppsummering) tar i bruk felles leser — senere fase, etter at denne delen er avsluttet
 
 ## Rekruttererundersøkelsen
 

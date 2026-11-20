@@ -49,6 +49,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { formatEventRange, parseEventDate } from "@/lib/career-material/event-date";
+import { buildCareerApprovalOptions } from "@/lib/career-material/approval-options";
+import { supabase } from "@/integrations/supabase/client";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { EmptyState } from "@/components/empty-state";
@@ -139,14 +141,27 @@ function ProposalCard(props: {
   const parsedDate = dateText.trim() ? parseEventDate(dateText) : null;
   const dateInvalid = dateText.trim().length > 0 && !parsedDate;
   const cmOptions = (): CareerMaterialApprovalOptions | undefined =>
-    isCareerFact
-      ? {
-          eventStart: target === "new" ? (parsedDate?.start ?? null) : null,
-          eventEnd: target === "new" ? (parsedDate?.end ?? null) : null,
-          eventPrecision: target === "new" ? (parsedDate?.precision ?? null) : null,
-          targetAtomId: target === "new" ? null : target,
-        }
-      : undefined;
+    isCareerFact ? buildCareerApprovalOptions(target, parsedDate) : undefined;
+  // Nåværende dato på oppføringene brukeren kan koble kilden til (egne rader).
+  const candidateIds = candidates.map((c) => c.id);
+  const { data: candidateDates } = useQuery({
+    queryKey: ["career-atom-event-dates", ...candidateIds],
+    enabled: isCareerFact && showActions && candidateIds.length > 0,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("career_atoms")
+        .select("id, event_start, event_end, event_precision")
+        .in("id", candidateIds);
+      return new Map(
+        (data ?? []).map((r) => [
+          r.id as string,
+          formatEventRange(r.event_start, r.event_end, r.event_precision),
+        ]),
+      );
+    },
+  });
+  const linking = target !== "new";
+  const currentTargetDate = linking ? (candidateDates?.get(target) ?? null) : null;
 
   return (
     <div className="rounded-lg border bg-card/50 p-4 space-y-4">
@@ -322,10 +337,12 @@ function ProposalCard(props: {
               </p>
             </div>
           )}
-          {isCareerFact && target === "new" && (
+          {isCareerFact && (
             <div className="space-y-1">
               <Label htmlFor={`d-${p.id}`} className="text-xs">
-                Når skjedde dette? (valgfritt, f.eks. 2021, mars 2021 eller 15.03.2021)
+                {linking
+                  ? "Dato fra kilden (valgfritt, f.eks. 2021, mars 2021 eller 15.03.2021)"
+                  : "Når skjedde dette? (valgfritt, f.eks. 2021, mars 2021 eller 15.03.2021)"}
               </Label>
               <Input
                 id={`d-${p.id}`}
@@ -337,13 +354,25 @@ function ProposalCard(props: {
               <p className="text-xs text-muted-foreground">
                 {dateInvalid
                   ? "Datoen kan ikke tolkes."
-                  : parsedDate
-                    ? `Lagres som ${formatEventRange(parsedDate.start, parsedDate.end, parsedDate.precision)}.`
-                    : suggestion?.text
-                      ? ""
-                      : "Ingen dato står i utdraget. Uten dato vises registreringsdatoen."}
+                  : linking
+                    ? parsedDate
+                      ? `Oppføringen får ny dato: ${formatEventRange(parsedDate.start, parsedDate.end, parsedDate.precision)}.`
+                      : "Datoen på oppføringen endres ikke."
+                    : parsedDate
+                      ? `Lagres som ${formatEventRange(parsedDate.start, parsedDate.end, parsedDate.precision)}.`
+                      : suggestion?.text
+                        ? ""
+                        : "Ingen dato står i utdraget. Uten dato vises registreringsdatoen."}
                 {suggestion?.text ? ` Forslag fra utdraget: «${suggestion.text}».` : ""}
               </p>
+              {linking && (
+                <p className="text-xs text-muted-foreground">
+                  {currentTargetDate
+                    ? `Datoen på oppføringen nå: ${currentTargetDate}.`
+                    : "Oppføringen har ingen dato nå."}{" "}
+                  Tøm feltet hvis du vil beholde datoen som den er.
+                </p>
+              )}
             </div>
           )}
           <div className="space-y-2">
