@@ -33,7 +33,10 @@
 - [x] CV-test: test-PDF til CV-import, ingen falsk sertifisering, ingen duplikater
 - [x] Datoer hver for seg (hendelse/import/godkjenning, ukjent, bare år) og rolleendring på riktig rolle
 - [x] Dokumentere flyttingen av gamle vedlegg (kopi eller flytting), sletting og tilbakeføring
-- [ ] Publisering og kontroll i publisert app (venter på din godkjenning)
+- [ ] R1: manuelle kvalifikasjonsfiler etter migrasjon 0005 får ingen kildekobling, så felles leser ser dem ikke (venter på godkjenning av databaseendring)
+- [ ] R2: «Send til CV-import» vises fortsatt etter ny innlasting når CV-en allerede er sendt
+- [ ] R4: ubrukt filkopi etter avbrutt CV-sending ryddes ikke automatisk
+- [ ] Publisering og kontroll i publisert app (venter på R1 og din godkjenning)
 - [ ] Kobling til eksisterende oppføring lagrer ikke dato fra kilden (bevisst, ikke overskriving) — avklares med deg
 - [ ] Én oppdiktet testfil (1,7 kB) i testbrukermappen kunne ikke slettes fra sandkassen
 - [ ] Generatorer (CV, søknadsbrev, oppsummering) tar i bruk felles leser — senere fase

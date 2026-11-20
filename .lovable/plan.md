@@ -1,101 +1,81 @@
-# Revisjonsrapport: karrieremateriale, dokumentasjon og generatorer
+# Test- og leveranserapport: karrieremateriale og dokumentasjon
 
-Status 20.11.2026. Bare lesing i denne runden. Merk at forrige runde allerede gjorde endringer i forhåndsvisningen (commit a250f377). Rapporten skiller mellom tre ting: **publisert**, **bare i forhåndsvisning** og **ikke bekreftet**.
+Status 20.11.2026. Ingenting er publisert. Ingen ekte brukerdata er endret eller slettet. Teststatus vises slik: **Testet** (kjørt med syntetiske data), **Kode** (bare vurdert ut fra koden) og **Usikkert**.
 
-## 1. Publiseringsstatus
+## 1. Kontroll av dagens produksjon mot migrasjon 0005–0008
 
-| Del | Status | Bevis |
+| Kontroll | Resultat | Grunnlag |
 |---|---|---|
-| Fase 1: ikke-støttede typer og «Behold i arkivet» | **Publisert** | Teksten står i lazy-lastede filer i den publiserte appen. Skjermbildet ditt viser knappen i produksjon. |
-| Fase 2a: kontaktkort (vCard) | **Publisert** | Lå i samme publisering som fase 1. Finnes i lazy-lastede filer. |
-| Nye typer (kursbevis, rolleendring, lønnsendring) og hendelsesdato | Bare forhåndsvisning | Endret i kode, men ikke publisert. |
-| Treff på kvalifikasjon du allerede har, og atomisk godkjenning | Bare forhåndsvisning. Databasedelen er aktiv. | Migrasjon 0005 og rettelsen 0008 er kjørt i databasen. Databasen er felles for forhåndsvisning og produksjon. Knappene som bruker dem, er bare i forhåndsvisningen. |
-| Dokumentasjonsstatus og felles leser for fakta | Bare forhåndsvisning | Kode i `src/lib/career-facts/*` |
-| Send CV videre til CV-importen | Bare forhåndsvisning. Databasedelen er aktiv. | Migrasjon 0006 og 0007 |
+| Halve eller doble godkjenninger | Ingen funnet | Testet (lesing av struktur, ikke innhold) |
+| To like rolletitler | Kommer fra LinkedIn-importen, ikke fra godkjenning | Testet (lesing) |
+| Publisert godkjenning av vanlige forslag | Virker mot den nye databasen | Testet |
+| Publisert godkjenning av kildeforslag | Virker, men lager verken kildekobling eller hendelsesdato | Testet. Ingen slike forslag finnes i produksjon (0). |
+| Andre importløp (LinkedIn, CV-import) | Ikke berørt. Det nye feltet for kildedokument kan stå tomt. | Kode |
+| Nåtall i produksjon | 2 inntak, 0 forslag, 0 kildekoblinger, 0 manuelle kvalifikasjonsfiler, 0 CV-er sendt fra arkivet | Testet (lesing) |
 
-At produksjonen hadde 0 forslag og 0 oppføringer fra karrieremateriale, betyr ikke at koden er upublisert. Det betyr bare at ingen forslag var godkjent ennå. Det eneste ekte dokumentet i produksjon ble klassifisert som «ukjent» og venter på at du velger type.
+**Konsekvens av de aktive migrasjonene:** De er additive. Dagens publiserte app virker som før. Hva som ikke skjer før publisering, er beskrevet i R1 under.
 
-**Usikkerhet:** Eldre publiserte versjoner av godkjenningsknappen kan ikke kalle den nye godkjenningsfunksjonen. Den kan bare kalles fra serveren. Det er bekreftet. Jeg har ikke testet hva som skjer om noen godkjenner et kildeforslag i den publiserte appen før neste publisering.
+## 2. Tester av versjonen som skal publiseres
 
-## 2. Kodefunn per område
+Testet versjon: commit `cfcae9e7` med migrasjon 0005–0008. Alle 654 automatiske tester passerer.
 
-**Kategorivelgeren (det som var årsaken)**
-- Den publiserte velgeren viser bare de fem opprinnelige typene. CV og sertifikat blir derfor gjenkjent, men forklart som typer som ikke støttes.
-- I forhåndsvisningen er listen utvidet: `src/lib/career-material/contract.ts:9-31`. Tilsvarende sperrer i databasen er utvidet i migrasjon 0005.
+| Test | Resultat |
+|---|---|
+| Kryssbruker A/B: B prøver å lese, endre, godkjenne, sende og slette A sine fakta og kildekoblinger | Testet, ok. B får tomt svar eller avslag. |
+| Syntetisk kursbevis, ny sertifisering (ITIL, år 2022) | Testet, ok. Én oppføring med årspresisjon. |
+| Syntetisk kursbevis som dokumentasjon på eksisterende sertifisering (PRINCE2) | Testet, ok. Kildekobling og ingen ny oppføring. |
+| Hele kjeden: import, forslag, valg, godkjenning, dato, «Dokumentert»-lenke og felles leser med periodefilter | Testet, ok |
+| Dobbeltklikk og samtidig godkjenning | Testet, ok. Én oppføring. |
+| Avbrudd eller feil underveis i godkjenningen | Kode. Alt skjer i én databasefunksjon, så en feil ruller tilbake alt. Nytt forsøk etter at svaret har gått tapt, gir samme resultat (testet). |
+| Slettet kilde, faktum beholdt | Testet, ok. Viser «Kilde utilgjengelig». |
+| Slettet kilde, faktum fjernet | Testet, ok. Oppføringen deaktiveres. |
+| Rolleendring | Testet, ok. Ny rolle, eller kobling til eksisterende rolle når tittel og arbeidsgiver er like. |
+| Hendelses-, import- og godkjenningsdato hver for seg, med dag, bare år og ukjent dato | Testet, ok |
+| Opprydding | Testdata slettet. Én syntetisk PDF på 1,7 KB ligger igjen i testbrukerens mappe, se R3. |
 
-**Dato**
-- Publisert: Forslag får ingen hendelsesdato. Det eneste tidspunktet som lagres, er når noe ble lagt inn.
-- Forhåndsvisning:
-  - `event-date.ts:74` tolker dato (`parseEventDate`), og `:110` viser den (`formatEventRange`). Presisjonen er dag, måned eller år.
-  - `analysis.server.ts:406` (`eventFromQuote`) beholder bare datoer som står ordrett i utdraget.
-  - Brukeren bekrefter datoen i forslagskortet.
-  - Registreringsdato, godkjenningsdato og hendelsesdato lagres hver for seg.
+## 3. CV fra arkivet til CV-importen
 
-**Godkjenning**
-- Publisert: Godkjenning skjer i flere steg fra nettleseren i `atom-enrichment.ts`. Det er ingen lås mot dobbeltklikk.
-- Forhåndsvisning:
-  - `atom-enrichment.ts:636-642` sender kildeforslag til `approveCareerMaterialProposal` (`career-material.functions.ts:171`). Den kaller databasefunksjonen `career_material_approve_proposal`.
-  - Databasefunksjonen låser raden og tåler at samme godkjenning sendes flere ganger.
-  - Feilen med tvetydig kolonne (42702) er rettet i migrasjon 0008.
+Etter ditt svar er dette testet med en **syntetisk CV** på testbrukeren. Din ventende PDF i produksjon er ikke rørt, og typen «Kursbevis» er ikke valgt.
 
-**Eksisterende dokumentasjon**
-- Publisert: Det finnes ingen automatisk kobling til en kvalifikasjon du allerede har. Det fungerer bare ved manuell opplasting på Kvalifikasjoner, der filen lagres som vedlegg i `structured_data`.
-- Forhåndsvisning:
-  - `matchExistingQualifications` (`analysis.server.ts:437`) foreslår treff, men brukeren velger selv. Generiske ord som «Foundation» teller ikke som treff.
-  - Ved godkjenning lages det en kobling i `career_atom_sources`. Det lages ingen ny oppføring.
-  - Gamle vedlegg ble flyttet over til `career_atom_sources` i migrasjon 0005.
-  - «Dokumentert» vises bare når filen finnes og ikke er slettet. Ellers vises «Kilde utilgjengelig», og oppføringen beholdes.
+| Test | Resultat |
+|---|---|
+| Gjenkjennes som CV, gir ingen sertifisering | Testet, ok |
+| Sendt til CV-importen uten ny e-post | Testet, ok. Én importrad. |
+| Dobbeltklikk, gjentatt og samtidig sending | Testet, ok. Samme import blir returnert. |
+| Ingen automatisk profilendring | Testet, ok. Profilen endres først når du går gjennom CV-en. |
+| Ny analyse etter feil, historikk beholdt | Kode. En feilet import kan sendes på nytt. Gamle rader beholdes. |
+| Avbrudd midt i sendingen | Kode. Ingen duplikat. Det kan bli liggende en ubrukt filkopi, se R4. |
 
-**CV-generering**
-- Bruker et fryst øyeblikksbilde av aktive oppføringer som er `verified` og brukerbekreftet (`career-atom-adapter.ts:32-36, 120-121`). Rå kildetekst leses aldri.
-- Oppføringer fra kildeforslag lagres som `inferred` med brukerbekreftelse. De kommer derfor **ikke** med i CV-en i dag.
-- Dette er bevisst. Planen sa at filteret i CV-generatoren ikke skulle endres nå.
+## 4. Eksisterende dokumentkoblinger
 
-**Søknadsbrev**
-- `generate-cover-letter` bruker en profilrad som nettleseren sender, pluss data om stillingen.
-- Funksjonen leser ikke `career_atoms` eller dokumenttekst. Det er altså ingen kobling til evidens.
+- **Kopiert, ikke flyttet:** Migrasjon 0005 kopierte koblingen fra gamle kvalifikasjonsfiler til `career_atom_sources`. Filen, dokumentraden og listen på oppføringen ble ikke rørt. Produksjon hadde 0 slike filer, så ingen ekte rader ble kopiert.
+- **Dokumentasjonssider:** Kvalifikasjoner viser fortsatt antall dokumenter fra oppføringen selv. Testet syntetisk, ok.
+- **Sletting og utilgjengelig fil:** Sletter du en fil, får koblingen statusen «Kilde utilgjengelig», og faktaet beholdes. En annen opplastet fil teller fortsatt som dokumentasjon.
+- **Tilbakeføring:** En slettet kilde kan ikke gjenopprettes. Den må sendes inn på nytt.
+- **Betydning:** Før stod det «N dokumenter» eller «Ikke dokumentert». Nå står det «Dokumentert», definert som at det finnes en låst kilde du selv har koblet til. Det betyr ikke at noen andre har kontrollert opplysningen. Koblingen endrer ikke `confidence` eller `attestation`, og den påvirker ikke hva CV-generatoren tar med.
 
-**Oppsummeringer**
-- Det finnes ingen egen generator for karriereoppsummering.
-- Den felles leseren `getApprovedCareerFacts` (`career-facts.functions.ts:19`, regler i `approved-facts.ts:56,76`) er klar. Den kan filtrere på rolle og periode, men ingen generator bruker den ennå.
+## 5. Generatorene (neste fase, ikke bygget)
 
-**CV mottatt på e-post**
-- Publisert: Kan bare beholdes i arkivet.
-- Forhåndsvisning: `sendCareerMaterialToCvImport` (`career-material.functions.ts:215`). Originalen beholdes. En unik sperre hindrer kopier, men ny import er mulig etter en feil.
+For at CV, søknadsbrev og oppsummeringer senere skal kunne bruke den felles leseren, gjenstår dette:
 
-## 3. Bekreftet i produksjon (bare struktur, ikke innhold)
-- 2 kilder fra karrieremateriale, 0 forslag, 0 oppføringer fra karrieremateriale.
-- 93 oppføringer med tom `attestation`.
-- 77 oppføringer er `verified` og brukerbekreftet.
-- Ingen private innholdsfelt er lest.
+- CV-generatoren må hente fakta fra `getApprovedCareerFacts` i stedet for sitt eget filter. I dag tar den bare med `verified`, så godkjente kildeforslag (`inferred`) kommer ikke med.
+- Søknadsbrevet må hente fakta på serveren i stedet for profildata som nettleseren sender.
+- Oppsummeringer for kvartal, år og rolle må bygges. Udaterte fakta må vises for seg.
+- R1 må være rettet først, ellers mangler leseren manuelle opplastinger.
 
-## 4. Testdekning
-- **Finnes:**
-  - 651 automatiske tester passerer, blant dem `career-facts.test.ts`. Den dekker dato, kursbevis, lønn, treff på eksisterende kvalifikasjon, overgangsregelen for gamle data og dokumentasjonsstatus.
-  - Syntetisk test i nettleseren: ny og eksisterende sertifisering, dobbeltklikk, felles leser med periodefilter, og sletting av kilde.
-- **Mangler:**
-  - Kryssbrukertest av den felles leseren med en ekte bruker B.
-  - Send til CV-import med en ekte PDF.
-  - Rolleendring med ekte innhold.
-  - Test i den publiserte appen.
-  - Regresjonstest som sikrer at søknadsbrev og CV ikke tar med kildeforslag som ikke er godkjent.
+## 6. Nødvendige rettinger før eller sammen med publisering
 
-## 5. Prioritert løsningsplan
+- **R1 (må rettes):** Filer du laster opp manuelt på en kvalifikasjon etter migrasjon 0005, får ingen kildekobling. Det gjelder både publisert app og forhåndsvisningen. Kvalifikasjoner viser dem riktig, men den felles leseren ser dem ikke som dokumentasjon. Produksjon har 0 slike filer, så ingen data er berørt ennå.
+  - Plan: En additiv databaseregel som lager kildekoblingen når en slik fil lagres. Samme regel kjøres én gang for filer som allerede finnes. Den virker også for den publiserte appen uten ny publisering.
+  - Test: Ny opplasting skal gi én kobling, fil fra bruker B skal ikke kunne kobles til A, og sletting skal gi «Kilde utilgjengelig».
+  - Krever din godkjenning, fordi databasen er felles med produksjon.
+- **R2 (liten):** Etter ny innlasting vises «Send til CV-import» fortsatt, selv om CV-en er sendt. Et nytt klikk sier bare «allerede sendt». Knappen skal byttes ut med en statuslinje.
+- **R3 (opprydding):** Den syntetiske PDF-en på 1,7 KB fjernes fra testbrukerens mappe.
+- **R4 (liten):** Ubrukte filkopier etter en avbrutt CV-sending skal ryddes av den eksisterende oppryddingsjobben.
+- **Åpen beslutning:** Når en kilde kobles til en oppføring som finnes fra før, overføres ikke kildens dato. Det er gjort for at en dato du har satt selv, ikke skal overskrives. Alternativet er å foreslå datoen og la deg bekrefte den.
 
-1. **Publiser forhåndsvisningen** etter godkjenning fra deg. Så skal dette sjekkes i produksjon, i denne rekkefølgen:
-   - Velg typen «Kursbevis» på det ventende dokumentet.
-   - Godkjenn forslaget én gang.
-   - Kontroller at det kom én oppføring og én kildekobling.
-2. **Kryssbrukertest:** Bruker B skal få tomt svar fra den felles leseren og ikke se kildekoblingene til bruker A.
-3. **CV-generatoren** skal hente fakta fra den felles leseren. Kildeforslag du har godkjent, kommer da med.
-   - Test: Et godkjent kursbevis vises i CV-utkastet. Et forslag som ikke er godkjent, vises ikke.
-4. **Søknadsbrev** skal hente fakta fra serveren gjennom den felles leseren, ikke fra profildata nettleseren sender.
-   - Test: Påstander i brevet kan spores til godkjente fakta.
-5. **Oppsummering** for kvartal, år eller rolle skal bygge på den felles leseren. Udaterte fakta merkes for seg.
-6. **Rydding:**
-   - Vise dato og presisjon på Kvalifikasjoner og Resultater.
-   - Skjule CV-knappen når filen ikke er PDF eller Word.
+## Publiseringsomfang
 
-## Tekniske detaljer
-- Migrasjoner som er kjørt: 0005 til 0008 (de er additive). Ingen av dem er tilbakestilt.
-- Prosjektregelen om at generatorer skal bruke `getApprovedCareerFacts` står i AGENTS.md.
+En publisering omfatter: nye typer (kursbevis, rolleendring, lønnsendring), hendelsesdato med presisjon, treff på eksisterende kvalifikasjon og rolle, låst godkjenning via serveren, dokumentasjonsstatus med lenke, felles faktaleser, og «Send til CV-import». Databaseendringene er allerede aktive. Generatorene er ikke med.
+
+**Status: BLOCKED** til R1 er rettet og du har godkjent publiseringen. R2–R4 og den åpne beslutningen kan tas etter publisering.
