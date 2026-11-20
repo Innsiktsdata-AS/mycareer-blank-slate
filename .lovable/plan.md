@@ -1,69 +1,138 @@
-# Flere inntakstyper, kontaktkort og kontaktimport — kartlegging og plan
+# Flere inntakstyper, kontaktkort og kontaktimport — oppdatert plan
 
-Ingen implementering eller publisering før planen er godkjent. Kartleggingen leste bare kode, skjema og tellinger, ikke private innholdsfelt.
+Dette er en plan. Ingenting implementeres eller publiseres før den er godkjent. Kartleggingen leste bare kode, skjema og tellinger, ikke privat innhold.
 
-## Funn fra kartleggingen
+## Utgangspunkt: produksjonstesten
+En e-post med et PDF-vedlegg ble lagret som to separate kilder, uten duplikater. PDF-en ble lest, men ble klassifisert som «ukjent» fordi CV ikke er en type inntaksmotoren støtter. Den står nå uten noen vei videre. Denne PDF-en brukes som gjennomgående eksempel og som akseptansetest i fase 1 og 3.
 
-- **Inntakstyper i dag:** fem typer (stillingsinstruks, prosjektnotat, medarbeidersamtale, attest, prestasjon) pluss «ukjent». Typene er låst både i koden og i databasen. Dokumenter som ikke passer, for eksempel PDF-en fra testen (KI-en mente med 0,85 sikkerhet at den ikke passet noen type), blir stående på «Velg type» uten noen type som passer.
-- **CV:** det finnes en egen CV-import med opplasting, atomisering og gjennomgang. En CV som kommer på e-post bør sendes dit, ikke lages som et eget forslagsløp i karrierearkivet.
-- **Kontakter:** nettverksmodulen har kontakter, identiteter og LinkedIn-import med avstemming. Brukeren godkjenner hvert punkt (ny, flett, manuell, hopp over). Identitetstypen i dag er bare LinkedIn-profil-URL; feltene for e-post og telefon finnes bare som manuelle felt.
-- **Personlig mottaksadresse:** hver bruker har én tilfeldig, ugjettelig adresse knyttet til sin konto. Den kan legges i et kontaktkort.
-- **Integrasjoner som faktisk er tilgjengelige (sjekket):**
-  - Google: det finnes ingen kobling for Google Kontakter. Gmail-, Disk- og Kalender-koblinger finnes, men de gir ikke adresseboken.
-  - Outlook: det finnes en kobling der hver bruker kobler sin egen Microsoft-konto. At den kan lese kontakter er ikke bekreftet. Det må testes før vi lover noe.
-  - iCloud: Apple har ingen åpen innlogging for kontakter. Eneste direkte vei krever at brukeren lager og oppgir et app-spesifikt passord, og det anbefales ikke.
-  - Konklusjon: filimport er hovedveien for alle tre. Google og iCloud eksporterer vCard (.vcf). Google og Outlook eksporterer også CSV.
+## Bekreftet i dagens løsning, og hva som må undersøkes
 
-## Prioritert gjennomføring
+**Bekreftet:**
+- Det finnes fem inntakstyper pluss «ukjent». Typene er låst i både koden og databasen.
+- Karriere-atomer har allerede typene `certification`, `course` og `role`, med gyldighetsdatoer (`valid_from` og `valid_to`). Det finnes egne spørringer for kvalifikasjoner (`credential-atoms`).
+- Regelen «kompetanse krever godkjent resultat» gjelder bare ferdigheter. Den gjelder ikke sertifiseringer eller kurs.
+- CV-importen (`cv_imports`) har filsti og status, men ingen kobling til et kildedokument.
+- Mottaksadressen ligger på `email_job_sources` (`inbound_alias_token`, `is_active`, `intake_mode`).
+- Kontakter har bare manuelle felt for e-post og telefon i klartekst (én verdi hver). Identiteter lagres som hash pluss et forhåndsvisningsutdrag, og den eneste identitetstypen i dag er LinkedIn-URL.
+- Avstemmingen har allerede valgene opprett, flett, manuell og hopp over.
+- Ingen eksisterende kobling kan lese Google Kontakter. Det finnes en Outlook-kobling per bruker, men det er ikke bekreftet at den har tilgang til kontakter. iCloud har ingen åpen kontaktinnlogging.
 
-### Fase 1 — Flere typer, manuelt valg og tydelig beskjed (høyest prioritet)
-1. Nye typer: **Kursbevis/sertifikat**, **Endret rolle/lønn**, **Øvrig (egen beskrivelse)**, pluss rutetypene **CV** og **Kontakter**.
-2. Brukeren kan alltid velge type selv, både ved innliming og på mottatt materiale. «Øvrig» krever en kort egen beskrivelse.
-3. **CV** sendes til den eksisterende CV-importen (originalen beholdes; ingen dobbel behandling). **Kontakter** (.vcf/.csv som vedlegg) sendes til kontaktimporten i fase 3.
-4. Filer og innhold vi ikke kan behandle får en klar norsk melding om hva som ikke støttes og hva brukeren kan gjøre i stedet. Ingen stille feil.
-5. Evidensregler per type:
-   - Kursbevis gir forslag om sertifisering med sitat fra dokumentet.
-   - Endret rolle/lønn gir forslag til karrierelogg. Lønn behandles som sensitivt og vises bare for brukeren.
-   - «Øvrig» gir forslag bare når det finnes et ordrett sitat som støtter dem.
-   - Ingen av typene gir kompetanse uten et godkjent resultat (som i dag).
-6. Eksisterende «ukjent»-kilder, som testmeldingen, kan få en av de nye typene.
+**Må undersøkes før eller under fasen:**
+- Om én bruker kan ha flere aliaser (unik indeks), og om en deaktivert adresse avvises før eller etter at e-posten er tatt imot (fase 2b).
+- Hvordan CV-importen lager og låser kandidater, så en kobling til dokumentet ikke gir dobbel import (fase 3).
+- Om det finnes lønnshistorikk i profilen. I dag finnes «lønn» bare i målrettings- og konfliktlogikk (fase 3).
 
-### Fase 2 — Kontaktkort (vCard) med personlig mottaksadresse
-1. Knapp på /kilder: «Last ned kontaktkort». Kortet lages på serveren bare for brukeren som er logget inn, og inneholder visningsnavnet «Karrierenmin — mitt arkiv» og brukerens egen adresse.
-2. Ingen offentlig lenke. Kortet lagres ikke, og adressen logges ikke.
-3. Kort tekst om at alle som har adressen kan sende materiale til arkivet, og at adressen kan byttes.
-4. Valgfritt (spørsmål under): knapp for å bytte adresse. Den gamle adressen slutter da å virke.
+## Ruting (presisert)
+- **Adressenivå:** aliasets modus avgjør alltid om e-posten er et jobbvarsel eller karrieremateriale. Innholdet påvirker aldri dette skillet.
+- **Innenfor karrieremateriale:** KI kan foreslå en type. Brukeren kan alltid overstyre. Alt som går videre (CV-import, kontaktregister, kvalifikasjoner, rolle og lønn) krever brukerens bekreftelse. KI-forslaget alene utløser aldri noe.
 
-### Fase 3 — Kontaktimport fra fil (Outlook, Google, iCloud)
-1. Opplasting av .vcf (vCard 3.0/4.0) og CSV (Google- og Outlook-format), og de samme filene som e-postvedlegg (typen «Kontakter»).
-2. Parseren kjører på serveren med grenser (filstørrelse, antall kontakter, feltlengder), sjekker hva filen faktisk er, og leser ingen lenker eller bilder i filen.
-3. Felter: navn, organisasjon, tittel, flere e-postadresser merket jobb/privat/annet (fra vCard-felt og CSV-kolonner), telefon og LinkedIn-URL hvis den finnes.
-4. Nye identitetstyper for kontakter: e-post (normalisert og lagret som hash, med bare et maskert utdrag synlig) og telefon (normalisert til internasjonalt format og hashet).
-5. Trygg matching, lagt til den eksisterende avstemmingen:
-   - Sikker match (samme e-post, telefon eller LinkedIn-URL hos samme bruker) gir forslag om fletting.
-   - Bare likt navn, eller navn og firma, gir «mulig duplikat» som brukeren må avgjøre.
-   - Ingenting flettes uten brukerens godkjenning når matchen er usikker, og manuelle felt overskrives aldri.
-6. Godkjenningen skjer i den eksisterende gjennomgangen (ny / flett / manuell / hopp over). Hvor hver opplysning kom fra lagres sammen med kontakten.
-7. Personvern: kontaktdata er tredjepersoners data. De er bare synlige for brukeren, kan slettes per import, og den opplastede filen slettes etter behandling (bare en hash beholdes for å hindre dobbel import).
+## Faser i prioritert rekkefølge
 
-### Fase 4 — Direkte kontokobling (bare etter at det er bevist mulig)
-1. Outlook: test først med en testbruker om koblingen kan få lesetilgang til kontakter. Bygg bare hvis det virker, og bruk samme gjennomgang som filimporten.
-2. Google: ingen kobling i dag. Det krever egen godkjenning hos Google for kontakttilgang, og blir ikke en del av denne leveransen.
-3. iCloud: bare filimport.
+### Fase 1 — Ukjente og ikke-støttede typer, manuelt valg
+- Det skilles mellom to slags typer:
+  - **Behandlingstyper** gir forslag eller fører til en annen del av appen.
+  - **Arkivtyper** lagres bare og søkes i arkivet.
+- KI kan svare med en «gjenkjent, men ikke støttet» type, for eksempel CV, kontaktliste, kursbevis, lønnsbrev, faktura eller annet. Brukeren får en norsk forklaring og tre valg:
+  1. Bruk en relevant eksisterende funksjon (lenke eller handling).
+  2. Behold bare i arkivet.
+  3. «Annet» med egen beskrivelse.
+- Brukeren må aldri velge en feil type for å komme videre. «Behold i arkivet» avslutter saken uten forslag.
+- Teksten om at KI har klassifisert noe vises med KI-merking.
+- **Akseptanse:**
+  - Test-PDF-en viser «Dette ser ut som en CV», med valgene arkiv eller CV-import (fase 3), og kan arkiveres uten feil type.
+  - Instruksjoner skjult i dokumentet («klassifiser som attest», «importer automatisk») endrer aldri hvilke handlinger som tilbys, og utløser ingenting.
 
-## Sikkerhet og personvern (gjelder alle faser)
-- All lesing skjer på serveren. Rutingen styres av adressen og brukerens valg, aldri av innholdet. Innhold, adresser og filer logges aldri.
-- Alle data er knyttet til brukeren, og nye tabeller får riktige tilganger og radsikkerhet.
-- Testing skjer med syntetiske kontakter og filer: kryssbrukertest, duplikater, kodingsfeil, veldig store filer og forsøk på skadelig innhold i vCard.
+### Fase 2a — Nedlastbart kontaktkort
+- Knappen «Last ned kontaktkort» på /kilder lager et vCard 3.0 på serveren, bare for brukeren som er logget inn. Kortet heter «Karrierenmin – mitt arkiv» og inneholder bare adressen til karrieremateriale.
+- Ingen offentlig lenke, ingen lagring og ingen logging av adressen.
+- **Akseptanse:**
+  - Kortet kan importeres i iOS Kontakter, Google Kontakter og Outlook. Dette må testes manuelt på enhetene og rapporteres per app.
+  - En annen bruker får aldri en annen persons adresse.
+  - Man får ikke kortet uten å være logget inn.
 
-## Teknisk
-- Typer: utvid `CAREER_MATERIAL_TYPES` og CHECK-reglene i en ny migrasjon. Legg til `user_note` for «Øvrig» og rute-utfall (`routed_to_cv`, `routed_to_contacts`) i `career_material_intakes`. Bump prompt- og normaliseringsversjon slik at analysesignaturene blir nye.
-- CV-ruting: gjenbruk `cv_imports` med lenke til kildedokumentet.
-- vCard: serverfunksjon som returnerer `text/vcard` fra aliaset til brukeren som er logget inn.
-- Kontakter: tabell for importkjøringer, utvidede verdier for `identity_kind` (`email`, `phone`) med hash pluss maskert utdrag, og gjenbruk av avstemmingspartiene.
-- Hver fase verifiseres med tester, sjekk mot databasen og en kjøring i nettleseren før neste fase starter.
+### Fase 2b — Bytte mottaksadresse (egen leveranse hvis aliasmodellen krever det)
+- En ny tilfeldig adresse opprettes og den gamle deaktiveres. Brukeren får beskjed om at gamle kontaktkort og gammel adresse slutter å virke.
+- E-post som allerede er mottatt eller under behandling på den gamle adressen fullføres. Ny post til den gamle adressen avvises med kontrollert status.
+- **Akseptanse:** gammel adresse avvises, ny adresse virker, pågående behandling fullføres, og ingenting lekker mellom brukere.
 
-## Spørsmål (forslag til svar står i parentes)
-1. Skal lønn ved «Endret rolle/lønn» lagres som tall i profilen, eller bare som tekst i kilden? (Bare i kilden, til det er avklart.)
-2. Skal adressen kunne byttes i fase 2? (Ja.)
-3. Skal kontakter fra fil bare kunne slås sammen med eksisterende nettverkskontakter, eller også opprettes som nye? (Begge, etter godkjenning.)
+### Fase 3 — CV, kursbevis, rolle og lønn til riktig flyt
+- **CV:** handlingen «Send til CV-analyse» oppretter en CV-import med kobling til kildedokumentet (ny kolonne). Originalen gjenbrukes, så filen kopieres ikke. Det kan bare finnes én CV-import per kildedokument. Status vises på kilden («Bare arkivert» eller «Sendt til analyse»). Ingen endringer i profilen før brukeren har gjennomgått CV-en i den vanlige CV-flyten.
+- **Kursbevis og sertifikat:** gir forslag om en `certification`- eller `course`-atom med sitat fra kilden. Utsteder, dato og gyldighet tas bare med når det står i utdraget. Kvalifikasjonen dokumenteres av kilden og krever ikke et godkjent resultat. Ferdigheter avledes ikke automatisk.
+- **Rolleendring** og **lønnsendring** er to separate typer:
+  - Rolle gir forslag om en `role`-atom eller endring med dato og sitat.
+  - Lønn lagres bare i den private kilden og vises eventuelt som et privat forslag. Ingen oppdatering av profil eller lønnshistorikk i denne leveransen.
+- **Evidens:** regler settes per type etter den eksisterende ontologien. Utdrag, tall og datoer må stå i kilden.
+- **Akseptanse:**
+  - Test-PDF-en sendes til CV-importen uten ny e-post, og et nytt klikk gir ikke en ny import.
+  - Profilen er uendret før CV-gjennomgangen er godkjent.
+  - Et kursbevis uten utløpsdato gir ingen oppdiktet gyldighet.
+  - Lønnstall vises aldri utenfor kilden.
+
+### Fase 4 — Kontaktimport fra fil
+- Støttede formater:
+  - CSV fra Google Kontakter og Outlook (komma og semikolon, UTF-8 med og uten BOM, og Windows-1252).
+  - vCard 3.0 og 4.0 med flere kontakter i én fil, inkludert linjer som fortsetter på neste linje og quoted-printable.
+- Felter som leses: navn, organisasjon, tittel, flere e-postadresser merket jobb/privat/annet, telefonnumre og LinkedIn-URL.
+- Forhåndsvisning der brukeren kan redigere før lagring.
+- Grenser: filstørrelse, antall kontakter og lengde per felt. Filtypen sjekkes på innholdet, og bilder og eksterne lenker i filen ignoreres.
+- **Matching:**
+  - Lik e-post, telefon eller LinkedIn-URL gir et *sterkt forslag*, aldri automatisk fletting, fordi felles sentralbord og delte postbokser forekommer.
+  - Likt navn, eller navn og firma, regnes som usikker match.
+  - Feltene sammenlignes ett for ett, og brukeren velger opprett, flett, rediger eller hopp over.
+  - Manuelle verdier overskrives aldri uten eksplisitt valg.
+- **Lagring og beskyttelse:**
+  - Kontaktopplysninger lagres lesbart for brukeren i egne tabeller med radsikkerhet.
+  - Matching bruker i tillegg en nøkkelbeskyttet søkeverdi (HMAC med server-hemmelighet over normalisert verdi). En vanlig hash regnes ikke som anonymisering.
+- **Retensjon og sletting:**
+  - Den opplastede filen slettes når gjennomgangen er ferdig eller etter 30 dager uten aktivitet. Bare en hash av filen beholdes for å oppdage dobbel import.
+  - Forslag som ikke er behandlet slettes sammen med importen.
+  - Kontakter som allerede er godkjent beholdes alltid. Bare kildehenvisningen deres markeres som «import slettet».
+  - En dialog forklarer konsekvensen før sletting.
+- **Akseptanse:**
+  - Norske tegn (æøå) fungerer i alle formatvarianter.
+  - En vCard-fil med 3 eller flere kontakter gir like mange forslag.
+  - Feilformaterte filer gir en klar feilmelding.
+  - Samme fil importert to ganger gir ingen duplikater.
+  - Delt e-post eller telefon gir ikke automatisk fletting.
+  - Feltvis fletting bevarer manuelle verdier.
+  - Avbrutt import og sletting av import fjerner ingen godkjente kontakter.
+  - Brukere er isolert fra hverandre.
+
+### Fase 5 — Kontaktforslag fra e-post
+- Type «Kontakter»: vCard- eller CSV-vedlegg går til samme gjennomgang som i fase 4.
+- Kontaktopplysninger i selve e-postteksten tolkes av KI og må ha ordrett utdrag. De blir bare forslag.
+- Opplysninger om avsenderen vises separat og merkes «fra e-postens avsender». Avsenderen blir aldri en kontakt automatisk.
+- **Akseptanse:**
+  - Hvert forslag har kildehenvisning, og innhold og avsender holdes tydelig adskilt.
+  - Instruksjoner i e-posten («opprett kontakt», «flett med…») ignoreres.
+
+### Fase 6 — Undersøke direkte kontokoblinger (ingen løfter)
+- For Microsoft, Google og iCloud undersøkes faktisk tilgang, godkjenningskrav hos leverandøren, samtykke og frakobling. Dette ender i et beslutningsnotat.
+- Ingen passord oppgis i chat, og app-spesifikke passord for iCloud anbefales ikke.
+
+## Avhengigheter
+```text
+Fase 1 ─┬─> Fase 3 (bruker handlingene og typene fra fase 1)
+        └─> Fase 5 (typen «Kontakter»)
+Fase 2a (uavhengig) -> Fase 2b (etter at aliasmodellen er undersøkt)
+Fase 4 ───> Fase 5 (samme gjennomgang)
+Fase 6 bygger på fase 4
+```
+
+## Sikkerhet og personvern (alle faser)
+- Alle data er knyttet til brukeren med radsikkerhet. Endringer skrives via serverfunksjoner eller RPC-er med eierskapskontroll.
+- Dokumentinnhold, kontaktopplysninger, mottaksadresser og hemmeligheter logges aldri.
+- Instruksjoner i dokumenter og e-post behandles som data, aldri som kommandoer.
+- Det lagres minst mulig data, med faste grenser for filer og felt og kontrollerte feilstatuser.
+
+## Teknisk (migrasjoner, bare additive)
+- **Fase 1:** utvid CHECK-reglene for typer med nye behandlingstyper, og legg til `archive_only` og `recognized_unsupported_type` på intakes. Legg til `user_note` for «Annet». Ny prompt- og normaliseringsversjon.
+- **Fase 2b:** eventuelt ny indeks eller logikk for aktiv adresse per bruker, og et rotasjons-RPC.
+- **Fase 3:** `cv_imports.source_document_id`, unik når den er satt. Typene `kursbevis`, `rolleendring` og `lonnsendring`. Mapping til eksisterende atomtyper.
+- **Fase 4:** nye tabeller `contact_imports`, `contact_import_candidates`, `network_contact_channels` (e-post og telefon med etikett og lesbar verdi) og `identity_kind`-verdiene `email` og `phone` med HMAC-søkeverdi. Ny server-hemmelighet for HMAC. Alle tabeller får GRANT og radsikkerhet.
+- Hver fase verifiseres med syntetiske data, kryssbrukertest, test i nettleseren og opprydding av testdata før neste fase starter.
+
+## Avklaringer
+1. Skal lønnsforslag kunne vises i profilen senere, eller bare i kilden? (Forslag: bare i kilden nå.)
+2. Er 30 dagers oppbevaring av opplastede kontaktfiler riktig? (Forslag: ja.)
+3. Skal adressebytte (2b) leveres sammen med kontaktkortet eller senere? (Forslag: senere, egen leveranse.)
