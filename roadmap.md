@@ -4,13 +4,17 @@
 
 - [x] P1.1 Hurtigskjema på /kilder (tittel, type, tekst); original lagres privat i arkivet og låses
 - [x] P1.2 Egen karrierealias på samme Resend-mottak; ruting kun etter alias; jobbvarsler uendret
-- [x] P1.2 Vedlegg registreres som «ikke behandlet» (innhold lastes ikke ned)
+- [x] P1.2 Vedlegg: PDF med tekst og DOCX hentes, valideres, lagres privat og blir egne kilder; tydelig status for skannet/passord/ikke støttet (ingen OCR)
 - [x] P1.3 KI-klassifisering med usikkerhet/ukjent, brukerretting, status/feil og sikker ny behandling
 - [x] P1.4 Atomisering med ordrett utdrag, ingen oppdiktede måltall, typepolicy, redigering før godkjenning
 - [x] Idempotens: tekst-hash, leveranse-ID og forslags-hash; avviste forslag foreslås ikke på nytt
 - [ ] E-postmottak i produksjon — blokkert av DNS/secrets (INBOUND_EMAIL_DOMAIN, RESEND_WEBHOOK_SECRET, RESEND_API_KEY)
-- [ ] Vedleggsinnhold (PDF/DOCX) — ikke implementert; krever Resend vedlegg-API + tekstuttrekk
-- [ ] Bakgrunnsanalyse av e-postinntak — i dag startes analysen når brukeren åpner /kilder
+- [x] Bakgrunnsbehandling av e-post og vedlegg (planlagt jobb hvert minutt, lås, kø/lease, retry, pause)
+- [x] Sletting av kilde med avledede data; godkjente elementer beholdes eller fjernes etter valg
+- [x] Typeendring etter godkjenning: godkjente beholdes og vises; ingen dobbeltforslag
+- [ ] Planlagt jobb mot publisert app — virker først etter publisering
+- [ ] Ekte Resend-vedlegg ende til ende — blokkert av DNS/secrets og publisering
+- [ ] PDF-lesing i publisert miljø (Cloudflare) — kun verifisert lokalt; må sjekkes etter publisering
 
 ## Rekruttererundersøkelsen
 

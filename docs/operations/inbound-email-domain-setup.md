@@ -175,5 +175,7 @@ and readable only by its owner in Settings → Integrations.
 
 Samme domene og webhook tar også imot videresendte karrierenotater. Rutingen avgjøres kun av
 aliasens `intake_mode`: `forwarding` → jobb-lead (uendret), `career_material` → privat arkiv og
-analyse, aldri jobb-lead. Ingen ekstra DNS, secret eller webhook kreves. Vedleggsinnhold lastes ikke
-ned; vedlegg registreres som «ikke behandlet». Se `docs/features/career-material-intake.md`.
+analyse, aldri jobb-lead. Ingen ekstra DNS, secret eller webhook kreves. Vedlegg (PDF med tekst og
+DOCX) hentes av bakgrunnsjobben via Resends vedlegg-API med samme `RESEND_API_KEY`. Bakgrunnsjobben
+(`career-material-worker-1min`) kaller den publiserte appen og virker først etter publisering.
+Se `docs/features/career-material-intake.md`.

@@ -18,6 +18,7 @@ import {
   analysisSignature,
   buildCareerMaterialProposals,
   buildCareerMaterialUserMessage,
+  dropCoveredByApproved,
   normalizeOriginalText,
   parseModelJson,
   resolveEffectiveType,
@@ -41,6 +42,8 @@ export type CreateCareerMaterialInput = {
   inboundDeliveryId?: string | null;
   attachments?: CareerMaterialAttachment[];
   truncated?: boolean;
+  /** Bare for vedlegg: originalfilen i privat lagring. */
+  file?: { path: string; name: string | null; mimeType: string; sizeBytes: number };
 };
 
 export type CreateCareerMaterialResult =
@@ -64,6 +67,15 @@ export async function createCareerMaterial(
     p_inbound_delivery_id: input.inboundDeliveryId ?? undefined,
     p_attachments: (input.attachments ?? []) as unknown as Json,
     p_truncated: input.truncated ?? false,
+    ...(input.file
+      ? {
+          p_source_context: "career_material_attachment",
+          p_file_path: input.file.path,
+          p_file_name: input.file.name ?? undefined,
+          p_mime_type: input.file.mimeType,
+          p_file_size_bytes: input.file.sizeBytes,
+        }
+      : {}),
   });
   if (error) {
     console.error("[career-material] create failed", error.code ?? "unknown");
@@ -83,7 +95,13 @@ export type ProcessResult =
   | { status: "completed"; created: number; reused: number; superseded: number }
   | { status: "needs_type" }
   | { status: "in_progress" | "already_done" | "not_found" | "attempt_limit" | "lease_lost" }
-  | { status: "failed"; errorCode: string; retryable: boolean };
+  | {
+      status: "failed";
+      errorCode: string;
+      retryable: boolean;
+      /** Brukes av bakgrunnsarbeideren til pause/stopp. */
+      pause?: "configuration" | "provider_blocked" | "rate_limited";
+    };
 
 type ModelDeps = {
   callModel: typeof import("@/lib/ai-model/model.server").callModel;
@@ -125,7 +143,11 @@ export async function processCareerMaterialIntake(
   }
   const token = claim.claim_token;
 
-  const fail = async (errorCode: string, retryable: boolean): Promise<ProcessResult> => {
+  const fail = async (
+    errorCode: string,
+    retryable: boolean,
+    pause?: "configuration" | "provider_blocked" | "rate_limited",
+  ): Promise<ProcessResult> => {
     await admin.rpc("career_material_fail", {
       p_intake_id: input.intakeId,
       p_user_id: input.userId,
@@ -133,7 +155,7 @@ export async function processCareerMaterialIntake(
       p_error_code: errorCode,
       p_retryable: retryable,
     });
-    return { status: "failed", errorCode, retryable };
+    return { status: "failed", errorCode, retryable, ...(pause ? { pause } : {}) };
   };
 
   try {
@@ -159,7 +181,8 @@ export async function processCareerMaterialIntake(
     }
 
     const model = deps ?? (await loadModelDeps());
-    if (!(await model.isModelRuntimeConfigured())) return await fail("missing_api_key", true);
+    if (!(await model.isModelRuntimeConfigured()))
+      return await fail("missing_api_key", true, "configuration");
 
     const { data: profileRow } = await (
       admin as unknown as {
@@ -175,7 +198,7 @@ export async function processCareerMaterialIntake(
       request_options?: Record<string, unknown>;
       capabilities?: Record<string, unknown>;
     } | null;
-    if (!p?.model_id) return await fail("missing_profile", true);
+    if (!p?.model_id) return await fail("missing_profile", true, "configuration");
 
     const declaredType = isCareerMaterialType(intake.declared_type) ? intake.declared_type : null;
     const userType = isCareerMaterialType(intake.user_type) ? intake.user_type : null;
@@ -210,7 +233,12 @@ export async function processCareerMaterialIntake(
 
     if (!result.ok) {
       console.error("[career-material] model call failed", result.outcome, result.errorCode);
-      if (result.outcome === "configuration_error") return await fail("missing_api_key", true);
+      if (result.outcome === "configuration_error")
+        return await fail("missing_api_key", true, "configuration");
+      if (result.status === 429) return await fail("rate_limited", true, "rate_limited");
+      if (result.status === 401) return await fail("missing_api_key", true, "configuration");
+      if (result.status === 402 || result.status === 403)
+        return await fail("provider_blocked", true, "provider_blocked");
       return await fail(result.outcome === "timeout" ? "model_timeout" : "model_error", true);
     }
 
@@ -225,7 +253,7 @@ export async function processCareerMaterialIntake(
       aiConfidence: analysis.aiConfidence,
     });
 
-    const items = effectiveType
+    const built = effectiveType
       ? buildCareerMaterialProposals(analysis, {
           type: effectiveType,
           documentId: intake.document_id,
@@ -233,6 +261,32 @@ export async function processCareerMaterialIntake(
           title: doc.title,
         })
       : [];
+    // Det som allerede er godkjent fra denne kilden foreslås ikke på nytt.
+    const { data: approvedRows } = await admin
+      .from("atom_enrichment_proposals")
+      .select("id, proposal_payload, applied_atom_id")
+      .eq("user_id", input.userId)
+      .eq("source_type", "career_material")
+      .eq("source_record_id", intake.document_id)
+      .eq("status", "approved");
+    const approvedList = (
+      (approvedRows ?? []) as Array<{
+        id: string;
+        proposal_payload: Json;
+        applied_atom_id: string | null;
+      }>
+    ).map((r) => {
+      const pl = (r.proposal_payload ?? {}) as Record<string, unknown>;
+      return {
+        proposalId: r.id,
+        atomType: typeof pl["atom_type"] === "string" ? (pl["atom_type"] as string) : null,
+        names: [pl["content_no"], pl["skill_name"]].filter(
+          (v): v is string => typeof v === "string",
+        ),
+        quote: typeof pl["source_quote"] === "string" ? (pl["source_quote"] as string) : null,
+      };
+    });
+    const { items } = dropCoveredByApproved(built, approvedList);
 
     const { data: storeRows, error: storeErr } = await admin.rpc("career_material_store_analysis", {
       p_intake_id: input.intakeId,

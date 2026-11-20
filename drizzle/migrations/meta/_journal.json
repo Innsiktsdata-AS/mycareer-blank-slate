@@ -8,6 +8,20 @@
       "when": 1795124889964,
       "tag": "0000_career_material_intake",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1795161099659,
+      "tag": "0001_career_material_background_attachments",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1795162132897,
+      "tag": "0002_career_material_delete_cleanup_hardening",
+      "breakpoints": true
     }
   ]
 }

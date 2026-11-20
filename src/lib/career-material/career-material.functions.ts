@@ -107,6 +107,105 @@ export const setCareerMaterialType = createServerFn({ method: "POST" })
     return { status: (status ?? "error") as "ok" | "in_progress" | "not_found" | "error" };
   });
 
+const deleteSchema = z.object({
+  intakeId: z.string().uuid(),
+  removeApprovedAtoms: z.boolean(),
+});
+
+/**
+ * Sletter én kilde: originalen, inntaket, alle forslag fra den og eventuelle
+ * vedleggsfiler. Godkjente elementer i profilen beholdes, med mindre brukeren
+ * eksplisitt velger å fjerne dem (de arkiveres da som ved vanlig sletting).
+ */
+export const deleteCareerMaterial = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => deleteSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    const { data: own } = await context.supabase
+      .from("career_material_intakes")
+      .select("id, document_id")
+      .eq("id", data.intakeId)
+      .maybeSingle();
+    if (!own) return { status: "not_found" as const, removedAtoms: 0 };
+
+    let removedAtoms = 0;
+    if (data.removeApprovedAtoms) {
+      const { data: props, error } = await context.supabase
+        .from("atom_enrichment_proposals")
+        .select("applied_atom_id")
+        .eq("source_type", "career_material")
+        .eq("source_record_id", own.document_id)
+        .eq("status", "approved")
+        .eq("proposal_action", "create_atom")
+        .not("applied_atom_id", "is", null);
+      if (error) return { status: "error" as const, removedAtoms: 0 };
+      const ids = Array.from(
+        new Set(
+          ((props ?? []) as Array<{ applied_atom_id: string | null }>)
+            .map((p) => p.applied_atom_id)
+            .filter((v): v is string => !!v),
+        ),
+      );
+      // Som brukeren selv (RLS): bare egne elementer kan berøres.
+      for (const atomId of ids) {
+        const { error: delErr } = await context.supabase.rpc("career_atom_delete", {
+          p_atom_id: atomId,
+        });
+        if (delErr) return { status: "error" as const, removedAtoms };
+        removedAtoms += 1;
+      }
+    }
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: rows, error: delErr } = await supabaseAdmin.rpc("career_material_delete", {
+      p_intake_id: data.intakeId,
+      p_user_id: context.userId,
+    });
+    if (delErr) return { status: "error" as const, removedAtoms };
+    const row = Array.isArray(rows) ? rows[0] : null;
+    if (!row || row.status !== "deleted") return { status: "not_found" as const, removedAtoms };
+    const paths = (row.storage_paths ?? []).filter((p: string) =>
+      p.startsWith(`${context.userId}/`),
+    );
+    if (paths.length > 0) {
+      const { error: rmErr } = await supabaseAdmin.storage.from("career-material").remove(paths);
+      if (rmErr) console.error("[career-material] storage remove failed");
+    }
+    return { status: "deleted" as const, removedAtoms };
+  });
+
+const attachmentDeleteSchema = z.object({ attachmentId: z.string().uuid() });
+
+/** Fjerner et vedlegg som ikke ble en kilde (f.eks. skannet PDF), med fil. */
+export const deleteCareerAttachment = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => attachmentDeleteSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    const { data: own } = await context.supabase
+      .from("career_material_attachments")
+      .select("id")
+      .eq("id", data.attachmentId)
+      .maybeSingle();
+    if (!own) return { status: "not_found" as const };
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: rows, error } = await supabaseAdmin.rpc("career_material_attachment_delete", {
+      p_id: data.attachmentId,
+      p_user_id: context.userId,
+    });
+    if (error) return { status: "error" as const };
+    const row = Array.isArray(rows) ? rows[0] : null;
+    const status = (row?.status ?? "error") as
+      | "deleted"
+      | "not_found"
+      | "in_progress"
+      | "has_source"
+      | "error";
+    if (status === "deleted" && row?.storage_path?.startsWith(`${context.userId}/`)) {
+      await supabaseAdmin.storage.from("career-material").remove([row.storage_path]);
+    }
+    return { status };
+  });
+
 type AddressState = {
   address: string | null;
   hasAlias: boolean;

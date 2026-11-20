@@ -116,8 +116,9 @@ function DocumentDetail() {
 
   const download = async () => {
     if (d.file_path) {
+      const bucket = d.source_context === "career_material_attachment" ? "career-material" : "job-documents";
       const { data, error } = await supabase.storage
-        .from("job-documents")
+        .from(bucket)
         .createSignedUrl(d.file_path, 60);
       if (error || !data) return toast.error(error?.message ?? "Kunne ikke hente fil");
       window.open(data.signedUrl, "_blank");
@@ -156,7 +157,11 @@ function DocumentDetail() {
               <div className="rounded-md bg-muted/60 p-3 text-xs text-muted-foreground space-y-1">
                 <p className="font-medium text-foreground">Karrieremateriale</p>
                 <p>
-                  {d.source_context === "career_material_email" ? "Mottatt på e-post." : "Limt inn av deg."}{" "}
+                  {d.source_context === "career_material_attachment"
+                    ? "Fra vedlegg i e-post. Teksten under er hentet automatisk fra filen; originalfilen kan lastes ned."
+                    : d.source_context === "career_material_email"
+                      ? "Mottatt på e-post."
+                      : "Limt inn av deg."}{" "}
                   Originalen kan ikke endres, slik at forslag alltid kan spores tilbake hit.
                 </p>
                 <Link to="/kilder" className="underline underline-offset-2 hover:text-foreground">

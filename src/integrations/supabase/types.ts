@@ -1162,6 +1162,131 @@ export type Database = {
           },
         ]
       }
+      career_material_attachments: {
+        Row: {
+          attempt_count: number
+          claim_token: string | null
+          content_type: string | null
+          created_at: string
+          declared_size_bytes: number | null
+          document_id: string | null
+          error_code: string | null
+          extracted_chars: number | null
+          file_sha256: string | null
+          filename: string | null
+          id: string
+          inbound_delivery_id: string
+          intake_id: string | null
+          kind: string | null
+          last_attempt_at: string | null
+          lease_expires_at: string | null
+          next_attempt_at: string
+          page_count: number | null
+          parent_intake_id: string | null
+          position: number
+          provider_attachment_id: string | null
+          provider_email_id: string
+          retryable: boolean | null
+          size_bytes: number | null
+          source_deleted_at: string | null
+          status: string
+          storage_path: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          attempt_count?: number
+          claim_token?: string | null
+          content_type?: string | null
+          created_at?: string
+          declared_size_bytes?: number | null
+          document_id?: string | null
+          error_code?: string | null
+          extracted_chars?: number | null
+          file_sha256?: string | null
+          filename?: string | null
+          id?: string
+          inbound_delivery_id: string
+          intake_id?: string | null
+          kind?: string | null
+          last_attempt_at?: string | null
+          lease_expires_at?: string | null
+          next_attempt_at?: string
+          page_count?: number | null
+          parent_intake_id?: string | null
+          position: number
+          provider_attachment_id?: string | null
+          provider_email_id: string
+          retryable?: boolean | null
+          size_bytes?: number | null
+          source_deleted_at?: string | null
+          status?: string
+          storage_path?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          attempt_count?: number
+          claim_token?: string | null
+          content_type?: string | null
+          created_at?: string
+          declared_size_bytes?: number | null
+          document_id?: string | null
+          error_code?: string | null
+          extracted_chars?: number | null
+          file_sha256?: string | null
+          filename?: string | null
+          id?: string
+          inbound_delivery_id?: string
+          intake_id?: string | null
+          kind?: string | null
+          last_attempt_at?: string | null
+          lease_expires_at?: string | null
+          next_attempt_at?: string
+          page_count?: number | null
+          parent_intake_id?: string | null
+          position?: number
+          provider_attachment_id?: string | null
+          provider_email_id?: string
+          retryable?: boolean | null
+          size_bytes?: number | null
+          source_deleted_at?: string | null
+          status?: string
+          storage_path?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "career_material_attachments_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "career_material_attachments_inbound_delivery_id_fkey"
+            columns: ["inbound_delivery_id"]
+            isOneToOne: false
+            referencedRelation: "inbound_email_deliveries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "career_material_attachments_intake_id_fkey"
+            columns: ["intake_id"]
+            isOneToOne: false
+            referencedRelation: "career_material_intakes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "career_material_attachments_parent_intake_id_fkey"
+            columns: ["parent_intake_id"]
+            isOneToOne: false
+            referencedRelation: "career_material_intakes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       career_material_intakes: {
         Row: {
           ai_confidence: number | null
@@ -1279,6 +1404,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      career_material_worker_state: {
+        Row: {
+          id: number
+          last_run_at: string | null
+          last_run_summary: Json | null
+          lease_expires_at: string | null
+          lease_owner: string | null
+          pause_error_code: string | null
+          paused_at: string | null
+          paused_reason: string | null
+          updated_at: string
+        }
+        Insert: {
+          id?: number
+          last_run_at?: string | null
+          last_run_summary?: Json | null
+          lease_expires_at?: string | null
+          lease_owner?: string | null
+          pause_error_code?: string | null
+          paused_at?: string | null
+          paused_reason?: string | null
+          updated_at?: string
+        }
+        Update: {
+          id?: number
+          last_run_at?: string | null
+          last_run_summary?: Json | null
+          lease_expires_at?: string | null
+          lease_owner?: string | null
+          pause_error_code?: string | null
+          paused_at?: string | null
+          paused_reason?: string | null
+          updated_at?: string
+        }
+        Relationships: []
       }
       career_recommendations: {
         Row: {
@@ -10513,6 +10674,47 @@ export type Database = {
         Args: { p_atom: Json; p_candidate_id: string }
         Returns: Json
       }
+      career_material_attachment_claim_next: {
+        Args: { p_lease_seconds?: number }
+        Returns: {
+          attempt_count: number
+          claim_token: string
+          content_type: string
+          declared_size_bytes: number
+          filename: string
+          id: string
+          inbound_delivery_id: string
+          kind: string
+          parent_intake_id: string
+          provider_attachment_id: string
+          provider_email_id: string
+          user_id: string
+        }[]
+      }
+      career_material_attachment_delete: {
+        Args: { p_id: string; p_user_id: string }
+        Returns: {
+          status: string
+          storage_path: string
+        }[]
+      }
+      career_material_attachment_finish: {
+        Args: {
+          p_claim_token: string
+          p_document_id?: string
+          p_error_code?: string
+          p_extracted_chars?: number
+          p_file_sha256?: string
+          p_id: string
+          p_intake_id?: string
+          p_page_count?: number
+          p_retryable?: boolean
+          p_size_bytes?: number
+          p_status: string
+          p_storage_path?: string
+        }
+        Returns: string
+      }
       career_material_claim: {
         Args: {
           p_force?: boolean
@@ -10532,7 +10734,12 @@ export type Database = {
           p_channel: string
           p_content_sha256: string
           p_declared_type?: string
+          p_file_name?: string
+          p_file_path?: string
+          p_file_size_bytes?: number
           p_inbound_delivery_id?: string
+          p_mime_type?: string
+          p_source_context?: string
           p_text: string
           p_title: string
           p_truncated?: boolean
@@ -10542,6 +10749,20 @@ export type Database = {
           document_id: string
           intake_id: string
           status: string
+        }[]
+      }
+      career_material_delete: {
+        Args: { p_intake_id: string; p_user_id: string }
+        Returns: {
+          status: string
+          storage_paths: string[]
+        }[]
+      }
+      career_material_due_intakes: {
+        Args: { p_limit?: number }
+        Returns: {
+          intake_id: string
+          user_id: string
         }[]
       }
       career_material_fail: {
@@ -10554,9 +10775,33 @@ export type Database = {
         }
         Returns: string
       }
+      career_material_register_attachments: {
+        Args: {
+          p_inbound_delivery_id: string
+          p_items: Json
+          p_parent_intake_id: string
+          p_provider_email_id: string
+          p_user_id: string
+        }
+        Returns: {
+          queued: number
+          registered: number
+        }[]
+      }
       career_material_set_type: {
         Args: { p_intake_id: string; p_type: string; p_user_id: string }
         Returns: string
+      }
+      career_material_storage_gc_candidates: {
+        Args: { p_limit?: number }
+        Returns: {
+          id: string
+          storage_path: string
+        }[]
+      }
+      career_material_storage_gc_done: {
+        Args: { p_ids: string[] }
+        Returns: number
       }
       career_material_store_analysis: {
         Args: {
@@ -10580,6 +10825,23 @@ export type Database = {
           status: string
           superseded_count: number
         }[]
+      }
+      career_material_worker_acquire: {
+        Args: { p_lease_seconds?: number; p_owner: string }
+        Returns: {
+          acquired: boolean
+          paused_reason: string
+        }[]
+      }
+      career_material_worker_release: {
+        Args: {
+          p_clear_pause?: boolean
+          p_owner: string
+          p_pause_error_code?: string
+          p_pause_reason?: string
+          p_summary: Json
+        }
+        Returns: string
       }
       careerjet_canonical_has_visible: {
         Args: { p_canonical: string }

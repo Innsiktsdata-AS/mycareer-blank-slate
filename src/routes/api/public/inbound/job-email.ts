@@ -274,7 +274,19 @@ export const Route = createFileRoute("/api/public/inbound/job-email")({
             provider: INBOUND_PROVIDER,
             route: "career_material",
             duplicate: career.duplicate,
+            attachments_queued: career.attachmentsQueued,
           });
+        }
+        // Job alerts need message text; an attachment-only email is rejected
+        // exactly as before attachments were accepted for career material.
+        if (!full.text && !full.html) {
+          await finalizeInboundDelivery(supabaseAdmin as never, {
+            deliveryId,
+            claimToken,
+            outcome: "parse_failed",
+            rejectReason: "empty_message_body",
+          });
+          return finalize("rejected", 422, { error: "empty_message_body", retryable: false });
         }
         const rawText = full.text;
         const rawHtml = full.html;

@@ -130,6 +130,7 @@ import { Route as ApiCvGenerationsJobIdRouteImport } from './routes/api/cv/gener
 import { Route as ApiPublicAiIntegrationsClaimRouteImport } from './routes/api/public/ai-integrations/claim'
 import { Route as ApiPublicCvAtomizationWorkerRouteImport } from './routes/api/public/cv/atomization-worker'
 import { Route as ApiPublicInboundJobEmailRouteImport } from './routes/api/public/inbound/job-email'
+import { Route as ApiPublicJobsCareerMaterialRouteImport } from './routes/api/public/jobs/career-material'
 import { Route as ApiPublicJobsNetworkSuggestionsRouteImport } from './routes/api/public/jobs/network-suggestions'
 import { Route as ApiPublicLinkedinWorkerRouteImport } from './routes/api/public/linkedin/worker'
 import { Route as ApiPublicOauthPrepareRouteImport } from './routes/api/public/oauth/prepare'
@@ -828,6 +829,12 @@ const ApiPublicInboundJobEmailRoute =
     path: '/api/public/inbound/job-email',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicJobsCareerMaterialRoute =
+  ApiPublicJobsCareerMaterialRouteImport.update({
+    id: '/api/public/jobs/career-material',
+    path: '/api/public/jobs/career-material',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicJobsNetworkSuggestionsRoute =
   ApiPublicJobsNetworkSuggestionsRouteImport.update({
     id: '/api/public/jobs/network-suggestions',
@@ -1029,6 +1036,7 @@ export interface FileRoutesByFullPath {
   '/api/public/ai-integrations/claim': typeof ApiPublicAiIntegrationsClaimRoute
   '/api/public/cv/atomization-worker': typeof ApiPublicCvAtomizationWorkerRoute
   '/api/public/inbound/job-email': typeof ApiPublicInboundJobEmailRoute
+  '/api/public/jobs/career-material': typeof ApiPublicJobsCareerMaterialRoute
   '/api/public/jobs/network-suggestions': typeof ApiPublicJobsNetworkSuggestionsRoute
   '/api/public/linkedin/worker': typeof ApiPublicLinkedinWorkerRoute
   '/api/public/oauth/prepare': typeof ApiPublicOauthPrepareRoute
@@ -1162,6 +1170,7 @@ export interface FileRoutesByTo {
   '/api/public/ai-integrations/claim': typeof ApiPublicAiIntegrationsClaimRoute
   '/api/public/cv/atomization-worker': typeof ApiPublicCvAtomizationWorkerRoute
   '/api/public/inbound/job-email': typeof ApiPublicInboundJobEmailRoute
+  '/api/public/jobs/career-material': typeof ApiPublicJobsCareerMaterialRoute
   '/api/public/jobs/network-suggestions': typeof ApiPublicJobsNetworkSuggestionsRoute
   '/api/public/linkedin/worker': typeof ApiPublicLinkedinWorkerRoute
   '/api/public/oauth/prepare': typeof ApiPublicOauthPrepareRoute
@@ -1301,6 +1310,7 @@ export interface FileRoutesById {
   '/api/public/ai-integrations/claim': typeof ApiPublicAiIntegrationsClaimRoute
   '/api/public/cv/atomization-worker': typeof ApiPublicCvAtomizationWorkerRoute
   '/api/public/inbound/job-email': typeof ApiPublicInboundJobEmailRoute
+  '/api/public/jobs/career-material': typeof ApiPublicJobsCareerMaterialRoute
   '/api/public/jobs/network-suggestions': typeof ApiPublicJobsNetworkSuggestionsRoute
   '/api/public/linkedin/worker': typeof ApiPublicLinkedinWorkerRoute
   '/api/public/oauth/prepare': typeof ApiPublicOauthPrepareRoute
@@ -1440,6 +1450,7 @@ export interface FileRouteTypes {
     | '/api/public/ai-integrations/claim'
     | '/api/public/cv/atomization-worker'
     | '/api/public/inbound/job-email'
+    | '/api/public/jobs/career-material'
     | '/api/public/jobs/network-suggestions'
     | '/api/public/linkedin/worker'
     | '/api/public/oauth/prepare'
@@ -1573,6 +1584,7 @@ export interface FileRouteTypes {
     | '/api/public/ai-integrations/claim'
     | '/api/public/cv/atomization-worker'
     | '/api/public/inbound/job-email'
+    | '/api/public/jobs/career-material'
     | '/api/public/jobs/network-suggestions'
     | '/api/public/linkedin/worker'
     | '/api/public/oauth/prepare'
@@ -1711,6 +1723,7 @@ export interface FileRouteTypes {
     | '/api/public/ai-integrations/claim'
     | '/api/public/cv/atomization-worker'
     | '/api/public/inbound/job-email'
+    | '/api/public/jobs/career-material'
     | '/api/public/jobs/network-suggestions'
     | '/api/public/linkedin/worker'
     | '/api/public/oauth/prepare'
@@ -1769,6 +1782,7 @@ export interface RootRouteChildren {
   ApiPublicAiIntegrationsClaimRoute: typeof ApiPublicAiIntegrationsClaimRoute
   ApiPublicCvAtomizationWorkerRoute: typeof ApiPublicCvAtomizationWorkerRoute
   ApiPublicInboundJobEmailRoute: typeof ApiPublicInboundJobEmailRoute
+  ApiPublicJobsCareerMaterialRoute: typeof ApiPublicJobsCareerMaterialRoute
   ApiPublicJobsNetworkSuggestionsRoute: typeof ApiPublicJobsNetworkSuggestionsRoute
   ApiPublicLinkedinWorkerRoute: typeof ApiPublicLinkedinWorkerRoute
   ApiPublicOauthPrepareRoute: typeof ApiPublicOauthPrepareRoute
@@ -2634,6 +2648,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicInboundJobEmailRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/jobs/career-material': {
+      id: '/api/public/jobs/career-material'
+      path: '/api/public/jobs/career-material'
+      fullPath: '/api/public/jobs/career-material'
+      preLoaderRoute: typeof ApiPublicJobsCareerMaterialRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/jobs/network-suggestions': {
       id: '/api/public/jobs/network-suggestions'
       path: '/api/public/jobs/network-suggestions'
@@ -3063,6 +3084,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicAiIntegrationsClaimRoute: ApiPublicAiIntegrationsClaimRoute,
   ApiPublicCvAtomizationWorkerRoute: ApiPublicCvAtomizationWorkerRoute,
   ApiPublicInboundJobEmailRoute: ApiPublicInboundJobEmailRoute,
+  ApiPublicJobsCareerMaterialRoute: ApiPublicJobsCareerMaterialRoute,
   ApiPublicJobsNetworkSuggestionsRoute: ApiPublicJobsNetworkSuggestionsRoute,
   ApiPublicLinkedinWorkerRoute: ApiPublicLinkedinWorkerRoute,
   ApiPublicOauthPrepareRoute: ApiPublicOauthPrepareRoute,

@@ -525,6 +525,102 @@ export function buildCareerMaterialProposals(
   return items.filter((i) => (seen.has(i.source_hash) ? false : (seen.add(i.source_hash), true)));
 }
 
+export type ApprovedFromSource = {
+  proposalId: string;
+  /** "achievement" | "skill" | annet — fra det godkjente forslaget. */
+  atomType: string | null;
+  names: string[];
+  quote: string | null;
+};
+
+function isAchievementLike(i: ProposalItem): boolean {
+  if (i.proposal_action === "create_atom") return i.payload["atom_type"] === "achievement";
+  return i.payload["suggestion_kind"] === "rollekrav";
+}
+
+function isSkillLike(i: ProposalItem): boolean {
+  if (i.proposal_action === "create_atom") return i.payload["atom_type"] === "skill";
+  return typeof i.payload["skill_name"] === "string";
+}
+
+/**
+ * Ny analyse (f.eks. etter typeendring) skal ikke foreslå det brukeren
+ * allerede har godkjent fra samme kilde. Resultater som dekkes av et godkjent
+ * utdrag (overlapp begge veier), og kompetanser med samme navn som en godkjent
+ * kompetanse, fjernes. En kompetanse som bygde på et slikt resultat kobles i
+ * stedet til det godkjente resultatet; den lagres aldri uten grunnlag.
+ */
+export function dropCoveredByApproved(
+  items: ProposalItem[],
+  approved: ApprovedFromSource[],
+): { items: ProposalItem[]; covered: number } {
+  if (approved.length === 0) return { items, covered: 0 };
+  const achievements = approved
+    .filter((a) => a.atomType === "achievement" && a.quote)
+    .map((a) => ({ id: a.proposalId, q: normalizeForMatch(a.quote!) }))
+    .filter((a) => a.q.length >= 12);
+  const skillNames = new Set(
+    approved
+      .filter((a) => a.atomType === "skill")
+      .flatMap((a) => a.names)
+      .map((n) => normalizeForMatch(n))
+      .filter(Boolean),
+  );
+  const droppedRefs = new Set<string>();
+  const coveredBy = new Map<string, string>();
+  const kept: ProposalItem[] = [];
+  for (const i of items) {
+    if (isAchievementLike(i)) {
+      const q = normalizeForMatch(String(i.payload["source_quote"] ?? ""));
+      const hit = q ? achievements.find((a) => a.q.includes(q) || q.includes(a.q)) : undefined;
+      if (hit) {
+        droppedRefs.add(i.local_ref);
+        if (i.proposal_action === "create_atom") coveredBy.set(i.local_ref, hit.id);
+        continue;
+      }
+    }
+    if (isSkillLike(i)) {
+      const name = normalizeForMatch(
+        String(i.payload["content_no"] ?? i.payload["skill_name"] ?? ""),
+      );
+      if (name && skillNames.has(name)) {
+        droppedRefs.add(i.local_ref);
+        continue;
+      }
+    }
+    kept.push(i);
+  }
+  const out: ProposalItem[] = [];
+  for (const i of kept) {
+    if (i.depends_on.length === 0) {
+      out.push(i);
+      continue;
+    }
+    const deps = i.depends_on.filter((d) => !droppedRefs.has(d));
+    if (deps.length === i.depends_on.length) {
+      out.push(i);
+      continue;
+    }
+    if (deps.length > 0) {
+      out.push({ ...i, depends_on: deps });
+      continue;
+    }
+    const approvedEvidence = Array.from(
+      new Set(i.depends_on.map((d) => coveredBy.get(d)).filter((v): v is string => !!v)),
+    );
+    if (approvedEvidence.length === 0) {
+      droppedRefs.add(i.local_ref);
+      continue;
+    }
+    out.push({
+      ...i,
+      depends_on: [],
+      payload: { ...i.payload, evidence_proposal_ids: approvedEvidence },
+    });
+  }
+  return { items: out, covered: items.length - out.length };
+}
+
 export function analysisSignature(input: {
   contentSha256: string;
   effectiveType: CareerMaterialType;

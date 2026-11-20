@@ -48,19 +48,61 @@ Begge aliasene ligger på samme domene og samme webhook (`/api/public/inbound/jo
 samme Svix-verifisering, alias-eierskap, rate limits og claim/finalize. Brukeren oppretter
 karriereadressen selv på /kilder. Adressen vises bare når mottaket er konfigurert.
 
-E-postinntak analyseres når brukeren åpner /kilder (inntak med status `queued` startes ett om gangen).
-Det finnes ingen bakgrunnsjobb ennå.
+### Bakgrunnsbehandling
+
+E-post og vedlegg behandles av en serverstyrt arbeider — brukeren trenger ikke åpne /kilder.
+
+- Rute: `POST /api/public/jobs/career-material`, kalt av planlagt jobb `career-material-worker-1min`
+  (hvert minutt). Autentiseres med den administrerte cron-hemmeligheten (`authenticateCronRequest`);
+  GET gir 405, manglende/feil nøkkel gir 401.
+- Single-flight: én lås i `career_material_worker_state` (lease 150 s). Samtidige kjøringer avslutter straks.
+- Per kjøring: opprydding av filer for slettede kilder, høyst 3 vedlegg og 3 analyser, tidsbudsjett 40 s.
+- Varig kø: vedlegg i `career_material_attachments`, analyser i `career_material_intakes`. Claim med
+  token/lease; krasj gir utløpt lease som plukkes opp igjen. Eksponentiell ventetid (1, 2, 4 … maks 60 min),
+  høyst 6 automatiske forsøk. Ferdige elementer behandles aldri på nytt.
+- Kretsbryter: konfigurasjonsfeil eller 401/402/403 fra analysetjenesten setter varig pause
+  (`paused_reason`). Under pause prøves høyst ett inntak per kjøring; første suksess opphever pausen.
+  429 stopper kjøringen; resten venter til neste minutt. Pausen vises for administratorer på /kilder.
+- Innlimt tekst analyseres fortsatt straks brukeren lagrer (brukerhandling).
 
 ### Vedlegg
 
-Vedleggsinnhold lastes **ikke** ned. Resend tilbyr et eget vedlegg-API, men det er ikke koblet på.
-Vedlegg registreres med filnavn, type og størrelse med status «ikke behandlet», og vises på /kilder.
-E-post med bare vedlegg (under 40 tegn tekst) avvises med `text_too_short` og vises som
-«E-poster som ikke ble tatt imot».
+- Støttet: PDF med tekstlag og Word (.docx), maks 10 MB, 60 sider, 5 vedlegg per e-post.
+- Webhooken registrerer alle vedlegg (også ikke-støttede, for store og over grensen) med endelig status.
+  Støttede legges i kø. E-post med bare vedlegg tas imot; uten tekst og uten støttede vedlegg avvises
+  den med `no_supported_content`.
+- Arbeideren henter fersk `download_url` via `GET /emails/receiving/:email_id/attachments/:id`
+  (fast API-origin, server-only nøkkel), laster ned bare fra `https://*.resend.com`, følger ikke
+  omdirigeringer og stopper ved størrelsesgrensen.
+- Filtypen avgjøres av filsignatur (`%PDF-` / ZIP med `word/document.xml`), ikke filnavn. Zip-bomb-vern:
+  `document.xml` over 15 MB pakkes ikke ut.
+- Hvert lesbart vedlegg blir en egen låst kilde (`source_context = career_material_attachment`) med
+  originalfilen i privat lagring `career-material/<bruker-id>/<vedlegg-id>.<pdf|docx>`, og analyseres
+  som annet karrieremateriale.
+- **Ingen OCR.** PDF uten tekstlag (typisk skannet) får status «Fant ingen tekst»; passordbeskyttet
+  PDF får «Passordbeskyttet». Originalen lagres slik at brukeren kan laste den ned, men lager ingen kilde.
+- Samme tekst som en eksisterende kilde gir status «Samme tekst finnes fra før»; den ekstra filen fjernes.
+
+### Typeendring etter godkjenning
+
+Godkjente elementer fra kilden beholdes og vises på kilden. Ny analyse foreslår ikke på nytt det som
+allerede er godkjent (resultater med overlappende utdrag, kompetanser med samme navn); kompetanser som
+bygde på et slikt resultat kobles til det godkjente resultatet. Brukeren får en bekreftelse som sier
+hvor mange som beholdes og hvor mange ventende forslag som erstattes.
+
+### Sletting
+
+- «Slett» på kilden: original, inntak, alle forslag fra kilden og originalfil slettes. Godkjente
+  elementer beholdes som standard; brukeren kan krysse av for å fjerne dem (de arkiveres via
+  `career_atom_delete`, som ved vanlig sletting av profilelementer).
+- Sletting av dokumentet utenom appen (direkte via databasen) fjerner også forslagene (trigger), og
+  filen ryddes av arbeideren.
+- Vedlegg uten kilde (ulesbart/skannet/ikke støttet) kan fjernes fra listen, med fil.
 
 ## Sikkerhet
 
-- RLS: brukeren kan bare lese egne inntak. Ingen insert/update/delete fra klient.
+- RLS: brukeren kan bare lese egne inntak og vedlegg. Ingen insert/update/delete fra klient
+  (rettighetene er trukket tilbake). Lagring: brukeren kan bare lese filer i egen mappe.
 - Alle `career_material_*`-funksjoner er SECURITY INVOKER og kan bare kjøres av service_role.
 - Serverfunksjonene sjekker eierskap med brukerens egen klient før adminklienten brukes.
 - Tekst og e-postinnhold logges aldri; bare feilkoder.
@@ -72,6 +114,9 @@ E-post med bare vedlegg (under 40 tegn tekst) avvises med `text_too_short` og vi
 - KI: profil `career_material_intake_v1` (ai.model_profiles) og eksisterende servernøkkel.
 - E-post: `INBOUND_EMAIL_DOMAIN`, `RESEND_WEBHOOK_SECRET`, `RESEND_API_KEY` + DNS/MX og Resend-webhook
   (se `docs/operations/inbound-email-domain-setup.md`). Ingen ny konfigurasjon for karriereadressen.
+- Vedlegg krever `RESEND_API_KEY` (samme nøkkel). Uten den venter vedleggene i kø med feilkode
+  `resend_not_configured` og prøves igjen.
+- Bakgrunnsjobben kaller publisert app; den virker først etter publisering.
 
 ## Verifisert / ikke verifisert
 

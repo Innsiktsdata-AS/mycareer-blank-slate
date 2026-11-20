@@ -244,3 +244,99 @@ describe("prompt-isolasjon og tolkning", () => {
     expect(parseModelJson('{"dokumenttype":"attest","sikkerhet":7}')).toBeNull();
   });
 });
+
+describe("dropCoveredByApproved (ny analyse etter godkjenning)", () => {
+  const item = (
+    ref: string,
+    payload: Record<string, unknown>,
+    action: "create_atom" | "suggest_evidence" = "create_atom",
+    deps: string[] = [],
+  ) => ({
+    local_ref: ref,
+    depends_on: deps,
+    proposal_action: action,
+    target_atom_type: "career_atom" as const,
+    source_hash: ref,
+    payload,
+    rationale: "",
+    explanation: "",
+    confidence: 0.8,
+  });
+
+  it("fjerner dekkede resultater og kobler kompetanser til det godkjente resultatet", async () => {
+    const { dropCoveredByApproved } = await import("@/lib/career-material/analysis.server");
+    const items = [
+      item("a1", { atom_type: "achievement", source_quote: "Plukkfeil gikk ned med 18 prosent" }),
+      item("a2", {
+        atom_type: "achievement",
+        source_quote: "Jeg holdt opplæring for 12 nye ansatte",
+      }),
+      item(
+        "s1",
+        { atom_type: "skill", content_no: "Kvalitetsarbeid", source_quote: "x" },
+        "create_atom",
+        ["a1"],
+      ),
+      item(
+        "s2",
+        { atom_type: "skill", content_no: "Opplæring", source_quote: "x" },
+        "create_atom",
+        ["a1", "a2"],
+      ),
+      item(
+        "s3",
+        { skill_name: "Lagerstyring", content_no: "Lagerstyring", source_quote: "x" },
+        "suggest_evidence",
+      ),
+    ];
+    const { items: out, covered } = dropCoveredByApproved(items, [
+      {
+        proposalId: "p-approved-ach",
+        atomType: "achievement",
+        names: [],
+        quote: "Jeg ledet omleggingen. Plukkfeil gikk ned med 18 prosent etter strekkodekontroll.",
+      },
+      { proposalId: "p-approved-skill", atomType: "skill", names: ["lagerstyring"], quote: null },
+    ]);
+    expect(out.map((i) => i.local_ref)).toEqual(["a2", "s1", "s2"]);
+    const s1 = out.find((i) => i.local_ref === "s1")!;
+    expect(s1.depends_on).toEqual([]);
+    expect(s1.payload["evidence_proposal_ids"]).toEqual(["p-approved-ach"]);
+    expect(out.find((i) => i.local_ref === "s2")!.depends_on).toEqual(["a2"]);
+    expect(covered).toBe(2);
+  });
+
+  it("kompetanse uten noe gjenværende eller godkjent grunnlag fjernes", async () => {
+    const { dropCoveredByApproved } = await import("@/lib/career-material/analysis.server");
+    const items = [
+      item(
+        "a1",
+        { suggestion_kind: "rollekrav", source_quote: "Ansvar for lagerdrift i regionen" },
+        "suggest_evidence",
+      ),
+      item(
+        "s1",
+        { atom_type: "skill", content_no: "Lagerdrift", source_quote: "x" },
+        "create_atom",
+        ["a1"],
+      ),
+    ];
+    const { items: out } = dropCoveredByApproved(items, [
+      {
+        proposalId: "p1",
+        atomType: "achievement",
+        names: [],
+        quote: "Ansvar for lagerdrift i regionen",
+      },
+    ]);
+    expect(out).toEqual([]);
+  });
+
+  it("uten godkjente elementer endres ingenting", async () => {
+    const { dropCoveredByApproved } = await import("@/lib/career-material/analysis.server");
+    const items = [
+      item("a1", { atom_type: "achievement", source_quote: "Noe konkret skjedde her" }),
+    ];
+    expect(dropCoveredByApproved(items, []).items).toBe(items);
+  });
+});

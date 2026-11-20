@@ -71,14 +71,84 @@ export const DAILY_INTAKE_LIMIT = 40;
 /** Under denne sikkerheten må brukeren selv velge dokumenttype. */
 export const CLASSIFICATION_MIN_CONFIDENCE = 0.6;
 
-/** Vedlegg som ikke behandles — kun metadata lagres. */
+/**
+ * Oppsummering av vedlegg på selve e-postinntaket. Støttede vedlegg (PDF/DOCX)
+ * behandles som egne kilder; de andre er bare registrert.
+ */
 export type CareerMaterialAttachment = {
   filename: string | null;
   content_type: string | null;
   size_bytes: number | null;
-  status: "not_processed";
-  reason: "attachments_not_supported";
+  status: AttachmentStatus | "not_processed";
+  reason?: string | null;
 };
+
+/** Vedlegg: grenser og statuser. */
+export type AttachmentKind = "pdf" | "docx";
+export const ATTACHMENT_MAX_BYTES = 10 * 1024 * 1024;
+export const ATTACHMENT_MAX_PER_EMAIL = 5;
+/** Minste antall synlige tegn før et vedlegg regnes som lesbart. */
+export const ATTACHMENT_TEXT_MIN = 40;
+
+export const ATTACHMENT_STATUSES = [
+  "queued",
+  "processing",
+  "extracted",
+  "duplicate",
+  "unsupported",
+  "too_large",
+  "skipped_limit",
+  "no_text",
+  "unreadable",
+  "encrypted",
+  "failed",
+] as const;
+export type AttachmentStatus = (typeof ATTACHMENT_STATUSES)[number];
+
+export type AttachmentRegistration = {
+  position: number;
+  provider_attachment_id: string | null;
+  filename: string | null;
+  content_type: string | null;
+  size_bytes: number | null;
+  kind: AttachmentKind | null;
+  status: "queued" | "unsupported" | "too_large" | "skipped_limit" | "failed";
+  error_code: string | null;
+};
+
+export const ATTACHMENT_STATUS_LABELS: Record<AttachmentStatus, string> = {
+  queued: "Venter på behandling",
+  processing: "Leses",
+  extracted: "Lest — egen kilde",
+  duplicate: "Samme tekst finnes fra før",
+  unsupported: "Ikke støttet filtype",
+  too_large: "For stor",
+  skipped_limit: "Ikke behandlet (for mange vedlegg)",
+  no_text: "Fant ingen tekst",
+  unreadable: "Kunne ikke leses",
+  encrypted: "Passordbeskyttet",
+  failed: "Feilet",
+};
+
+/** Forklaring til brukeren per status. Ingen OCR: skannede PDF-er leses ikke. */
+export const ATTACHMENT_STATUS_HINTS: Partial<Record<AttachmentStatus, string>> = {
+  unsupported: "Vi leser bare PDF med tekst og Word (.docx).",
+  too_large: `Maks ${ATTACHMENT_MAX_BYTES / (1024 * 1024)} MB og 60 sider per vedlegg.`,
+  skipped_limit: `Vi behandler høyst ${ATTACHMENT_MAX_PER_EMAIL} vedlegg per e-post. Send resten i en ny e-post.`,
+  no_text:
+    "PDF-en ser ut til å være skannet eller består av bilder. Vi leser ikke tekst fra bilder (ingen OCR). Lim inn teksten selv, eller send en PDF med tekst.",
+  unreadable: "Filen er skadet eller ikke en gyldig PDF/Word-fil.",
+  encrypted: "Fjern passordet og send filen på nytt.",
+  failed: "Behandlingen feilet. Den prøves automatisk på nytt.",
+};
+
+export function attachmentFailureHint(errorCode: string | null | undefined): string | null {
+  if (!errorCode) return null;
+  if (errorCode === "missing_attachment_id") return "E-posttjenesten oppga ikke vedlegget.";
+  if (errorCode === "signature_mismatch") return "Innholdet stemmer ikke med filtypen.";
+  if (errorCode === "attempt_limit") return "Ga opp etter flere forsøk.";
+  return null;
+}
 
 /** Brukervendte feilmeldinger for sikre feilkoder. */
 export const CAREER_MATERIAL_ERROR_LABELS: Record<string, string> = {
@@ -91,6 +161,8 @@ export const CAREER_MATERIAL_ERROR_LABELS: Record<string, string> = {
   document_missing: "Fant ikke originaldokumentet.",
   store_failed: "Kunne ikke lagre forslagene. Prøv igjen.",
   attempt_limit: "Dokumentet er analysert for mange ganger.",
+  rate_limited: "Analysetjenesten er travel. Vi prøver igjen automatisk.",
+  provider_blocked: "Analysetjenesten avviste forespørselen. Vi venter før vi prøver igjen.",
 };
 
 export function careerMaterialErrorLabel(code: string | null | undefined): string {
@@ -100,7 +172,9 @@ export function careerMaterialErrorLabel(code: string | null | undefined): strin
 
 /** Brukervendte årsaker for e-post som ikke ble tatt imot. */
 export const INBOUND_REJECT_LABELS: Record<string, string> = {
-  empty_message_body: "E-posten hadde ingen tekst (bare vedlegg støttes ikke).",
+  empty_message_body: "E-posten var tom.",
+  no_supported_content:
+    "E-posten hadde for lite tekst, og ingen vedlegg vi kan lese (PDF med tekst eller Word).",
   email_too_large: "E-posten var for stor.",
   text_too_short: "E-posten hadde for lite tekst til å analyseres.",
   ingest_failed: "Kunne ikke lagre e-posten. Den forsøkes på nytt automatisk.",

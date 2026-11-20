@@ -21,6 +21,8 @@ const state = {
   finalizes: [] as Array<{ outcome: string; reason: string | null }>,
   creates: [] as Array<Record<string, unknown>>,
   createStatus: "created" as "created" | "duplicate",
+  registers: [] as Array<Record<string, unknown>>,
+  registerFails: false,
 };
 
 function chain(result: unknown) {
@@ -70,6 +72,11 @@ vi.mock("@/integrations/supabase/client.server", () => ({
           ],
           error: null,
         };
+      }
+      if (fn === "career_material_register_attachments") {
+        if (state.registerFails) return { data: null, error: { code: "08006" } };
+        state.registers.push(args);
+        return { data: [{ registered: 1, queued: 1 }], error: null };
       }
       if (fn === "career_material_create") {
         state.creates.push(args);
@@ -155,6 +162,8 @@ beforeEach(() => {
   state.finalizes = [];
   state.creates = [];
   state.createStatus = "created";
+  state.registers = [];
+  state.registerFails = false;
   ingestSpy.mockClear();
   fetchSpy.mockReset();
   fetchSpy.mockResolvedValue(fetched());
@@ -177,22 +186,106 @@ describe("Resend-mottak: ruting av karrieremateriale", () => {
     expect(state.finalizes).toEqual([{ outcome: "accepted", reason: null }]);
   });
 
-  it("vedlegg registreres som ikke behandlet", async () => {
+  it("støttede vedlegg legges i kø, andre registreres med endelig status", async () => {
     fetchSpy.mockResolvedValue(
       fetched(BODY, [
         { id: "att-1", filename: "attest.pdf", contentType: "application/pdf", sizeBytes: 1234 },
+        { id: "att-2", filename: "bilde.png", contentType: "image/png", sizeBytes: 500 },
       ]),
     );
-    await POST({ request: request() });
+    const res = await POST({ request: request() });
+    expect(res.status).toBe(200);
+    expect(await res.json()).toMatchObject({ route: "career_material", attachments_queued: 1 });
     expect(state.creates[0]!["p_attachments"]).toEqual([
       {
         filename: "attest.pdf",
         content_type: "application/pdf",
         size_bytes: 1234,
-        status: "not_processed",
-        reason: "attachments_not_supported",
+        status: "queued",
+        reason: null,
+      },
+      {
+        filename: "bilde.png",
+        content_type: "image/png",
+        size_bytes: 500,
+        status: "unsupported",
+        reason: "unsupported_type",
       },
     ]);
+    expect(state.registers).toHaveLength(1);
+    expect(state.registers[0]).toMatchObject({
+      p_user_id: "user-1",
+      p_inbound_delivery_id: "delivery-1",
+      p_parent_intake_id: "intake-1",
+      p_provider_email_id: EMAIL_ID,
+    });
+    expect(state.finalizes).toEqual([{ outcome: "accepted", reason: null }]);
+  });
+
+  it("e-post med bare vedlegg (uten tekst) tas imot og legger vedlegget i kø", async () => {
+    fetchSpy.mockResolvedValue(
+      fetched("", [
+        {
+          id: "att-1",
+          filename: "referat.docx",
+          contentType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+          sizeBytes: 3000,
+        },
+      ]),
+    );
+    const res = await POST({ request: request() });
+    expect(res.status).toBe(200);
+    expect(state.creates).toHaveLength(0);
+    expect(state.registers).toHaveLength(1);
+    expect(state.registers[0]!["p_parent_intake_id"]).toBeNull();
+    expect(state.finalizes).toEqual([{ outcome: "accepted", reason: null }]);
+  });
+
+  it("kort tekst og bare ikke-støttede vedlegg avvises permanent", async () => {
+    fetchSpy.mockResolvedValue(
+      fetched("Se vedlegg.", [
+        {
+          id: "att-1",
+          filename: "skjema.xlsx",
+          contentType: "application/vnd.ms-excel",
+          sizeBytes: 10,
+        },
+      ]),
+    );
+    const res = await POST({ request: request() });
+    expect(res.status).toBe(422);
+    expect(state.creates).toHaveLength(0);
+    expect(state.registers).toHaveLength(0);
+    expect(state.finalizes).toEqual([{ outcome: "parse_failed", reason: "no_supported_content" }]);
+  });
+
+  it("feil ved registrering av vedlegg gir retry, ikke tap", async () => {
+    fetchSpy.mockResolvedValue(
+      fetched(BODY, [
+        { id: "att-1", filename: "a.pdf", contentType: "application/pdf", sizeBytes: 10 },
+      ]),
+    );
+    state.registerFails = true;
+    const res = await POST({ request: request() });
+    expect(res.status).toBe(500);
+    expect(await res.json()).toMatchObject({ retryable: true });
+    // Retry-bar feil: leveransen kan claimes igjen, og ny levering gir
+    // duplikat på e-postteksten og ON CONFLICT på vedleggene.
+    expect(state.finalizes).toEqual([{ outcome: "ingest_failed", reason: "ingest_failed" }]);
+  });
+
+  it("jobbalias avviser fortsatt e-post uten tekst (bare vedlegg)", async () => {
+    state.intakeMode = "forwarding";
+    fetchSpy.mockResolvedValue(
+      fetched("", [
+        { id: "att-1", filename: "a.pdf", contentType: "application/pdf", sizeBytes: 10 },
+      ]),
+    );
+    const res = await POST({ request: request() });
+    expect(res.status).toBe(422);
+    expect(ingestSpy).not.toHaveBeenCalled();
+    expect(state.registers).toHaveLength(0);
+    expect(state.finalizes).toEqual([{ outcome: "parse_failed", reason: "empty_message_body" }]);
   });
 
   it("for kort tekst avvises permanent uten å lagre noe", async () => {

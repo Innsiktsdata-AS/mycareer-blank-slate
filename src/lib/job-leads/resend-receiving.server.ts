@@ -39,8 +39,8 @@ export type ReceivedEmail = {
   html: string | null;
   messageIdHeader: string | null;
   /**
-   * Attachment METADATA only. Attachment content is never downloaded, because
-   * the current job-lead ingest has no attachment pipeline.
+   * Attachment METADATA only. The job-lead ingest never downloads content;
+   * the career-material worker fetches supported files separately.
    */
   attachments: ReceivedAttachmentMeta[];
 };
@@ -125,7 +125,11 @@ export function parseReceivedEmailPayload(
   if (!to) return { ok: false, reason: "invalid_payload" };
   const text = typeof d["text"] === "string" ? d["text"] : "";
   const html = typeof d["html"] === "string" && d["html"] ? d["html"] : null;
-  if (!text && !html) return { ok: false, reason: "empty_message_body" };
+  const attachments = readAttachments(d["attachments"]);
+  // En e-post med bare vedlegg er gyldig her; hver mottaker avgjør selv om
+  // tom tekst er godt nok (jobbvarsler avviser den, karrieremateriale ikke).
+  if (!text && !html && attachments.length === 0)
+    return { ok: false, reason: "empty_message_body" };
 
   return {
     ok: true,
@@ -139,7 +143,7 @@ export function parseReceivedEmailPayload(
       messageIdHeader:
         messageIdFromHeaders(d["headers"]) ??
         (typeof d["message_id"] === "string" ? d["message_id"].trim() || null : null),
-      attachments: readAttachments(d["attachments"]),
+      attachments,
     },
   };
 }
