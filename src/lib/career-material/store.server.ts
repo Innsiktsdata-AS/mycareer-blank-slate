@@ -25,6 +25,7 @@ import {
   sha256Hex,
   validateAnalysis,
   matchExistingQualifications,
+  matchExistingRoles,
 } from "./analysis.server";
 import {
   isCareerMaterialType,
@@ -260,6 +261,23 @@ export async function processCareerMaterialIntake(
         .map((e) => ({ id: e.id, content: e.content_no as string }));
       for (const q of analysis.qualifications) {
         q.matchCandidates = matchExistingQualifications(q.name, list);
+      }
+    }
+
+    if (analysis.roles.length > 0) {
+      // Bare brukerens egne, aktive roller. Kun forslag; brukeren velger.
+      const { data: existingRoles } = await admin
+        .from("career_atoms")
+        .select("id, content_no")
+        .eq("user_id", input.userId)
+        .eq("is_active", true)
+        .eq("atom_type", "role")
+        .limit(200);
+      const roleList = ((existingRoles ?? []) as Array<{ id: string; content_no: string | null }>)
+        .filter((e) => e.content_no)
+        .map((e) => ({ id: e.id, content: e.content_no as string }));
+      for (const r of analysis.roles) {
+        r.matchCandidates = matchExistingRoles(r.title, r.employer, roleList);
       }
     }
 

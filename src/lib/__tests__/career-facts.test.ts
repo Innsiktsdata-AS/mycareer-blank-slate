@@ -142,3 +142,17 @@ describe("matching: generiske ord gir ikke treff", () => {
     expect(matchExistingQualifications("ITIL 4 Foundation", [{ id: "a", content: "PRINCE2 Foundation" }])).toEqual([]);
   });
 });
+
+import { matchExistingRoles } from "@/lib/career-material/analysis.server";
+describe("rolletreff", () => {
+  const roles = [{ id: "r1", content: "Prosjektleder, Nordvik Energi AS" }];
+  it("samme tittel og arbeidsgiver gir treff", () => {
+    expect(matchExistingRoles("Prosjektleder", "Nordvik Energi AS", roles).map((r) => r.id)).toEqual(["r1"]);
+  });
+  it("forfremmelse er ikke samme rolle", () => {
+    expect(matchExistingRoles("Seniorprosjektleder", "Nordvik Energi AS", roles)).toEqual([]);
+  });
+  it("annen arbeidsgiver gir ikke treff", () => {
+    expect(matchExistingRoles("Prosjektleder", "Fjordlys Analyse AS", roles)).toEqual([]);
+  });
+});

@@ -281,7 +281,9 @@ function CredentialRow({
             Klasse {classes.join(", ")}
           </Badge>
         ) : null}
-        {sourceStatus && sourceStatus.kind !== "none" ? (
+        {sourceStatus?.kind === "documented" ||
+        (sourceStatus?.kind === "unavailable" && docs.length === 0) ? (
+          // En opplastet fil teller som dokumentasjon selv om en tidligere kilde er slettet.
           <SourceStatusBadge status={sourceStatus} />
         ) : CREDENTIAL_DOCUMENTABLE[kind] ? (
           <Badge

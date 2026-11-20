@@ -28,7 +28,14 @@
 - [x] Felles leser for godkjente fakta med rolle-/periodefilter
 - [x] Mottatt CV kan sendes til CV-importen; ingen duplikater, ny import mulig etter feil
 - [x] Syntetisk ende-til-ende: ny og eksisterende sertifisering helt til felles faktagrunnlag; testdata slettet
+- [x] Kontroll av produksjon mot databaseendringene, samt halve eller doble tilstander (bare lesing)
+- [x] Kryssbrukertest A/B: ny og eksisterende sertifisering, dato, kilde, lenke, felles leser, slettet kilde
+- [x] CV-test: test-PDF til CV-import, ingen falsk sertifisering, ingen duplikater
+- [x] Datoer hver for seg (hendelse/import/godkjenning, ukjent, bare år) og rolleendring på riktig rolle
+- [x] Dokumentere flyttingen av gamle vedlegg (kopi eller flytting), sletting og tilbakeføring
 - [ ] Publisering og kontroll i publisert app (venter på din godkjenning)
+- [ ] Kobling til eksisterende oppføring lagrer ikke dato fra kilden (bevisst, ikke overskriving) — avklares med deg
+- [ ] Én oppdiktet testfil (1,7 kB) i testbrukermappen kunne ikke slettes fra sandkassen
 - [ ] Generatorer (CV, søknadsbrev, oppsummering) tar i bruk felles leser — senere fase
 
 ## Rekruttererundersøkelsen

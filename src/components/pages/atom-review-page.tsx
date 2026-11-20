@@ -296,7 +296,11 @@ function ProposalCard(props: {
           )}
           {isCareerFact && candidates.length > 0 && (
             <div className="space-y-1.5 rounded-md border p-2">
-              <p className="text-xs font-medium">Gjelder dette en kvalifikasjon du allerede har?</p>
+              <p className="text-xs font-medium">
+                {(p.proposal_payload as Record<string, unknown> | null)?.["atom_type"] === "role"
+                  ? "Gjelder dette en rolle du allerede har registrert?"
+                  : "Gjelder dette en kvalifikasjon du allerede har?"}
+              </p>
               <RadioGroup value={target} onValueChange={setTarget} className="gap-1.5">
                 <div className="flex items-center gap-2 text-sm">
                   <RadioGroupItem value="new" id={`t-new-${p.id}`} />

@@ -216,6 +216,8 @@ export type ValidatedQualification = {
   event: EventSuggestion | null;
 };
 export type ValidatedRole = {
+  /** Settes av lagringen etter oppslag i brukerens egne roller. */
+  matchCandidates?: ExistingQualification[];
   title: string;
   employer: string | null;
   quote: string;
@@ -434,6 +436,29 @@ function nameTokens(s: string): Set<string> {
  * Mulige eksisterende kvalifikasjoner hos samme bruker. Bare et forslag:
  * brukeren velger selv om kilden dokumenterer en av dem.
  */
+/**
+ * Rolletreff: tittelen må matche titteldelen av en eksisterende rolle, og
+ * arbeidsgiveren må stå i den eksisterende rollen når den er oppgitt.
+ * «Seniorprosjektleder» er dermed ikke samme rolle som «Prosjektleder».
+ */
+export function matchExistingRoles(
+  title: string,
+  employer: string | null,
+  existing: ExistingQualification[],
+): ExistingQualification[] {
+  const emp = employer ? normalizeForMatch(employer) : null;
+  const byTitle = existing.map((e) => ({ e, title: e.content.split(",")[0] ?? e.content }));
+  const hits = matchExistingQualifications(
+    title,
+    byTitle.map((x) => ({ id: x.e.id, content: x.title })),
+  );
+  const ids = new Set(hits.map((h) => h.id));
+  return byTitle
+    .filter((x) => ids.has(x.e.id))
+    .filter((x) => !emp || normalizeForMatch(x.e.content).includes(emp))
+    .map((x) => x.e);
+}
+
 export function matchExistingQualifications(
   name: string,
   existing: ExistingQualification[],
@@ -753,6 +778,7 @@ function buildTypedFactProposals(analysis: ValidatedAnalysis, ctx: BuildContext)
             title: r.title,
             employer: r.employer,
             event_suggestion: r.event,
+            match_candidates: r.matchCandidates ?? [],
           },
         },
         rationale: "Rolle hentet fra et dokument om rolleendring.",
