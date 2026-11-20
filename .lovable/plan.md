@@ -80,4 +80,4 @@ For at CV, søknadsbrev og oppsummeringer senere skal kunne bruke den felles les
 
 En publisering omfatter: nye typer (kursbevis, rolleendring, lønnsendring), hendelsesdato med presisjon, treff på eksisterende kvalifikasjon og rolle, låst godkjenning via serveren, dokumentasjonsstatus med lenke, felles faktaleser, og «Send til CV-import». Databaseendringene er allerede aktive. Generatorene er ikke med.
 
-**Status: GO for publisering** når du godkjenner. R1 og R1b er rettet i databasen og gjelder allerede. Publiseringen tar i tillegg med at «Dokumentert» vises med en gang etter opplasting. R2–R4 og den åpne beslutningen kan tas etter publisering.
+**Publisert 20.11.2026 kl. 14:21.** Kontrollert på karrierenmin.no med testbruker: opplasting viser «Dokumentert» med en gang og gir én kildekobling, og «Ny versjon» havner i samme dokumentgruppe som originalen. Testdata slettet. R1 og R1b er rettet i databasen og gjelder allerede. Publiseringen tar i tillegg med at «Dokumentert» vises med en gang etter opplasting. R2–R4 og den åpne beslutningen kan tas etter publisering.

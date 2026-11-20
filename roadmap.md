@@ -37,7 +37,7 @@
 - [x] R1b: nye dokumenter fra appen kunne ikke lagres (krav om dokumentgruppe); blir nå egen gruppe
 - [ ] R2: «Send til CV-import» vises fortsatt etter ny innlasting når CV-en allerede er sendt
 - [ ] R4: ubrukt filkopi etter avbrutt CV-sending ryddes ikke automatisk
-- [ ] Publisering og kontroll i publisert app (venter på din godkjenning)
+- [x] Publisering og kontroll i publisert app (20.11: «Dokumentert» og ny versjon i samme gruppe)
 - [ ] Kobling til eksisterende oppføring lagrer ikke dato fra kilden (bevisst, ikke overskriving) — avklares med deg
 - [ ] Én oppdiktet testfil (1,7 kB) i testbrukermappen kunne ikke slettes fra sandkassen
 - [ ] Generatorer (CV, søknadsbrev, oppsummering) tar i bruk felles leser — senere fase
