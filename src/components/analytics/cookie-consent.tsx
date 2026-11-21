@@ -1,32 +1,26 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
-import {
-  isAnalyticsHost,
-  loadGtm,
-  readConsent,
-  writeConsent,
-} from "@/lib/analytics";
+import { applyConsent, isAnalyticsHost, readConsent, writeConsent } from "@/lib/analytics";
 
 /**
  * Samtykke til analyse-informasjonskapsler på karrierenmin.no.
- * GTM lastes først etter «Godta». Vises ikke i forhåndsvisning eller lokalt.
+ * Google-taggen står i <head>, men analyse-lagring slås først på etter «Godta».
+ * Vises ikke i forhåndsvisning eller lokalt.
  */
 export function CookieConsent() {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
     if (!isAnalyticsHost(window.location.hostname)) return;
-    const consent = readConsent();
-    if (consent === "granted") loadGtm();
-    else if (consent === null) setOpen(true);
+    if (readConsent() === null) setOpen(true);
   }, []);
 
   if (!open) return null;
 
   const choose = (consent: "granted" | "denied") => {
     writeConsent(consent);
-    if (consent === "granted") loadGtm();
+    applyConsent(consent);
     setOpen(false);
   };
 

@@ -108,8 +108,8 @@ function PersonvernPage() {
             </li>
             <li>E-postutsendelse for transaksjons- og servicemeldinger.</li>
             <li>
-              Nettstedsanalyse (Google Analytics via Google Tag Manager), bare
-              hvis du har godtatt analyse-informasjonskapsler.
+              Nettstedsanalyse (Google Analytics via Google Tag Manager).
+              Analyse-informasjonskapsler brukes bare hvis du har godtatt dem.
             </li>
           </ul>
           <p>
@@ -157,9 +157,9 @@ function PersonvernPage() {
           <p>
             Vi bruker nødvendige cookies for innlogging og funksjonalitet, samt
             valgfrie analytics-cookies (Google Analytics via Google Tag
-            Manager) for å forbedre tjenesten. Analyse lastes bare hvis du
-            velger «Godta analyse» ved første besøk. Annonsesignaler er alltid
-            slått av. Du kan trekke samtykket tilbake når som helst her:
+            Manager) for å forbedre tjenesten. Google-taggen lastes på alle
+            sider, men analyse-informasjonskapsler settes bare hvis du velger
+            «Godta analyse». Annonsesignaler er alltid slått av. Du kan trekke samtykket tilbake når som helst her:
           </p>
           <ConsentSettings />
 

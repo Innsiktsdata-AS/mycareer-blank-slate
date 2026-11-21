@@ -1,8 +1,9 @@
 /**
- * Google Tag Manager for karrierenmin.no.
- * Lastes bare på det publiserte domenet og bare etter at besøkende har
- * godtatt analyse-informasjonskapsler (ekomloven og personvernerklæringen).
- * Alle funksjoner som rører nettleseren kalles fra effekter eller klikk.
+ * Google Tag Manager for karrierenmin.no (Google Consent Mode v2).
+ * Taggen settes inn rett etter <head> av serveren (src/server.ts), bare på det
+ * publiserte domenet. Før samtykke er all lagring avslått, så ingen
+ * analyse-informasjonskapsler settes; «Godta analyse» slår på analyse_storage.
+ * Annonsesignaler er alltid avslått.
  */
 export const GTM_ID = "GTM-M47S7FVV";
 export const CONSENT_STORAGE_KEY = "karrierenmin-analytics-consent";
@@ -19,15 +20,48 @@ export function parseConsent(value: string | null | undefined): AnalyticsConsent
   return value === "granted" || value === "denied" ? value : null;
 }
 
-/** Skal GTM lastes? Krever både riktig domene og uttrykkelig samtykke. */
-export function shouldLoadGtm(hostname: string, consent: AnalyticsConsent | null): boolean {
-  return isAnalyticsHost(hostname) && consent === "granted";
+/** Skal analyse-informasjonskapsler tillates? Krever riktig domene og uttrykkelig samtykke. */
+export function analyticsStorageFor(
+  hostname: string,
+  consent: AnalyticsConsent | null,
+): AnalyticsConsent {
+  return isAnalyticsHost(hostname) && consent === "granted" ? "granted" : "denied";
+}
+
+/**
+ * HTML som settes inn rett etter <head>. Samtykke-standarden settes før
+ * gtm.js kjører, og leser brukerens tidligere valg fra localStorage.
+ */
+export function gtmHeadSnippet(): string {
+  const consentScript =
+    "window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}" +
+    "var c=null;try{c=localStorage.getItem(" +
+    JSON.stringify(CONSENT_STORAGE_KEY) +
+    ")}catch(e){}" +
+    "gtag('consent','default',{analytics_storage:c==='granted'?'granted':'denied'," +
+    "ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied'});" +
+    "gtag('set','ads_data_redaction',true);" +
+    "gtag('js',new Date());" +
+    "dataLayer.push({'gtm.start':new Date().getTime(),event:'gtm.js'});";
+  return (
+    `<script>${consentScript}</script>` +
+    `<script async src="https://www.googletagmanager.com/gtm.js?id=${GTM_ID}"></script>`
+  );
+}
+
+const HEAD_OPEN = /<head(\s[^>]*)?>/i;
+
+/** Setter inn snutten rett etter første <head>. Uendret hvis <head> mangler. */
+export function injectAfterHead(html: string, snippet: string): string {
+  const match = HEAD_OPEN.exec(html);
+  if (!match) return html;
+  const at = match.index + match[0].length;
+  return html.slice(0, at) + snippet + html.slice(at);
 }
 
 type GtagWindow = Window & {
   dataLayer?: unknown[];
   gtag?: (...args: unknown[]) => void;
-  __kmGtmLoaded?: boolean;
 };
 
 export function readConsent(): AnalyticsConsent | null {
@@ -54,36 +88,18 @@ export function clearConsent(): void {
   }
 }
 
-/** Laster GTM-containeren én gang. Annonsesignaler er alltid avslått. */
-export function loadGtm(): void {
+/** Sender samtykkevalget til Google-taggen som allerede er lastet. */
+export function applyConsent(consent: AnalyticsConsent): void {
   const w = window as GtagWindow;
-  if (w.__kmGtmLoaded || !shouldLoadGtm(w.location.hostname, readConsent())) return;
-  w.__kmGtmLoaded = true;
-  w.dataLayer = w.dataLayer || [];
-  w.gtag = function gtag() {
-    // eslint-disable-next-line prefer-rest-params -- gtag trenger arguments-objektet
-    w.dataLayer!.push(arguments);
-  };
-  w.gtag("consent", "default", {
-    analytics_storage: "granted",
-    ad_storage: "denied",
-    ad_user_data: "denied",
-    ad_personalization: "denied",
+  if (typeof w.gtag !== "function") return;
+  w.gtag("consent", "update", {
+    analytics_storage: analyticsStorageFor(w.location.hostname, consent),
   });
-  w.gtag("js", new Date());
-  w.dataLayer.push({ "gtm.start": new Date().getTime(), event: "gtm.js" });
-  const script = document.createElement("script");
-  script.async = true;
-  script.src = `https://www.googletagmanager.com/gtm.js?id=${GTM_ID}`;
-  document.head.appendChild(script);
 }
 
-/** Trekker samtykket tilbake. Siden lastes på nytt så GTM ikke lenger kjører. */
+/** Trekker samtykket tilbake og laster siden på nytt med analyse avslått. */
 export function withdrawConsent(): void {
-  const w = window as GtagWindow;
   writeConsent("denied");
-  if (w.__kmGtmLoaded && w.gtag) {
-    w.gtag("consent", "update", { analytics_storage: "denied" });
-    w.location.reload();
-  }
+  applyConsent("denied");
+  window.location.reload();
 }
