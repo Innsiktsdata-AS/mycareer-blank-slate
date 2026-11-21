@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  GA4_ID,
   GTM_ID,
   analyticsStorageFor,
   gtmHeadSnippet,
@@ -14,6 +15,13 @@ describe("Google Tag Manager på karrierenmin.no", () => {
     expect(gtmHeadSnippet()).toContain(
       '<script async src="https://www.googletagmanager.com/gtm.js?id=GTM-M47S7FVV"></script>',
     );
+  });
+  it("laster Google-taggen G-40M285DMYF én gang, etter samtykke-standarden", () => {
+    const s = gtmHeadSnippet();
+    expect(GA4_ID).toBe("G-40M285DMYF");
+    expect(s.match(/gtag\/js\?id=G-40M285DMYF/g)?.length).toBe(1);
+    expect(s).toContain(`gtag('config',"G-40M285DMYF")`);
+    expect(s.indexOf("gtag('consent','default'")).toBeLessThan(s.indexOf("gtag('config'"));
   });
   it("tilbys bare på karrierenmin.no og www.karrierenmin.no", () => {
     expect(isAnalyticsHost("karrierenmin.no")).toBe(true);

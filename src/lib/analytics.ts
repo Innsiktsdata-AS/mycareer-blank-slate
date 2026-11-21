@@ -1,11 +1,13 @@
 /**
- * Google Tag Manager for karrierenmin.no (Google Consent Mode v2).
- * Taggen settes inn rett etter <head> av serveren (src/server.ts), bare på det
+ * Google Tag Manager og Google-taggen (GA4) for karrierenmin.no (Google Consent Mode v2).
+ * Taggene settes inn rett etter <head> av serveren (src/server.ts), bare på det
  * publiserte domenet. Før samtykke er all lagring avslått, så ingen
  * analyse-informasjonskapsler settes; «Godta analyse» slår på analyse_storage.
  * Annonsesignaler er alltid avslått.
  */
 export const GTM_ID = "GTM-M47S7FVV";
+/** Google-taggen (GA4-strøm) som lastes sammen med GTM i samme dataLayer. */
+export const GA4_ID = "G-40M285DMYF";
 export const CONSENT_STORAGE_KEY = "karrierenmin-analytics-consent";
 export type AnalyticsConsent = "granted" | "denied";
 
@@ -41,11 +43,16 @@ export function gtmHeadSnippet(): string {
     "gtag('consent','default',{analytics_storage:c==='granted'?'granted':'denied'," +
     "ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied'});" +
     "gtag('set','ads_data_redaction',true);" +
+    "gtag('set','developer_id.dZjgwMW',true);" +
     "gtag('js',new Date());" +
+    "gtag('config'," +
+    JSON.stringify(GA4_ID) +
+    ");" +
     "dataLayer.push({'gtm.start':new Date().getTime(),event:'gtm.js'});";
   return (
     `<script>${consentScript}</script>` +
-    `<script async src="https://www.googletagmanager.com/gtm.js?id=${GTM_ID}"></script>`
+    `<script async src="https://www.googletagmanager.com/gtm.js?id=${GTM_ID}"></script>` +
+    `<script async src="https://www.googletagmanager.com/gtag/js?id=${GA4_ID}"></script>`
   );
 }
 
