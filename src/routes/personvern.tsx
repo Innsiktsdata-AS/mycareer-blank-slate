@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { Header } from '@/components/landing/Header'
 import { Footer } from '@/components/landing/Footer'
+import { ConsentSettings } from '@/components/analytics/consent-settings'
 
 export const Route = createFileRoute('/personvern')({
   component: PersonvernPage,
@@ -106,6 +107,10 @@ function PersonvernPage() {
               LinkedIn).
             </li>
             <li>E-postutsendelse for transaksjons- og servicemeldinger.</li>
+            <li>
+              Nettstedsanalyse (Google Analytics via Google Tag Manager), bare
+              hvis du har godtatt analyse-informasjonskapsler.
+            </li>
           </ul>
           <p>
             Dersom data overføres utenfor EU/EØS, sikrer vi et lovlig
@@ -151,11 +156,12 @@ function PersonvernPage() {
           <h2>7. Informasjonskapsler (cookies)</h2>
           <p>
             Vi bruker nødvendige cookies for innlogging og funksjonalitet, samt
-            valgfrie analytics-cookies for å forbedre tjenesten. Du gir
-            samtykke ved første besøk og kan trekke det tilbake når som helst
-            ved å tømme nettleserens lagring eller endre innstillingene i
-            nettleseren.
+            valgfrie analytics-cookies (Google Analytics via Google Tag
+            Manager) for å forbedre tjenesten. Analyse lastes bare hvis du
+            velger «Godta analyse» ved første besøk. Annonsesignaler er alltid
+            slått av. Du kan trekke samtykket tilbake når som helst her:
           </p>
+          <ConsentSettings />
 
           <h2>8. Sikkerhet</h2>
           <p>

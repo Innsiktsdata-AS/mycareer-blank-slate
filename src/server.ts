@@ -76,11 +76,11 @@ function buildCsp(allowFraming: boolean): string {
   const directives = [
     "default-src 'self'",
     // Vite/TanStack injiserer inline-skript for hydrering.
-    "script-src 'self' 'unsafe-inline'",
+    "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' data: https://fonts.gstatic.com",
     "img-src 'self' data: blob: https:",
-    `connect-src 'self' ${APP_SUPABASE_URL} wss://miwzhbludgwvskmsfqnq.supabase.co ${MARKET_SUPABASE_URL} https://fonts.googleapis.com https://fonts.gstatic.com`,
+    `connect-src 'self' ${APP_SUPABASE_URL} wss://miwzhbludgwvskmsfqnq.supabase.co ${MARKET_SUPABASE_URL} https://fonts.googleapis.com https://fonts.gstatic.com https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com`,
     "base-uri 'self'",
     "form-action 'self'",
     "object-src 'none'",

@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "@/lib/auth-context";
 import { BrandMark } from "@/components/brand-mark";
 import { Toaster } from "@/components/ui/sonner";
+import { CookieConsent } from "@/components/analytics/cookie-consent";
 import {
   Outlet,
   Link,
@@ -179,6 +180,7 @@ function RootComponent() {
         <Outlet />
         {/* Uten denne var alle toast-varsler usynlige — feil ble tause. */}
         <Toaster richColors closeButton position="top-right" />
+        <CookieConsent />
       </AuthProvider>
     </QueryClientProvider>
   );
