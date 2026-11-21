@@ -125,7 +125,7 @@ export default {
       );
     } catch (error) {
       console.error(error);
-      return withSecurityHeaders(brandedErrorResponse(), request);
+      return withSecurityHeaders(withGoogleTag(brandedErrorResponse(), request), request);
     }
   },
 };

@@ -34,3 +34,12 @@ describe("Google-taggen i sidehodet", () => {
     }
   });
 });
+
+describe("Google-taggen på feilsiden", () => {
+  it("settes inn én gang på feilsiden på karrierenmin.no", async () => {
+    const { renderErrorPage } = await import("@/lib/error-page");
+    const res = new Response(renderErrorPage(), { status: 500, headers: { "content-type": "text/html; charset=utf-8" } });
+    const html = await withGoogleTag(res, new Request("https://karrierenmin.no/noe")).text();
+    expect(html.match(/gtm\.js\?id=GTM-M47S7FVV/g)?.length).toBe(1);
+  });
+});
