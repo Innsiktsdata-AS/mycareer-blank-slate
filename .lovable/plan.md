@@ -25,7 +25,8 @@ Dette er bare en plan: ingen appkode, backend, database eller publisering. v1 og
    - Tre atskilte lister:
      - *Dokumenterte treff*
      - *Uavklart erfaring* (standard når appen ikke vet noe)
-     - *Reelle gap*: oppgitt av brukeren selv, eller et formelt obligatorisk krav (for eksempel gyldig løyve) uten belegg for at det er aktuelt. Overførbar erfaring kan aldri dekke et formelt krav.
+     - *Reelle gap*: bare når brukeren bekrefter at kvalifikasjonen mangler, eller når kjent utløps- eller klasseinformasjon viser at den registrerte kvalifikasjonen ikke dekker kravet (`confirmed_unmet`).
+   - Et formelt krav uten belegg vises som «Gyldig løyve er påkrevd – ikke bekreftet ennå» (`eligibility_unconfirmed`). Appen spør brukeren, og en udokumentert påstand om aktuell autorisasjon sperres. At noe mangler i profilen beviser ikke at løyvet mangler. Overførbar erfaring kan aldri dekke et formelt krav.
    - Kortet «Dette vil vi fremheve – og hvorfor»: brukeren kan prioritere, rette, utelate og legge til. Hvert element viser egen kildetype og dokumentasjonsstyrke. Kontrollen av belegg og gyldighet kan ikke overstyres.
    - Spørsmål – `submitAnswers`: maks fem hovedspørsmål, uten skjulte underskjema. Hvert spørsmål forklarer hvorfor det stilles og hvilke deler av dokumentene svaret påvirker.
    - Endring av fakta – `confirmFactChanges`: nye kandidatfakta (resultater, erfaring, bidrag) vises konkretisert, uten forhåndsavkryssing. Brukeren har to valg:
@@ -37,11 +38,12 @@ Dette er bare en plan: ingen appkode, backend, database eller publisering. v1 og
    - Generering: `generateCv`.
    - Blokkredigering: `updateBlock`, med lås som felt i kommandoen. Dette er et kontraktbehov.
    - Kontroll av påstander: `reviewClaims`, med `CvClaimEvidencePanel` som utgangspunkt for visningen. Kontrollen kjøres også på låste blokker, og feil vises alltid.
-   - Filer: `requestExport` gir DOCX med og uten bilde. PDF vises bare når serveren melder at den kan lage PDF. Appen lover ingen sideantall fra nettleseren.
-   - **Godkjenning:** `approveDocumentVersion(versionId, revision, contentHash)`. Hvis teksten senere endres, oppheves godkjenningen og kontrollen kjøres på nytt.
+   - F7 kan bygge fil og forhåndsvisning før vurderingen. Endelig eksport av en ny versjon med `requestExport` kommer først etter F8 og sluttgodkjenning, og gir DOCX med og uten bilde. PDF vises bare når serveren melder at den kan lage PDF. Appen lover ingen sideantall fra nettleseren.
+   - Sluttgodkjenning skjer etter F8: `approveDocumentVersion(versionId, revision, contentHash)`. Hvis teksten senere endres, oppheves godkjenningen og kontrollen kjøres på nytt.
 4. **Vurdering (F8)**
-   - Henting: `getAssessment`. Vurderingen må være gjennomført før CV-en kan eksporteres.
-   - Det er ikke påkrevd å svare på intervjuspørsmålene.
+   - Henting: `getAssessment`. Vurderingen må være gjennomført før sluttgodkjenning og endelig eksport av en ny versjon.
+   - Brukeren trenger ikke svare på intervjuspørsmålene eller gjøre alle anbefalte forbedringer.
+   - Ingen vurderingsløkke: når teksten endres, oppdateres vurderingen automatisk for den nye teksten.
    - Svar sendes med `applyAssessmentAnswers` og gir en ny versjon med forskjeller vist. Godkjenningen for de berørte delene oppheves.
    - Avslutning uten brev: `finishCvOnly`.
 5. **Søknadsbrev (F9, valgfritt)**
@@ -79,7 +81,7 @@ Et ubesvart nødvendig spørsmål gir statusen `requires_input`. Svaret «usikke
 ## Tilstander fra Codex (foreslåtte DTO-felt)
 - `package`: id, applicationId, adRevision, phase, currentStep F0–F9, nextAction, savedAt, version
 - `blockers[]`: code, reason, fixTarget
-- `requirements[]`: weight, mandatory, sourceQuote, matchStatus (documented / unresolved / declared_gap / mandatory_unmet)
+- `requirements[]`: weight, mandatory, sourceQuote, matchStatus (documented / unresolved / eligibility_unconfirmed / confirmed_unmet)
 - `highlights[]`: kind, ref, rationale, sourceType, evidenceStrength, validity (class, issuer, expiry, status)
 - `questions[]`: type, why, affects[], existingAnswer, answerOptions, required
 - `factChanges[]`: proposedText, sourceType, status
@@ -95,7 +97,7 @@ Alle kommandoene må være idempotente, sjekke eierskap og bruke versjon for å 
 - `approveDocumentVersion`
 
 ## Kontrollregler UI skal speile (eies av Codex)
-- **Sertifikat:** CV-en blokkeres ikke av et utløpt historisk sertifikat. En påstand om *aktuell* autorisasjon uten belegg sperres, mens presis historisk omtale er lov. Krever stillingen gyldig løyve, vises et gap. Utløpt eller ukjent klasse eller gyldighet utløser spørsmål 5.
+- **Sertifikat:** CV-en blokkeres ikke av et utløpt historisk sertifikat. En påstand om *aktuell* autorisasjon uten belegg sperres, mens presis historisk omtale er lov. Krever stillingen gyldig løyve, vises `eligibility_unconfirmed` til kravet er avklart. Det blir `confirmed_unmet` bare når brukeren bekrefter at kvalifikasjonen mangler, eller når kjent utløps- eller klasseinformasjon viser at den ikke dekker kravet. Utløpt eller ukjent klasse eller gyldighet utløser spørsmål 5.
 - **Motivasjon:** Svaret «usikker» gir hjelp og et ærlig, nøkternt brev. Oppdiktet interesse for selskap eller kultur sperres.
 
 ## Rekkefølge for Lovable
@@ -115,14 +117,14 @@ Hvert steg leveres først som UI-eksempel og deretter som integrasjon med klient
   - Tiltak: nye fakta må bekreftes aktivt og lagres i profilen, eller utelates. Appen foreslår aldri tall, og `reviewClaims` kontrollerer også låste blokker.
   - Klienttest: en påstand uten belegg sperrer godkjenning.
 - **Uregistrert erfaring blir oversett**
-  - Tiltak: «uavklart» er standard, spørsmål 3 og «Legg til» fanger opp det som mangler, og gap vises bare når det er oppgitt eller er et formelt krav.
-  - Klienttest: et krav uten treff vises som uavklart.
+  - Tiltak: «uavklart» er standard, spørsmål 3 og «Legg til» fanger opp det som mangler, og gap vises bare ved `confirmed_unmet`.
+  - Klienttest: et krav uten treff vises som uavklart, og et formelt krav uten belegg vises som «ikke bekreftet ennå», ikke som gap.
 - **Feil eller utløpt sertifikat**
-  - Tiltak: kontrollen gjelder aktuell autorisasjon. Historisk omtale er lov, og et formelt krav vises som gap.
-  - Klienttest: et utløpt sertifikat gir ingen påstand om aktuell autorisasjon, og CV-en kan fortsatt eksporteres.
+  - Tiltak: kontrollen gjelder aktuell autorisasjon. Historisk omtale er lov. Et formelt krav vises som `eligibility_unconfirmed` til brukeren eller kjent utløps- eller klasseinformasjon avklarer det.
+  - Klienttest: et utløpt sertifikat gir ingen påstand om aktuell autorisasjon og viser `confirmed_unmet` når det ikke dekker kravet. Et ukjent sertifikat utløser spørsmål 5. CV-en kan fortsatt eksporteres etter F8.
 - **Generisk motivasjon**
   - Tiltak: motivasjon er alltid med, og brukerens egne ord brukes som grunnlag. «Usikker» gir et ærlig, nøkternt brev. Oppdiktet selskapsinteresse sperres.
   - Klienttest: et ubesvart spørsmål gir `requires_input`, mens «usikker» gir et nøkternt brev uten oppdiktede påstander.
 
 ## Gjenstående
-Ingen produktvalg står igjen for Henrik etter disse avklaringene. Kontraktbehovene over avklares mellom Codex og Lovable.
+Ingen nye UI-spørsmål til Henrik i denne planrunden. Renderingsløp/sidetallsaksept, pris/kvote, KI-merking og isolert test-/migrasjonsmiljø gjenstår før relevante senere faser; dette blokkerer ikke ferdigstilling av forslaget. Kontraktbehovene over avklares mellom Codex og Lovable.
