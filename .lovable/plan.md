@@ -1,83 +1,44 @@
-# Test- og leveranserapport: karrieremateriale og dokumentasjon
+# Søknadspakke – frontendvurdering mot 731463d (kun analyse)
 
-Status 20.11.2026. Ingenting er publisert. Ingen ekte brukerdata er endret eller slettet. Teststatus vises slik: **Testet** (kjørt med syntetiske data), **Kode** (bare vurdert ut fra koden) og **Usikkert**.
+Ingen endringer er gjort. Alt under «kontrakt» er ønsket Codex-backend, ikke eksisterende endepunkter.
 
-## 1. Kontroll av dagens produksjon mot migrasjon 0005–0008
+## 1) Gjenbruk per inngang
+- `src/routes/_authenticated/applications/new.tsx` – har allerede to steg (`import` → `form`, linje 49–123) med annonseuttrekk og `register_lead`. Gjenbruk som F0-inngang: annonsetekst/lenke med fallback til tekst. Avslutt med «Start søknadspakke» i stedet for bare å lagre.
+- `src/routes/_authenticated/applications/$id.tsx` – 7 faner (linje 168–174). `DokumenterTab` (580–612) lister bare dokumenter. Legg til en egen fane «Søknadspakke» som første fane (eller kort i `OversiktTab`), og bruk `ImportJobAdModal` (316) for annonse.
+- `src/routes/_authenticated/nettverk.muligheter.$id.tsx` (309–314) og `job-leads.tsx` (1214) – lenker i dag til `/cover-letters?application=` og `/cv-builder` hver for seg. Begge bør peke til én pakkerute.
+- `src/routes/_authenticated/cover-letters.tsx` (1152 linjer) – fungerende brevflyt via edge function `generate-cover-letter` (525), med språkvalg og redigering. Ta ut redigering og forhåndsvisning som komponenter til F9. Behold ruten som inngang for dem som bare vil lage brev.
+- `src/components/cv/CvClaimEvidencePanel.tsx` – ferdig belegg-panel (props `documentId`, rewrite/add/remove), men **ikke brukt noe sted**. Gjenbruk i F5/F6 som «Hva hver påstand bygger på».
+- `src/routes/_authenticated/soknadsdokumenter.tsx` – navigasjonsside. Kan bli pakkeoversikten.
+- `src/lib/cover-letter-job-store.ts`, `src/lib/career-facts/approved-facts.ts` (`getApprovedCareerFacts`) – faktagrunnlag og jobbkontekst. Lovable skal bare lese resultatet via kontrakt.
 
-| Kontroll | Resultat | Grunnlag |
-|---|---|---|
-| Halve eller doble godkjenninger | Ingen funnet | Testet (lesing av struktur, ikke innhold) |
-| To like rolletitler | Kommer fra LinkedIn-importen, ikke fra godkjenning | Testet (lesing) |
-| Publisert godkjenning av vanlige forslag | Virker mot den nye databasen | Testet |
-| Publisert godkjenning av kildeforslag | Virker, men lager verken kildekobling eller hendelsesdato | Testet. Ingen slike forslag finnes i produksjon (0). |
-| Andre importløp (LinkedIn, CV-import) | Ikke berørt. Det nye feltet for kildedokument kan stå tomt. | Kode |
-| Nåtall i produksjon | 2 inntak, 0 forslag, 0 kildekoblinger, 0 manuelle kvalifikasjonsfiler, 0 CV-er sendt fra arkivet | Testet (lesing) |
+## 2) Lovable-oppgaver i rekkefølge
+1. Pakkeskall: rute `/applications/$id/pakke` med 5 faser, en fremdriftslinje, lagringsstatus, avbryt/fortsett. Lages med mock-kontrakt mens backend bygges.
+2. Grunnlag (F0): annonse, kontakt fra profilen, LinkedIn med tre valg (adresse / har ikke / vil ikke), valgfritt bilde, språk. Vis hva som mangler.
+3. Treff og spørsmål (F1–F4): korte kort for stilling og selskap med kildeutdrag og merket «Begrenset – uten websøk». Treff og uavklarte krav vises i klartekst. Spørsmålsskjema: maks 5 spørsmål, alltid fritekst, «kan ikke tallfeste» og «anslag», ingen foreslåtte tall.
+4. CV (F5–F7): blokkvisning med lås for blokker brukeren har redigert, `CvClaimEvidencePanel`, kontrollresultater, nedlasting av DOCX med og uten bilde. PDF er skjult til renderingsløpet er avklart.
+5. Vurdering (F8): kritisk vurdering, 2–3 intervjuspørsmål og knapp for ny versjon.
+6. Søknadsbrev (F9): ett hovedspor, ordteller (mål 300–420, sperre ved 450) og belegg per påstand.
+7. Versjonsliste og innganger fra nettverk/muligheter og leads.
 
-**Konsekvens av de aktive migrasjonene:** De er additive. Dagens publiserte app virker som før. R1 og R1b under er rettet direkte i databasen og gjelder allerede for den publiserte appen.
+Kontraktbehov fra Codex (typer og navn må avtales): opprett/hent pakke med fase- og stegstatus; F1/F2-resultat med kilder; liste over treff og uavklarte krav; spørsmål og svar, der faktasvar går gjennom Codex' skrivevei og motivasjon er pakkekontekst; CV-blokker og låser; resultat fra kontrollene; filer; versjoner; feilkoder brukeren kan rette.
 
-## 2. Tester av versjonen som skal publiseres
+## 3) Stubber og manglende flyt
+- Bare `ComingSoonStub`: `cv-builder/index.tsx`, `interview-prep/index.tsx`, `offer-analysis/index.tsx`.
+- Ingen samlet flyt: `soknadsdokumenter.tsx` er bare lenker. `cover-letters.tsx` står alene uten spørsmål eller vurdering. `CvClaimEvidencePanel` er ikke koblet inn. Søknadsdetaljen har ingen pakkestatus.
 
-Testet versjon: commit `cfcae9e7` med migrasjon 0005–0008. Alle 659 automatiske tester passerer (etter R1).
+## 4) Plassering
+- Oversikt: en «Søknadspakke»-fane eller kort på søknadsdetaljen, med fase, neste handling og hva som mangler.
+- Spørsmål: samlet i fase 2, aldri spredt over fasene.
+- Godkjenning: der den aktuelle artefakten vises (CV-blokk, brev), med eksplisitt knapp.
+- Versjoner: egen skuff eller fane i pakken, også lenket fra `DokumenterTab`.
+- Hva som mangler: øverst i hver fase som en kort liste, med lenke til der det rettes (profil, dokumentasjon, spørsmål).
 
-| Test | Resultat |
-|---|---|
-| Kryssbruker A/B: B prøver å lese, endre, godkjenne, sende og slette A sine fakta og kildekoblinger | Testet, ok. B får tomt svar eller avslag. |
-| Syntetisk kursbevis, ny sertifisering (ITIL, år 2022) | Testet, ok. Én oppføring med årspresisjon. |
-| Syntetisk kursbevis som dokumentasjon på eksisterende sertifisering (PRINCE2) | Testet, ok. Kildekobling og ingen ny oppføring. |
-| Hele kjeden: import, forslag, valg, godkjenning, dato, «Dokumentert»-lenke og felles leser med periodefilter | Testet, ok |
-| Dobbeltklikk og samtidig godkjenning | Testet, ok. Én oppføring. |
-| Avbrudd eller feil underveis i godkjenningen | Kode. Alt skjer i én databasefunksjon, så en feil ruller tilbake alt. Nytt forsøk etter at svaret har gått tapt, gir samme resultat (testet). |
-| Slettet kilde, faktum beholdt | Testet, ok. Viser «Kilde utilgjengelig». |
-| Slettet kilde, faktum fjernet | Testet, ok. Oppføringen deaktiveres. |
-| Rolleendring | Testet, ok. Ny rolle, eller kobling til eksisterende rolle når tittel og arbeidsgiver er like. |
-| Hendelses-, import- og godkjenningsdato hver for seg, med dag, bare år og ukjent dato | Testet, ok |
-| Opprydding | Testdata slettet. Én syntetisk PDF på 1,7 KB ligger igjen i testbrukerens mappe, se R3. |
+## 5) Avklaringer før bygging
+1. Er pakken egen rute eller fane i søknadsdetaljen? Og hva skjer med `/cover-letters` og `/cv-builder` som frittstående sider?
+2. Skal svar på spørsmål om fakta bli profilfakta med en gang, eller først etter en egen godkjenning (evidensprinsippet)? Hvor ser brukeren forskjellen fra motivasjon?
+3. Brukerlåste CV-blokker og «ny versjon» etter vurdering: overstyrer ny versjon låste blokker, og hvordan vises forskjeller?
+4. Bilde: lagres det i profilen eller per pakke, og er bildefri DOCX standard?
+5. Må en søknad finnes før pakken starter? Fra nettverk/muligheter finnes kanskje bare et lead.
 
-## 3. CV fra arkivet til CV-importen
-
-Etter ditt svar er dette testet med en **syntetisk CV** på testbrukeren. Din ventende PDF i produksjon er ikke rørt, og typen «Kursbevis» er ikke valgt.
-
-| Test | Resultat |
-|---|---|
-| Gjenkjennes som CV, gir ingen sertifisering | Testet, ok |
-| Sendt til CV-importen uten ny e-post | Testet, ok. Én importrad. |
-| Dobbeltklikk, gjentatt og samtidig sending | Testet, ok. Samme import blir returnert. |
-| Ingen automatisk profilendring | Testet, ok. Profilen endres først når du går gjennom CV-en. |
-| Ny analyse etter feil, historikk beholdt | Kode. En feilet import kan sendes på nytt. Gamle rader beholdes. |
-| Avbrudd midt i sendingen | Kode. Ingen duplikat. Det kan bli liggende en ubrukt filkopi, se R4. |
-
-## 4. Eksisterende dokumentkoblinger
-
-- **Kopiert, ikke flyttet:** Migrasjon 0005 kopierte koblingen fra gamle kvalifikasjonsfiler til `career_atom_sources`. Filen, dokumentraden og listen på oppføringen ble ikke rørt. Produksjon hadde 0 slike filer, så ingen ekte rader ble kopiert.
-- **Dokumentasjonssider:** Kvalifikasjoner viser fortsatt antall dokumenter fra oppføringen selv. Testet syntetisk, ok.
-- **Sletting og utilgjengelig fil:** Sletter du en fil, får koblingen statusen «Kilde utilgjengelig», og faktaet beholdes. En annen opplastet fil teller fortsatt som dokumentasjon.
-- **Tilbakeføring:** En slettet kilde kan ikke gjenopprettes. Den må sendes inn på nytt.
-- **Betydning:** Før stod det «N dokumenter» eller «Ikke dokumentert». Nå står det «Dokumentert», definert som at det finnes en låst kilde du selv har koblet til. Det betyr ikke at noen andre har kontrollert opplysningen. Koblingen endrer ikke `confidence` eller `attestation`, og den påvirker ikke hva CV-generatoren tar med.
-
-## 5. Generatorene (neste fase, ikke bygget)
-
-For at CV, søknadsbrev og oppsummeringer senere skal kunne bruke den felles leseren, gjenstår dette:
-
-- CV-generatoren må hente fakta fra `getApprovedCareerFacts` i stedet for sitt eget filter. I dag tar den bare med `verified`, så godkjente kildeforslag (`inferred`) kommer ikke med.
-- Søknadsbrevet må hente fakta på serveren i stedet for profildata som nettleseren sender.
-- Oppsummeringer for kvartal, år og rolle må bygges. Udaterte fakta må vises for seg.
-
-## 6. Nødvendige rettinger før eller sammen med publisering
-
-- **R1 (rettet 20.11, migrasjon 0009):** Filer du laster opp på en kvalifikasjon, får nå kildekobling automatisk, også i den publiserte appen. Filer som allerede fantes, ble koblet én gang (0 i produksjon).
-  - Testet med to testbrukere: én kobling per fil, ingen duplikat ved ny lagring, B kan ikke koble fil til A sin oppføring og ser ingen av A sine koblinger, slettet fil gir «Kilde utilgjengelig», vanlige dokumenter gir ingen kobling.
-  - Testet i appen: opplasting på Kvalifikasjoner viser «Dokumentert» med en gang.
-- **R1b (funnet og rettet under R1, migrasjon 0010):** Det var ikke mulig å lagre nye dokumenter fra appen. Det gjaldt filer på kvalifikasjoner, nye dokumenter, nye versjoner og lagrede søknadsbrev. Feilen kom av et krav om dokumentgruppe. Det siste dokumentet som ble lagret fra appen, er fra 12.08. Nå blir et nytt dokument sin egen gruppe, med mindre det legges i en gruppe som tilhører samme bruker. Rettingen virker også i den publiserte appen.
-  - Testet: nytt dokument blir egen gruppe, A kan legge en ny versjon i egen gruppe, B kan ikke legge dokument i A sin gruppe.
-  - Gjennomgått alle steder dokumenter lagres: kvalifikasjonsfiler, nytt dokument, ny versjon, tre lagringer av søknadsbrev, arbeidsgiveranalyse, CV-generering (to databasefunksjoner) og karrieremateriale. Alle virker nå. «Ny versjon» legges i samme gruppe som originalen (testet i appen; kommer med publiseringen). Lagring av søknadsbrev er ikke kjørt gjennom siden.
-  - Genererte CV-er peker på oppføringer, men teller ikke som dokumentasjon. Det er riktig, ellers ville CV-en dokumentert seg selv.
-- **R2 (liten):** Etter ny innlasting vises «Send til CV-import» fortsatt, selv om CV-en er sendt. Et nytt klikk sier bare «allerede sendt». Knappen skal byttes ut med en statuslinje.
-- **R3 (opprydding):** Den syntetiske PDF-en på 1,7 KB fjernes fra testbrukerens mappe.
-- **R4 (liten):** Ubrukte filkopier etter en avbrutt CV-sending skal ryddes av den eksisterende oppryddingsjobben.
-- **Åpen beslutning:** Når en kilde kobles til en oppføring som finnes fra før, overføres ikke kildens dato. Det er gjort for at en dato du har satt selv, ikke skal overskrives. Alternativet er å foreslå datoen og la deg bekrefte den.
-
-## Publiseringsomfang
-
-En publisering omfatter: nye typer (kursbevis, rolleendring, lønnsendring), hendelsesdato med presisjon, treff på eksisterende kvalifikasjon og rolle, låst godkjenning via serveren, dokumentasjonsstatus med lenke, felles faktaleser, og «Send til CV-import». Databaseendringene er allerede aktive. Generatorene er ikke med.
-
-**Publisert 20.11.2026 kl. 14:21.** Kontrollert på karrierenmin.no med testbruker: opplasting viser «Dokumentert» med en gang og gir én kildekobling, og «Ny versjon» havner i samme dokumentgruppe som originalen. Testdata slettet. R1 og R1b er rettet i databasen og gjelder allerede. Publiseringen tar i tillegg med at «Dokumentert» vises med en gang etter opplasting. R2–R4 og den åpne beslutningen kan tas etter publisering.
+## Kildefiler
+src/routes/_authenticated/applications/{new,$id,index}.tsx, cover-letters.tsx, soknadsdokumenter.tsx, cv-builder/index.tsx, interview-prep/index.tsx, offer-analysis/index.tsx, nettverk.muligheter.$id.tsx, job-leads.tsx, my-applications.tsx; src/components/cv/CvClaimEvidencePanel.tsx, src/components/coming-soon-stub.tsx; src/lib/cover-letter-job-store.ts, src/lib/career-facts/approved-facts.ts, src/lib/cv-claim-evidence.functions.ts, src/lib/cv-skills-contract.ts.
