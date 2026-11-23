@@ -1,3 +1,135 @@
+# Søknadspakke – frontendplan v2 (Lovable)
+
+Denne planen erstatter v1, som står som historikk nederst i `.lovable/plan.md`. Den er bare en plan: ingen kode, ingen database og ingen publisering. Alle kommandoer og tilstander under er **ønsket Codex-kontrakt**. Ingen av dem finnes i dag.
+
+## Arbeidsdeling og ferdig-kriterium
+- **Codex:** backend, DTO-er, kontrollregler og kontraktstester.
+- **Lovable:** UI og klienttester. Lovable endrer ingenting i backend eller Supabase uten et eget navngitt mandat.
+- **Ferdig-kriterium:** Et steg er bare ferdig når det kjører mot ekte Codex-kontrakt med en syntetisk bruker. At det virker med mock-data teller ikke.
+
+## Struktur
+- **Inngang:** På `/applications/$id` vises et fremdriftskort med fase, én neste handling og hva som mangler. Det lenker til `/applications/$id/pakke`.
+- **Fra muligheter, leads og `applications/new`:** serveren oppretter eller gjenbruker søknadsutkastet før pakken åpnes (`ensureDraftApplication`). Søknaden får aldri status «sendt» automatisk.
+- **Generell CV og frittstående brev:** `/cover-letters` beholder formålet sitt, og det samme gjør `/cv-builder`, som i dag bare er en plassholder.
+
+Fem faser vises for brukeren. Øverst står én tydelig neste handling og lagringsstatus («Lagret 12:03» eller «Kunne ikke lagre – prøv igjen»). Brukeren kan avbryte og fortsette senere, alt kan brukes med tastatur og fokus, og første versjon lages for mobil.
+
+## Sentrale skjermer og godkjenninger
+1. **Grunnlag (F0)**
+   - Innhold: annonse (lenke, med tekst som reserve), kontakt fra profilen, LinkedIn med tre valg (adresse / har ikke / vil ikke), språk og eget valg av bilde for denne pakken.
+   - Blokkerende konflikter i grunnlaget vises her med årsak og må løses før generering.
+2. **Treff og spørsmål (F1–F4)**
+   - Kort for stilling og selskap med kildeutdrag. Selskapskortet merkes «Begrenset – uten websøk».
+   - Tre atskilte lister:
+     - *Dokumenterte treff*
+     - *Uavklart erfaring* («Vi vet ikke om du har dette»)
+     - *Reelle gap*, som bare vises når brukeren selv har oppgitt at erfaringen mangler.
+   - Kortet «Dette vil vi fremheve – og hvorfor»: kompetanser, roller, resultater og kvalifikasjoner med kilde og oppdatert status. Brukeren kan prioritere, rette, utelate og legge til. Merket for belegg og gyldighet kan ikke overstyres.
+   - Sparring: inntil fem spørsmål samlet. Hvert spørsmål forklarer hvorfor det stilles og hvilke deler av dokumentene svaret påvirker.
+   - Bekreftelse av fakta: hvert nytt faktum vises konkretisert med tre valg:
+     - «Bruk i denne søknaden»
+     - «Lagre bekreftet fakta i karriereprofilen»
+     - «Hold utenfor»
+   - Det som lagres i profilen merkes «Egenopplysning» og kalles aldri dokumentasjon.
+3. **CV (F5–F7)**
+   - Blokkredigering bygd mot Codex-kommandoer. Hver blokk kan låses.
+   - Kontrollen av påstander kjøres også på låste blokker, og feil i låst tekst vises alltid.
+   - Belegg per påstand: `CvClaimEvidencePanel` brukes som utgangspunkt.
+   - Kontrollresultater for fakta, ATS, språk og layout.
+   - Filer: DOCX fra serveren, med og uten bilde og ellers samme tekst. PDF vises bare når serveren melder at den kan lage PDF. Appen lover ikke to sider ut fra noe beregnet i nettleseren.
+   - **Godkjenning:** «Godkjenn denne CV-versjonen (vN)».
+4. **Vurdering (F8, obligatorisk)**
+   - Kritisk vurdering og 2–3 intervjuspørsmål.
+   - Svarene kan gi en ny versjon. Da vises forskjellen mot forrige versjon, og godkjenningen for de berørte delene oppheves.
+5. **Søknadsbrev (F9, valgfritt)**
+   - Ett hovedspor og ordteller. Målet er 300–420 ord, 450 er lov, og over 450 sperres.
+   - Belegg vises per påstand.
+   - **Godkjenning:** «Godkjenn denne brevversjonen (vN)».
+
+Versjoner ligger i en egen skuff i pakken og er også lenket fra fanen «Dokumenter» på søknaden.
+
+## Eksempel på fem hovedspørsmål (ingen foreslåtte tall)
+Alle spørsmål har fritekst og knappene «Har ikke erfaring», «Kan ikke tallfeste» og «Anslag (skriv selv)». Appen spør aldri om noe den allerede vet.
+1. **Motivasjon (alltid med):** «Hvorfor vil du ha akkurat denne jobben hos [selskap]?»
+   - Finnes et svar fra før, vises det med «Behold» eller «Endre».
+   - Brukeren kan velge «Jeg er usikker – hjelp meg å utforske».
+   - *Påvirker:* innledningen i brevet og profilteksten i CV-en.
+2. **Retning:** «Hva er viktigst for deg i neste rolle, og passer denne stillingen med det?»
+   - *Påvirker:* vektlegging og avslutningen i brevet.
+3. **Uregistrert erfaring:** «Annonsen ber om [krav X]. Har du erfaring med dette som ikke står i profilen din? Beskriv et konkret eksempel.»
+   - *Påvirker:* treff og uavklart erfaring, og én CV-blokk.
+4. **Eget bidrag:** «I [rolle/prosjekt]: hva gjorde du selv, og hva ble resultatet?»
+   - *Påvirker:* resultatpunktene i CV-en.
+5. **Gyldighet:** «[Sertifikat/løyve]: hvilken klasse, hvem har utstedt det, og når utløper det?»
+   - Dette spørsmålet stilles bare når opplysningene mangler.
+   - *Påvirker:* kvalifikasjonsseksjonen.
+
+Blokkerende konflikter kommer i tillegg til disse spørsmålene, med forklart årsak. De presses ikke inn for å holde seg innenfor fem.
+
+## Tilstander og kommandoer fra Codex (ønsket kontrakt)
+**Tilstander**
+- `package`: id, applicationId, phase, currentStep (F0–F9), nextAction, savedAt, version
+- `blockers[]`: code, reason, fixTarget
+- `requirements[]`: weight, sourceQuote, matchStatus (documented / unresolved / user_declared_gap)
+- `highlights[]`: kind, ref, rationale, sourceStatus, validity (class, issuer, expiry, status)
+- `questions[]`: why, affects[], existingAnswer, answerOptions
+- `factCandidates[]`: text, scope (package / profile / excluded), attestation
+- `cvVersions[]` og `letterVersions[]`, hver med: blocks (locked, checkResults[]), approvalStatus, diffFrom, files (docx, docxNoPhoto, pdf?)
+- `capabilities`: pdf (true/false)
+- `assessment`: findings, interviewQuestions
+- `errors`: code, userAction, retryable
+
+**Kommandoer**
+- Pakke: `ensureDraftApplication`, `startOrResumePackage`, `saveBasis`
+- Spørsmål og fakta: `answerQuestion`, `exploreMotivation`, `setFactScope`, `confirmFactToProfile`
+- Fremheving: `setHighlightPriority`, `generateCv`
+- CV-blokker: `editBlock`, `lockBlock`, `unlockBlock`
+- Kontroll og vurdering: `runChecks`, `requestAssessment`, `answerAssessment`
+- Godkjenning: `approveVersion(versionId)`
+- Brev og filer: `generateLetter`, `exportDocx`
+
+Alle kommandoer må være idempotente, sjekke eierskap og returnere en versjon som brukes til å oppdage samtidige endringer.
+
+## Rekkefølge for Lovable
+1. Pakkeskall og fremdriftskort med lagring og gjenopptak, mot `startOrResumePackage`.
+2. Grunnlag med blokkerende konflikter.
+3. Treff, fremheving og spørsmål med bekreftelse av fakta.
+4. CV-redigering, kontroller, versjoner og godkjenning.
+5. Vurdering.
+6. Brev.
+7. Innganger fra muligheter og leads.
+8. Klienttester per steg mot ekte kontrakt.
+
+## Motkontroll av fire risikoer
+- **Oppdiktet erfaring**
+  - UI-tiltak: dokumentene viser bare påstander med belegg eller bekreftet egenopplysning. Appen foreslår aldri tall, og utkast merkes som KI-generert.
+  - Krav til Codex: kontrollen avviser påstander uten belegg, også i låst tekst.
+  - Klienttest: en påstand uten belegg i en låst blokk viser feil, og godkjenning er sperret.
+- **Uregistrert erfaring blir oversett**
+  - UI-tiltak: «Uavklart» er en egen liste, aldri «gap». Spørsmål 3 og «Legg til» på fremhevingskortet fanger opp det som mangler i profilen.
+  - Krav til Codex: `matchStatus=unresolved` brukes som standard, og `user_declared_gap` settes bare når brukeren selv har oppgitt det.
+  - Klienttest: et krav uten treff vises som uavklart, aldri som gap.
+- **Feil eller utløpt sertifikat**
+  - UI-tiltak: klasse, utsteder og utløp vises med varsel om at sertifikatet er utløpt. Appen påstår aldri fornyelse uten belegg.
+  - Krav til Codex: `validity.status` beregnes på serveren, og kontrollen stopper utløpte sertifikater.
+  - Klienttest: et utløpt sertifikat sperrer godkjenning til det er rettet eller utelatt.
+- **Generisk motivasjon**
+  - UI-tiltak: motivasjon er alltid med. Utkastet viser brukerens egne ord som kilde, og appen finner ikke på interesse for kultur eller selskap.
+  - Krav til Codex: motivasjonen genereres bare fra brukerens svar og kildeutdrag. Ved for lite grunnlag returneres «begrenset».
+  - Klienttest: når motivasjon mangler, sperres generering av brevet, og «Utforsk» gir et ærlig begrenset resultat.
+
+## Gjenstående produktvalg (Henrik)
+1. Kan CV-en godkjennes og lastes ned når vurderingen (F8) er gjennomført, men brukeren har valgt å ikke svare på intervjuspørsmålene? Eller må svarene inn først?
+2. Skal fremdriftskortet på søknaden vise de fem fasene eller bare neste handling?
+3. Skal «Lagre bekreftet fakta i karriereprofilen» være forhåndsvalgt for nye resultater, eller skal brukeren alltid velge aktivt? Forslag: alltid aktivt valg.
+4. Hva skal skje med godkjente versjoner når annonsen endres? Skal de bli merket utdatert eller låses?
+5. Skal pakken kunne deles som en kontakt i nettverksarbeidet (kobling til nettverk), eller er det en senere fase?
+
+
+---
+
+# Historikk: v1
+
 # Søknadspakke – frontendvurdering mot 731463d (kun analyse)
 
 Ingen endringer er gjort. Alt under «kontrakt» er ønsket Codex-backend, ikke eksisterende endepunkter.
